@@ -23,6 +23,6 @@ public class IndexController {
 
   @GetMapping("/register_useracc")
   public String register_useracc() {
-    return "";
+    return "register_useracc.html";
   }
 }
