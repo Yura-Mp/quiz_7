@@ -7,28 +7,19 @@ package oit.is.team7.quiz_7.model;
  */
 public class UserAccount {
   // schema.sql にデータの意味を記載．
-  String userId;
+
+  int id;
   String userName;
   String pass;
+  String roles;
   boolean available;
 
-  public UserAccount() {
-
+  public int getId() {
+    return id;
   }
 
-  public UserAccount(String userId, String userName, String pass, boolean available) {
-    this.userId = userId;
-    this.userName = userName;
-    this.pass = pass;
-    this.available = available;
-  }
-
-  public String getUserId() {
-    return userId;
-  }
-
-  public void setUserId(String userId) {
-    this.userId = userId;
+  public void setId(int id) {
+    this.id = id;
   }
 
   public String getUserName() {
@@ -47,6 +38,14 @@ public class UserAccount {
     this.pass = pass;
   }
 
+  public String getRoles() {
+    return roles;
+  }
+
+  public void setRoles(String roles) {
+    this.roles = roles;
+  }
+
   public boolean isAvailable() {
     return available;
   }
@@ -54,4 +53,5 @@ public class UserAccount {
   public void setAvailable(boolean available) {
     this.available = available;
   }
+
 }
