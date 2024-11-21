@@ -33,6 +33,11 @@ public class IndexController {
     return "";
   }
 
+  @GetMapping("/login")
+  public String login() {
+    return "login.html";
+  }
+
   @GetMapping("/register_useracc")
   public String register_useracc() {
     return "register_useracc.html";
