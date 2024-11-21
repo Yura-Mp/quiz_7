@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Quiz_7</title>
+  <title>Quiz_7/新規ユーザ登録</title>
   <style>
     body {
       height: 100vh;
@@ -89,8 +89,17 @@
     </header>
 
     <div class="links-section">
-      <a href="/login">ログイン</a><br />
-      <a href="/register_useracc">新規ユーザ登録</a>
+      <div th:if="${result}">[[${result}]]
+      </div>
+      <form th:action="@{register_useracc/send}" method="post">
+        <label for="username">ユーザ名:</label><br>
+        <input type="text" name="username" required><br>
+        <label for="password">パスワード:</label><br>
+        <input type="password" name="password" required><br>
+        <button type="submit">認証</button>
+      </form>
+      <br>
+      <a href="/index.html" class="button">戻る</a>
     </div>
   </div>
 </body>
