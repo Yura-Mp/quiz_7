@@ -1,9 +1,12 @@
 package oit.is.team7.quiz_7.controller;
 
+import java.util.ArrayList;
+
 // import org.h2.engine.User;
 import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,11 +46,11 @@ public class IndexController {
     return "register_useracc.html";
   }
 
+  @Transactional
   @PostMapping("/register_useracc/send")
   public String register_useracc_send(@RequestParam String username, @RequestParam String password, ModelMap model) {
-    System.out.println("called register_useracc");
     // validate username and password
-    UserAccount userAccount = userAccountMapper.selectByUsername(username);
+    UserAccount userAccount = userAccountMapper.selectUserAccountByUsername(username);
     if (userAccount != null) {
       model.addAttribute("result", "Username already exists.");
       return "register_useracc.html";
@@ -56,8 +59,17 @@ public class IndexController {
     UserAccount newUserAccount = new UserAccount();
     newUserAccount.setUserName(username);
     newUserAccount.setPass(password);
-    newUserAccount.setRoles("USER");
+    ArrayList<String> roles = new ArrayList<>();
+    roles.add("USER");
+    newUserAccount.setRoles(roles);
+
     userAccountMapper.insertUserAccount(newUserAccount);
+    newUserAccount = userAccountMapper.selectUserAccountByUsername(username);
+    int id = newUserAccount.getId();
+    for (String role : roles) {
+      userAccountMapper.insertUserRole(id, role);
+    }
+
     model.addAttribute("result", "User account created successfully.");
     return "register_useracc.html";
   }

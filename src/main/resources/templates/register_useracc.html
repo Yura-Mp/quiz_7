@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
   <meta charset="utf-8">
@@ -91,7 +91,7 @@
     <div class="links-section">
       <div th:if="${result}">[[${result}]]
       </div>
-      <form th:action="@{register_useracc/send}" method="post">
+      <form th:action="@{/register_useracc/send}" method="post">
         <label for="username">ユーザ名:</label><br>
         <input type="text" name="username" required><br>
         <label for="password">パスワード:</label><br>

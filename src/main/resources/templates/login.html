@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
 
 <head>
   <meta charset="utf-8">
-  <title>Quiz_7/新規ユーザ登録</title>
+  <title>Quiz_7/ログイン</title>
   <style>
     body {
       height: 100vh;
@@ -89,9 +89,12 @@
     </header>
 
     <div class="links-section">
-      <div th:if="${result}">[[${result}]]
+      <div th:if="${result}">[[${result}]]</div>
+      <div th:if="${session[SPRING_SECURITY_LAST_EXCEPTION]}">
+        <span th:text="${session[SPRING_SECURITY_LAST_EXCEPTION].message}"></span>
       </div>
-      <form th:action="@{register_useracc/send}" method="post">
+
+      <form th:action="@{/login}" method="post">
         <label for="username">ユーザ名:</label><br>
         <input type="text" name="username" required><br>
         <label for="password">パスワード:</label><br>

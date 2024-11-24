@@ -1,5 +1,7 @@
 package oit.is.team7.quiz_7.model;
 
+import java.util.ArrayList;
+
 /**
  * @class public class UserAccount
  * @author Yura-Mp (e1b22079)
@@ -11,8 +13,8 @@ public class UserAccount {
   int id;
   String userName;
   String pass;
-  String roles;
   boolean available;
+  ArrayList<String> roles;
 
   public int getId() {
     return id;
@@ -38,14 +40,6 @@ public class UserAccount {
     this.pass = pass;
   }
 
-  public String getRoles() {
-    return roles;
-  }
-
-  public void setRoles(String roles) {
-    this.roles = roles;
-  }
-
   public boolean isAvailable() {
     return available;
   }
@@ -54,4 +48,11 @@ public class UserAccount {
     this.available = available;
   }
 
+  public ArrayList<String> getRoles() {
+    return roles;
+  }
+
+  public void setRoles(ArrayList<String> roles) {
+    this.roles = roles;
+  }
 }
