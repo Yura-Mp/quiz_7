@@ -11,6 +11,12 @@ CREATE TABLE IF NOT EXISTS userAccount (
   available BOOLEAN DEFAULT TRUE -- アカウントが利用可能(有効)であるかを示す0/1フラグ．TRUEならば利用可能，FALSEならば利用不可能(アカウント停止)を示す．
 );
 
+CREATE TABLE IF NOT EXISTS roleList (
+  id IDENTITY PRIMARY KEY,
+  roles VARCHAR,
+  UNIQUE(roles)
+);
+
 -- ユーザアカウント役職(roles, authorities)管理テーブル (Author: Yura-Mp)
 /* <Updated: 2024/11/24>
  * 　Spring Securityでは，単一のユーザアカウントに対して複数の役職
@@ -20,6 +26,6 @@ CREATE TABLE IF NOT EXISTS userAccount (
 */
 CREATE TABLE IF NOT EXISTS userRoles (
   id IDENTITY REFERENCES userAccount(id), -- ユーザID．ユーザアカウントデータテーブル(id)を外部キー参照．
-  roles VARCHAR, -- ユーザが属する役職．
+  roles VARCHAR REFERENCES roleList(roles), -- ユーザが属する役職．
   UNIQUE(id, roles) -- 複合主キー(扱い)．
 );
