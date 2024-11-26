@@ -1,3 +1,17 @@
+INSERT INTO roleList (roles)
+  SELECT 'USER'
+  WHERE NOT EXISTS (
+    SELECT 1 FROM roleList
+      WHERE id = (SELECT id FROM roleList WHERE roles = 'USER')
+  );
+
+INSERT INTO roleList (roles)
+  SELECT 'ADMIN'
+  WHERE NOT EXISTS (
+    SELECT 1 FROM roleList
+      WHERE id = (SELECT id FROM roleList WHERE roles = 'ADMIN')
+  );
+
 -- デバッグ用ユーザアカウントのデータ
 -- name: "A", pass: "a"
 INSERT INTO userAccount (userName, pass)
