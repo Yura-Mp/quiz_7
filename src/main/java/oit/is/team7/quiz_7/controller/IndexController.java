@@ -41,6 +41,11 @@ public class IndexController {
     return "login.html";
   }
 
+  @GetMapping("/logout")
+  public String logout() {
+    return "logout.html";
+  }
+
   @GetMapping("/register_useracc")
   public String register_useracc() {
     return "register_useracc.html";

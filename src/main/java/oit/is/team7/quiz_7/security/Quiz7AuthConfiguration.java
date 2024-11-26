@@ -1,6 +1,6 @@
 package oit.is.team7.quiz_7.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 // import org.springframework.security.core.userdetails.User;
 // import org.springframework.security.core.userdetails.UserDetails;
 // import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.core.userdetails.UserDetailsService;
+// import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -32,9 +32,9 @@ public class Quiz7AuthConfiguration {
         // .usernameParameter("username")
         // .passwordParameter("password")
         .permitAll())
-        // .logout(logout -> logout
-        //     .logoutUrl("/logout")
-        //     .logoutSuccessUrl("/")) // ログアウト後に / にリダイレクト
+        .logout(logout -> logout
+            .logoutUrl("/logout")
+            .logoutSuccessUrl("/")) // ログアウト後に / にリダイレクト
         .authorizeHttpRequests(authz -> authz
             .requestMatchers(AntPathRequestMatcher.antMatcher("/main/**"))
             .authenticated()
