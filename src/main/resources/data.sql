@@ -28,4 +28,11 @@ INSERT INTO userRoles (id, roles)
         AND roles = 'ADMIN'
   );
 
+INSERT INTO quizFormatList (quizFormat)
+  SELECT '4choices'
+    WHERE NOT EXISTS (
+      SELECT 1 FROM quizFormatList
+        WHERE quizFormat = '4choices'
+    );
+
 COMMIT;

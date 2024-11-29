@@ -1,0 +1,5 @@
+(Author: Yura-Mp)
+[H2DBのIDENTITY型の指定によって起きること]
+・IDENTITY型指定したカラムが自動的に主キーとなる．
+・実際の型としてBIGINT型が指定される．
+・シーケンスな型(たぶんAUTO_INCREMENT)にされる．
