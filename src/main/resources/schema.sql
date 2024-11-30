@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS roleList (
 
 -- ユーザアカウント役職(roles, authorities)管理テーブル (Author: Yura-Mp)
 /* <Updated: 2024/11/24>
- * 　Spring Securityでは，単一のユーザアカウントに対して複数の役職
+ * Spring Securityでは，単一のユーザアカウントに対して複数の役職
  * (roles, authorities) に属し得ることを想定しているため，ユーザアカウントと役職とを
  * 多対多関連で対としたテーブルを組み込む．
  * この事実により，当初のDBスキーマから要所において変更が成されている．

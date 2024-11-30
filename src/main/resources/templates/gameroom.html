@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Quiz_7/ゲームルーム</title>
+  <link rel="stylesheet" href="/css/origin.css" />
+</head>
+
+<body>
+  <div class="container">
+    <header class="title-section">
+      <h1>ゲームルーム一覧</h1>
+    </header>
+
+    <div class="links-section">
+      <a href="/gameroom/create" class="button">新規作成</a>
+      <!-- マッピングされた gameroomList を表示 -->
+      <ul th:if="${gameroomList}">
+        <li th:each="gameroom : ${gameroomList}">
+          <span th:text="${gameroom.roomName}"></span>
+          <a th:href="@{/gameroom/prepare_open(room=${gameroom.ID})}">公開準備</a>
+          <a th:href="@{/gameroom/delete(room=${gameroom.ID})}">削除</a>
+        </li>
+      </ul>
+      <a href="/main" class="button">戻る</a>
+    </div>
+  </div>
+</body>
+
+</html>

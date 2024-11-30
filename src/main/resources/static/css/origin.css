@@ -72,3 +72,9 @@ h1 {
   background-color: #add8e6;
   color: white;
 }
+
+.links-section ul li a {
+  text-decoration: underline;
+  border: none;
+  margin-left: 10px;
+}

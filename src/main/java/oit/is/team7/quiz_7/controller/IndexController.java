@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import oit.is.team7.quiz_7.model.GameroomMapper;
 import oit.is.team7.quiz_7.model.UserAccount;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.security.Quiz7AuthConfiguration;
@@ -20,15 +21,12 @@ import oit.is.team7.quiz_7.security.Quiz7AuthConfiguration;
 public class IndexController {
   @Autowired
   UserAccountMapper userAccountMapper;
+  @Autowired
+  GameroomMapper gameroomMapper;
 
   @GetMapping("/main")
   public String main_page() {
     return "main.html";
-  }
-
-  @GetMapping("/create_gameroom")
-  public String create_gameroom() {
-    return "";
   }
 
   @GetMapping("/join_gameroom")
@@ -78,4 +76,5 @@ public class IndexController {
     model.addAttribute("result", "User account created successfully.");
     return "register_useracc.html";
   }
+
 }
