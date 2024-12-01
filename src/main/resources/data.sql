@@ -35,4 +35,12 @@ INSERT INTO quizFormatList (quizFormat)
         WHERE quizFormat = '4choices'
     );
 
+INSERT INTO gameroom (hostUserID, roomName, description)
+  SELECT (SELECT id FROM userAccount WHERE userName = 'A'), 'testroom', 'This is a test room.'
+  WHERE NOT EXISTS (
+    SELECT 1 FROM gameroom
+      WHERE hostUserID = (SELECT id FROM userAccount WHERE userName = 'A')
+        AND roomName = 'testroom'
+  );
+
 COMMIT;
