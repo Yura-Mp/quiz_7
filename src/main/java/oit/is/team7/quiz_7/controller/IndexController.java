@@ -55,7 +55,7 @@ public class IndexController {
     // validate username and password
     UserAccount userAccount = userAccountMapper.selectUserAccountByUsername(username);
     if (userAccount != null) {
-      model.addAttribute("result", "Username already exists.");
+      model.addAttribute("error_result", "このユーザネームはすでに存在しています");
       return "register_useracc.html";
     }
     password = Quiz7AuthConfiguration.passwordEncoder().encode(password);
@@ -73,7 +73,7 @@ public class IndexController {
       userAccountMapper.insertUserRole(id, role);
     }
 
-    model.addAttribute("result", "User account created successfully.");
+    model.addAttribute("result", "ユーザアカウントの作成に成功しました");
     return "register_useracc.html";
   }
 
