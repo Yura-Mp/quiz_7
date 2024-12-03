@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <title>Quiz_7/新規ユーザ登録</title>
   <link rel="stylesheet" href="/css/origin.css" />
+  <link rel="stylesheet" href="/css/login.css" />
 </head>
 
 <body>
@@ -14,6 +15,11 @@
     </header>
 
     <div class="links-section">
+      <h2>アカウント登録</h2>
+      <hr>
+
+      <div th:if="${error_result}" class="error-message">[[${error_result}]]
+      </div>
       <div th:if="${result}">[[${result}]]
       </div>
       <form th:action="@{/register_useracc/send}" method="post">
