@@ -1,3 +1,4 @@
+/* 基本のテキストスタイル */
 h3,
 p,
 li {
@@ -19,6 +20,7 @@ a {
   transition: background-color 0.3s ease;
 }
 
+/* 通常の表示をするdisplay、白い背景のinput-form */
 .display,
 .input-form {
   flex: 1;
@@ -44,6 +46,7 @@ a {
   margin: 0 auto 20px auto;
 }
 
+/* 色付きボタン */
 .input-form .colored_button {
   display: block;
   background-color: #add8e6;
@@ -61,6 +64,12 @@ a {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+.input-form .colored_button:hover {
+  background-color: #87ceeb;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* 戻るボタン */
 .input-form .button {
   background-color: #ebebeb;
   color: #2c3e50;
@@ -75,11 +84,6 @@ a {
   text-align: center;
   margin: 0 auto;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.input-form .colored_button:hover {
-  background-color: #87ceeb;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .input-form .button:hover {
