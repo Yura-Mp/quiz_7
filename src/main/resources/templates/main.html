@@ -5,6 +5,41 @@
   <meta charset="utf-8">
   <title>Quiz_7</title>
   <link rel="stylesheet" href="/css/origin.css" />
+  <style>
+    .links-section form {
+      text-decoration: none;
+      color: #333;
+      font-size: 1.2em;
+      padding: 10px;
+      border: 2px solid #333;
+      border-radius: 5px;
+      width: 80%;
+      text-align: center;
+      transition: background-color 0.3s ease;
+    }
+
+    .links-section form:hover,
+    .links-section form input[type="submit"]:hover {
+      background-color: #add8e6;
+      color: #fff;
+    }
+
+    .links-section form input[type="submit"] {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+  </style>
+  <script>
+    function confirmLogout(event) {
+      if (!confirm("ログアウトしますか？")) {
+        event.preventDefault();
+      }
+    }
+  </script>
 </head>
 
 <body>
@@ -16,7 +51,9 @@
     <div class="links-section">
       <a href="/gameroom">ゲームルーム管理</a><br />
       <a href="/join_gameroom">ゲームルーム参加</a><br />
-      <a href="/logout">ログアウト</a><br />
+      <form th:action="@{/logout}" method="post" onsubmit="confirmLogout(event)">
+        <input type="submit" value="ログアウト">
+      </form><br />
     </div>
   </div>
 </body>
