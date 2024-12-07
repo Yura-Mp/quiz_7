@@ -13,7 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import oit.is.team7.quiz_7.model.Gameroom;
 import oit.is.team7.quiz_7.model.GameroomMapper;
+import oit.is.team7.quiz_7.model.QuizTable;
+import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
+import oit.is.team7.quiz_7.model.HasQuiz;
+import oit.is.team7.quiz_7.model.HasQuizMapper;
 
 @Controller
 @RequestMapping("/gameroom")
@@ -22,6 +26,11 @@ public class GameroomController {
   UserAccountMapper userAccountMapper;
   @Autowired
   GameroomMapper gameroomMapper;
+  @Autowired
+  HasQuizMapper hasQuizMapper;
+
+  @Autowired
+  QuizTableMapper quizTableMapper;
 
   @GetMapping
   public String gameroom(Principal principal, ModelMap model) {
@@ -43,7 +52,21 @@ public class GameroomController {
 
   @GetMapping("/delete")
   public String delete_gameroom(@RequestParam("room") int roomID, ModelMap model) {
-    return "";
+    model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID));
+    ArrayList<HasQuiz> quizIDList = hasQuizMapper.selectHasQuizByRoomID(roomID);
+    ArrayList<QuizTable> quizList = new ArrayList<QuizTable>();
+    for (HasQuiz hasQuiz : quizIDList) {
+      quizList.add(quizTableMapper.selectQuizTableByID(hasQuiz.getQuizID()));
+    }
+    model.addAttribute("quizList", quizList);
+    return "delete_gameroom.html";
+  }
+
+  @GetMapping("/delete/confirm")
+  public String delete_gameroom_confirm(@RequestParam("room") int roomID, ModelMap model) {
+    hasQuizMapper.deleteHasQuizByRoomID(roomID);
+    gameroomMapper.deleteGameroomByID(roomID);
+    return "redirect:/gameroom";
   }
 
 }
