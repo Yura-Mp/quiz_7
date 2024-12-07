@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -31,9 +32,15 @@ public class GameroomController {
     return "gameroom.html";
   }
 
-  @GetMapping("/create")
-  public String create_gameroom() {
-    return "";
+  @GetMapping("create")
+  public String get_create_gameroom() {
+    return "gameroom/create.html";
+  }
+
+  @PostMapping("create")
+  public String post_create_gameroom(@RequestParam String game_room_name, @RequestParam String description,
+      Principal principal, ModelMap model) {
+    return "gameroom/create.html";
   }
 
   @GetMapping("/prepare_open")
