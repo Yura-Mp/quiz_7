@@ -2,6 +2,7 @@ package oit.is.team7.quiz_7.model;
 
 import java.util.ArrayList;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -26,4 +27,6 @@ public interface GameroomMapper {
   @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
   void insertGameroom(Gameroom gameroom);
 
+  @Delete("DELETE FROM gameroom WHERE ID = #{ID}")
+  void deleteGameroomByID(int ID);
 }
