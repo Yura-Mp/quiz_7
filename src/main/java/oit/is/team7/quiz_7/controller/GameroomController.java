@@ -40,7 +40,19 @@ public class GameroomController {
   @PostMapping("create")
   public String post_create_gameroom(@RequestParam String game_room_name, @RequestParam String description,
       Principal principal, ModelMap model) {
-    return "gameroom/create.html";
+    int hostId = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
+    Gameroom gameroom = gameroomMapper.selectGameroomByHostAndName(hostId, game_room_name);
+    if (gameroom != null) {
+      model.addAttribute("error_result", "既に同名のゲームルームが存在しています");
+      return "gameroom/create_result.html";
+    }
+    Gameroom newGameroom = new Gameroom();
+    newGameroom.setHostUserID(hostId);
+    newGameroom.setRoomName(game_room_name);
+    newGameroom.setDescription(description);
+    gameroomMapper.insertGameroom(newGameroom);
+    model.addAttribute("result", "新規のゲームルームを作成しました");
+    return "gameroom/create_result.html";
   }
 
   @GetMapping("/prepare_open")

@@ -1,18 +1,18 @@
 package oit.is.team7.quiz_7.model;
 
 public class Gameroom {
-  int ID;
+  int id;
   int hostUserID;
   String roomName;
   String description;
   boolean published;
 
   public int getID() {
-    return ID;
+    return id;
   }
 
-  public void setID(int iD) {
-    ID = iD;
+  public void setID(int id) {
+    this.id = id;
   }
 
   public int getHostUserID() {
