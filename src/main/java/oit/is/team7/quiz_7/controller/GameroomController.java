@@ -38,7 +38,7 @@ public class GameroomController {
     int userId = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
     ArrayList<Gameroom> gameroomList = gameroomMapper.selectGameroomByHostUserID(userId);
     model.addAttribute("gameroomList", gameroomList);
-    return "gameroom.html";
+    return "gameroom/gameroom.html";
   }
 
   @GetMapping("create")
@@ -78,7 +78,7 @@ public class GameroomController {
       quizList.add(quizTableMapper.selectQuizTableByID(hasQuiz.getQuizID()));
     }
     model.addAttribute("quizList", quizList);
-    return "delete_gameroom.html";
+    return "gameroom/delete_gameroom.html";
   }
 
   @GetMapping("/delete/confirm")
