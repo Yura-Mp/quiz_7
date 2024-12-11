@@ -20,14 +20,14 @@
       <hr>
 
       <form th:action="@{create}" method="post">
-        <label for="game_room_name">ゲームルーム名:</label><br>
-        <input type="text" name="game_room_name" required><br>
+        <label for="roomName">ゲームルーム名:</label><br>
+        <input type="text" name="roomName" required><br>
         <label for="description">説明入力欄:</label><br>
         <textarea name="description" cols="30" rows="5"></textarea><br>
         <button type="submit">作成</button>
       </form>
       <br>
-      <a href="../gameroom" class="button">戻る</a>
+      <a href="/gameroom" class="button">戻る</a>
     </div>
   </div>
 </body>
