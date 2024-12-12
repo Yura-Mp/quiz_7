@@ -29,7 +29,6 @@ public class GameroomController {
   GameroomMapper gameroomMapper;
   @Autowired
   HasQuizMapper hasQuizMapper;
-
   @Autowired
   QuizTableMapper quizTableMapper;
 
@@ -41,26 +40,27 @@ public class GameroomController {
     return "gameroom/gameroom.html";
   }
 
-  @GetMapping("create")
+  @GetMapping("/create")
   public String get_create_gameroom() {
     return "gameroom/create.html";
   }
 
-  @PostMapping("create")
-  public String post_create_gameroom(@RequestParam String game_room_name, @RequestParam String description,
+  @PostMapping("/create")
+  public String post_create_gameroom(@RequestParam String roomName, @RequestParam String description,
       Principal principal, ModelMap model) {
     int hostId = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
-    Gameroom gameroom = gameroomMapper.selectGameroomByHostAndName(hostId, game_room_name);
+    Gameroom gameroom = gameroomMapper.selectGameroomByHostAndName(hostId, roomName);
     if (gameroom != null) {
       model.addAttribute("error_result", "既に同名のゲームルームが存在しています");
       return "gameroom/create_result.html";
     }
     Gameroom newGameroom = new Gameroom();
     newGameroom.setHostUserID(hostId);
-    newGameroom.setRoomName(game_room_name);
+    newGameroom.setRoomName(roomName);
     newGameroom.setDescription(description);
     gameroomMapper.insertGameroom(newGameroom);
     model.addAttribute("result", "新規のゲームルームを作成しました");
+    model.addAttribute("gameroom", gameroomMapper.selectGameroomByHostAndName(hostId, roomName));
     return "gameroom/create_result.html";
   }
 
@@ -86,6 +86,18 @@ public class GameroomController {
     hasQuizMapper.deleteHasQuizByRoomID(roomID);
     gameroomMapper.deleteGameroomByID(roomID);
     return "redirect:/gameroom";
+  }
+
+  @GetMapping("/register_quiz")
+  public String register_quiz(@RequestParam("room") int roomID, ModelMap model) {
+    model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID));
+    ArrayList<HasQuiz> quizIDList = hasQuizMapper.selectHasQuizByRoomID(roomID);
+    ArrayList<QuizTable> quizList = new ArrayList<QuizTable>();
+    for (HasQuiz hasQuiz : quizIDList) {
+      quizList.add(quizTableMapper.selectQuizTableByID(hasQuiz.getQuizID()));
+    }
+    model.addAttribute("quizList", quizList);
+    return "gameroom/register_quiz.html";
   }
 
 }

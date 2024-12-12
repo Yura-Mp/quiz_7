@@ -23,7 +23,7 @@
       <div th:if="${result}">[[${result}]]
       </div><br>
       <div th:if="${error_result == null}">
-        <a href="/gameroom/register_quiz">問題登録</a>
+        <a th:href="@{/gameroom/register_quiz(room=${gameroom.ID})}">問題登録</a>
       </div><br>
       <a href="/gameroom" class="button">戻る</a>
     </div>

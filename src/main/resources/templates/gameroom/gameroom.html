@@ -20,6 +20,7 @@
         <li th:each="gameroom : ${gameroomList}">
           <span th:text="${gameroom.roomName}"></span>
           <a th:href="@{/gameroom/prepare_open(room=${gameroom.ID})}">公開準備</a>
+          <a th:href="@{/gameroom/register_quiz(room=${gameroom.ID})}">問題登録</a>
           <a th:href="@{/gameroom/delete(room=${gameroom.ID})}">削除</a>
         </li>
       </ul>

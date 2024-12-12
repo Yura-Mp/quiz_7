@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Quiz_7/ゲームルーム削除</title>
+  <title>Quiz_7/問題登録</title>
   <link rel="stylesheet" href="/css/origin.css" />
   <link rel="stylesheet" href="/css/delete.css" />
 </head>
@@ -23,10 +23,8 @@
       </ul>
     </div>
 
-    <div class="input-form">
-      <h3>このゲームルームを削除しますか？</h3>
-      <hr />
-      <a th:href="@{/gameroom/delete/confirm(room=${gameroom.ID})}" class="colored_button">削除</a><br />
+    <div class="links-section">
+      <a th:href="@{/gameroom/edit_quiz(room=${gameroom.ID})}">問題作成</a><br />
       <a href="/gameroom" class="button">戻る</a>
     </div>
   </div>
