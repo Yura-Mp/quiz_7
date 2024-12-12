@@ -56,7 +56,8 @@ h1 {
 }
 
 /* リンクスタイル */
-.links-section a {
+.links-section a,
+.links-section button {
   text-decoration: none;
   color: #333;
   font-size: 1.2em;
@@ -66,9 +67,11 @@ h1 {
   width: 80%;
   text-align: center;
   transition: background-color 0.3s ease;
+  background: transparent;
 }
 
-.links-section a:hover {
+.links-section a:hover,
+.links-section button:hover {
   background-color: #add8e6;
   color: white;
 }

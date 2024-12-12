@@ -4,7 +4,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
-// import org.h2.engine.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +18,7 @@ import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.model.HasQuiz;
 import oit.is.team7.quiz_7.model.HasQuizMapper;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 @RequestMapping("/gameroom")
@@ -100,4 +100,19 @@ public class GameroomController {
     return "gameroom/register_quiz.html";
   }
 
+  @GetMapping("/edit_quiz")
+  public String get_edit_quiz(@RequestParam("room") int roomID, ModelMap model) {
+    model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID)); // 編集対象のゲームルームの情報を追加
+
+    return "gameroom/edit_quiz.html";
+  }
+
+  @PostMapping("/edit_quiz")
+  public String postMethodName(@RequestParam("room") int roomID, @RequestParam String title,
+      @RequestParam String description, @RequestParam int correct_num, @RequestParam String choice1,
+      @RequestParam String choice2, @RequestParam String choice3, @RequestParam String choice4, ModelMap model) {
+    model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID)); // 編集対象のゲームルームの情報を追加
+
+    return "gameroom/edit_quiz.html";
+  }
 }
