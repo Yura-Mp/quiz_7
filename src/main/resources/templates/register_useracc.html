@@ -4,8 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>Quiz_7/新規ユーザ登録</title>
-  <link rel="stylesheet" href="/css/origin.css" />
-  <link rel="stylesheet" href="/css/login.css" />
+  <link rel="stylesheet" href="/css/newOrigin.css" />
 </head>
 
 <body>
@@ -14,23 +13,21 @@
       <h1>Quiz_7（仮）</h1>
     </header>
 
-    <div class="links-section">
+    <div class="input-form">
       <h2>アカウント登録</h2>
       <hr>
 
-      <div th:if="${error_result}" class="error-message">[[${error_result}]]
-      </div>
-      <div th:if="${result}">[[${result}]]
-      </div>
+      <div th:if="${error_result}" th:text="${error_result}" class="error-message" />
+      <div th:if="${result}" th:text="${result}" />
       <form th:action="@{/register_useracc/send}" method="post">
         <label for="username">ユーザ名:</label><br>
         <input type="text" name="username" required><br>
         <label for="password">パスワード:</label><br>
         <input type="password" name="password" required><br>
-        <button type="submit">登録</button>
+        <button type="submit" class="colored_button">登録</button>
       </form>
       <br>
-      <a href="/" class="button">戻る</a>
+      <a href="./" class="button">戻る</a>
     </div>
   </div>
 </body>

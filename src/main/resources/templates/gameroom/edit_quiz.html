@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>Quiz_7/問題作成</title>
-  <link rel="stylesheet" href="/css/origin.css" />
+  <link rel="stylesheet" href="/css/newOrigin.css" />
 </head>
 
 <body>
@@ -12,34 +12,34 @@
     <div class="display">
       <h2>ゲームルーム: <u>[[${gameroom.roomName}]]</u> の問題作成</h2>
 
-      <label for="quizFormat">出題形式: </label>
-      <select name="quizFormat" disabled>
-        <option value="4choices" selected>4択クイズ</option>
-      </select>
-      <hr />
+      <div class="scroll-full">
+        <label for="quizFormat">出題形式: </label>
+        <select name="quizFormat" disabled>
+          <option value="4choices" selected>4択クイズ</option>
+        </select>
 
-      <form th:action="@{edit_quiz(room=${gameroom.ID})}" method="post" id="edit_quiz">
-        <label for="title">問題タイトル: </label><br />
-        <input type="text" name="title" size="64" /><br />
-        <label for="description">問題文: </label><br />
-        <textarea name="description" cols="40" rows="6"></textarea><br />
-        <label for="correct_num">正解選択肢: </label>
-        <select name="correct_num" required>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select><br />
-        <span>選択肢内容: </span><br />
-        <label for="choice1">選択肢1: </label>
-        <input type="text" name="choice1" size="20" /><br />
-        <label for="choice2">選択肢2: </label>
-        <input type="text" name="choice2" size="20" /><br />
-        <label for="choice3">選択肢3: </label>
-        <input type="text" name="choice3" size="20" /><br />
-        <label for="choice4">選択肢4: </label>
-        <input type="text" name="choice4" size="20" /><br />
-      </form>
+        <form th:action="@{edit_quiz(room=${gameroom.ID})}" method="post" id="edit_quiz">
+          <label for="title">問題タイトル: </label><br />
+          <input type="text" name="title" size="64" /><br />
+          <label for="description">問題文: </label><br />
+          <textarea name="description" cols="60" rows="6"></textarea><br />
+          <label for="correct_num">正解選択肢: </label>
+          <select name="correct_num" required>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select><br />
+          <label for="choice1">選択肢1: </label>
+          <input type="text" name="choice1" size="20" /><br />
+          <label for="choice2">選択肢2: </label>
+          <input type="text" name="choice2" size="20" /><br />
+          <label for="choice3">選択肢3: </label>
+          <input type="text" name="choice3" size="20" /><br />
+          <label for="choice4">選択肢4: </label>
+          <input type="text" name="choice4" size="20" /><br />
+        </form>
+      </div>
     </div>
 
     <div class="links-section">
