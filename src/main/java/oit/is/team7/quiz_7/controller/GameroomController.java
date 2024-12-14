@@ -11,14 +11,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import oit.is.team7.quiz_7.model.Gameroom;
 import oit.is.team7.quiz_7.model.GameroomMapper;
+import oit.is.team7.quiz_7.model.HasQuiz;
+import oit.is.team7.quiz_7.model.HasQuizMapper;
+import oit.is.team7.quiz_7.model.QuizFormatListMapper;
+import oit.is.team7.quiz_7.model.QuizJson;
 import oit.is.team7.quiz_7.model.QuizTable;
 import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
-import oit.is.team7.quiz_7.model.HasQuiz;
-import oit.is.team7.quiz_7.model.HasQuizMapper;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 @RequestMapping("/gameroom")
@@ -31,6 +35,8 @@ public class GameroomController {
   HasQuizMapper hasQuizMapper;
   @Autowired
   QuizTableMapper quizTableMapper;
+  @Autowired
+  QuizFormatListMapper quizFormatListMapper;
 
   @GetMapping
   public String gameroom(Principal principal, ModelMap model) {
@@ -108,11 +114,48 @@ public class GameroomController {
   }
 
   @PostMapping("/edit_quiz")
-  public String postMethodName(@RequestParam("room") int roomID, @RequestParam String title,
+  public String post_edit_quiz(@RequestParam("room") int roomID, @RequestParam String title,
       @RequestParam String description, @RequestParam int correct_num, @RequestParam String choice1,
-      @RequestParam String choice2, @RequestParam String choice3, @RequestParam String choice4, ModelMap model) {
-    model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID)); // 編集対象のゲームルームの情報を追加
+      @RequestParam String choice2, @RequestParam String choice3, @RequestParam String choice4,
+      Principal principal, ModelMap model) throws JsonProcessingException {
 
+    QuizJson quizJson = new QuizJson();
+    quizJson.correct = correct_num;
+    quizJson.choices = new String[] { choice1, choice2, choice3, choice4 };
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID)); // 編集対象のゲームルームの情報を追加
+    String[] fields = { title, description, choice1, choice2, choice3, choice4 };
+    for (String field : fields) {
+      if (field == null || field.trim().isEmpty()) {
+        model.addAttribute("error_result", "【失敗】空白の項目が存在します");
+        return "gameroom/edit_quiz.html";
+      }
+    }
+
+    int hostId = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
+    int formatId = quizFormatListMapper.selectQuizFormatByFormat("4choices").getId();
+    String jsonStr = objectMapper.writeValueAsString(quizJson);
+    QuizTable newQuizTable = new QuizTable();
+    newQuizTable.setQuizFormatID(formatId);
+    newQuizTable.setAuthorID(hostId);
+    newQuizTable.setTitle(title);
+    newQuizTable.setDescription(description);
+    newQuizTable.setQuizJSON(jsonStr);
+    quizTableMapper.insertQuizTable(newQuizTable);
+
+    HasQuiz latestHasQuiz = hasQuizMapper.maxIndexByRoomID(roomID);
+    HasQuiz newHasQuiz = new HasQuiz();
+    newHasQuiz.setRoomID(roomID);
+    newHasQuiz.setQuizID(newQuizTable.getID());
+    if (latestHasQuiz != null) {
+      newHasQuiz.setIndex(latestHasQuiz.getIndex() + 1);
+    } else {
+      newHasQuiz.setIndex(1);
+    }
+    hasQuizMapper.insertHasQuiz(newHasQuiz);
+
+    model.addAttribute("result", "【成功】問題を作成しました");
     return "gameroom/edit_quiz.html";
   }
 }
