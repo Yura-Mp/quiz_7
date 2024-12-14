@@ -24,6 +24,16 @@ public class IndexController {
   @Autowired
   GameroomMapper gameroomMapper;
 
+  @GetMapping("/")
+  public String index_page() {
+      return "index.html";
+  }
+
+  // @GetMapping("/index.html")
+  // public String index_page_old() {
+  //     return "index.html";
+  // }
+
   @GetMapping("/main")
   public String main_page() {
     return "main.html";
