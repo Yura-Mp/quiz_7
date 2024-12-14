@@ -36,10 +36,14 @@ public class Quiz7AuthConfiguration {
             .logoutUrl("/logout")
             .logoutSuccessUrl("/")) // ログアウト後に / にリダイレクト
         .authorizeHttpRequests(authz -> authz
-            .requestMatchers(AntPathRequestMatcher.antMatcher("/main/**"))
-            .authenticated()
-            .requestMatchers(AntPathRequestMatcher.antMatcher("/**"))
-            .permitAll())// 全員アクセス可能
+            .requestMatchers(
+              "/", "/login", "/register_useracc", "/css/**"
+            ).permitAll()
+
+            .requestMatchers("/h2-console/*").permitAll() // 一時的開発用に全許可
+
+            .anyRequest().authenticated()
+            ) // 上記URL以外アカウント認証必要
         .csrf(csrf -> csrf
             .ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/*")))// h2-console用にCSRF対策を無効化
         .headers(headers -> headers
