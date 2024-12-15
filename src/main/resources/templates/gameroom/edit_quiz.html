@@ -4,7 +4,11 @@
 <head>
   <meta charset="utf-8">
   <title>Quiz_7/問題作成</title>
+  <!-- <<<<<<< HEAD  -->
   <link rel="stylesheet" href="/css/newOrigin.css" />
+  <!-- =======
+  <link rel="stylesheet" href="/css/origin.css" />
+  >>>>>>> main -->
 </head>
 
 <body>
@@ -42,9 +46,14 @@
       </div>
     </div>
 
-    <div class="links-section">
-      <button type="submit" form="edit_quiz">問題作成/登録</button>
-      <a th:href="@{./register_quiz(room=${gameroom.ID})}">戻る</a>
+    <div class="input-form">
+      <div th:if="${result == null and error_result == null}" class="message">全項目を入力してください
+      </div>
+      <div th:if="${error_result}" th:text="${error_result}" class="error-message" />
+      <div th:if="${result}" th:text="${result}" class="message" />
+      <hr />
+      <button type="submit" form="edit_quiz" class="colored_button">問題作成/登録</button><br />
+      <a th:href="@{./register_quiz(room=${gameroom.ID})}" class="button">戻る</a>
     </div>
   </div>
 </body>
