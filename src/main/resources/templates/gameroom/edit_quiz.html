@@ -5,6 +5,30 @@
   <meta charset="utf-8">
   <title>Quiz_7/問題作成</title>
   <link rel="stylesheet" href="/css/origin.css" />
+  <style>
+    /* メッセージ表示部分 */
+    .links-section .message,
+    .links-section .normal-message,
+    .links-section .error-message {
+      margin-bottom: 20px;
+      padding: 10px;
+    }
+
+    /* 通常メッセージ表示部分 */
+    .links-section .message,
+    .links-section .normal-message {
+      border: 2px solid #000000;
+      background-color: #f0f0f0;
+    }
+
+    /* エラーメッセージ表示部分 */
+    .links-section .error-message {
+      color: #e74c3c;
+      font-weight: bold;
+      border: 2px solid #e74c3c;
+      background-color: #f8d7da;
+    }
+  </style>
 </head>
 
 <body>
@@ -43,6 +67,12 @@
     </div>
 
     <div class="links-section">
+      <div th:if="${result == null and error_result == null}" class="message">全項目を入力してください
+      </div>
+      <div th:if="${error_result}" class="error-message">[[${error_result}]]
+      </div>
+      <div th:if="${result}" class="normal-message">[[${result}]]
+      </div>
       <button type="submit" form="edit_quiz">問題作成/登録</button>
       <a th:href="@{./register_quiz(room=${gameroom.ID})}">戻る</a>
     </div>
