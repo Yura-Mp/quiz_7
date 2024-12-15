@@ -105,8 +105,18 @@ label {
   margin-bottom: 8px;
 }
 
-input {
+input,
+textarea {
   width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+
+select {
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ccc;

@@ -20,9 +20,9 @@
 
         <form th:action="@{edit_quiz(room=${gameroom.ID})}" method="post" id="edit_quiz">
           <label for="title">問題タイトル: </label><br />
-          <input type="text" name="title" size="64" /><br />
+          <input type="text" name="title" size="50" /><br />
           <label for="description">問題文: </label><br />
-          <textarea name="description" cols="60" rows="6"></textarea><br />
+          <textarea name="description" cols="60" rows="4"></textarea><br />
           <label for="correct_num">正解選択肢: </label>
           <select name="correct_num" required>
             <option value="1">1</option>
