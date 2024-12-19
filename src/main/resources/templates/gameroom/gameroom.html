@@ -5,7 +5,6 @@
   <meta charset="utf-8">
   <title>Quiz_7/ゲームルーム</title>
   <link rel="stylesheet" href="/css/origin.css" />
-  <link rel="stylesheet" href="/css/delete.css" />
 </head>
 
 <body>
@@ -13,21 +12,21 @@
     <div class="display">
       <h3>ゲームルーム一覧</h3>
       <!-- マッピングされた gameroomList を表示 -->
-      <div class="scroll">
-      <table th:if="${gameroomList}">
-        <tr th:each="gameroom : ${gameroomList}">
-          <td th:text="${gameroom.roomName}"></td>
-          <td><a th:href="@{/gameroom/prepare_open(room=${gameroom.ID})}">公開準備</a></td>
-          <td><a th:href="@{/gameroom/register_quiz(room=${gameroom.ID})}">問題登録</a></td>
-          <td><a th:href="@{/gameroom/delete(room=${gameroom.ID})}">削除</a></td>
-        </tr>
-      </table>
+      <div class="scroll-half">
+        <table th:if="${gameroomList}">
+          <tr th:each="gameroom : ${gameroomList}">
+            <td th:text="${gameroom.roomName}"></td>
+            <td><a th:href="@{/gameroom/prepare_open(room=${gameroom.ID})}">公開準備</a></td>
+            <td><a th:href="@{/gameroom/register_quiz(room=${gameroom.ID})}">問題登録</a></td>
+            <td><a th:href="@{/gameroom/delete(room=${gameroom.ID})}">削除</a></td>
+          </tr>
+        </table>
       </div>
     </div>
 
     <div class="links-section">
-      <a href="/gameroom/create" class="button">新規作成</a>
-      <a href="/main" class="button">戻る</a>
+      <a href="../gameroom/create">新規作成</a>
+      <a href="../main">戻る</a>
     </div>
   </div>
 </body>

@@ -5,7 +5,6 @@
   <meta charset="utf-8">
   <title>Quiz_7/ゲームルーム新規作成</title>
   <link rel="stylesheet" href="/css/origin.css" />
-  <link rel="stylesheet" href="/css/login.css" />
 </head>
 
 <body>
@@ -14,9 +13,8 @@
       <h1>Quiz_7（仮）</h1>
     </header>
 
-    <div class="links-section">
+    <div class="input-form">
       <h2>ゲームルーム新規作成</h2>
-      <p>新しくゲームルームを作成します</p>
       <hr>
 
       <form th:action="@{create}" method="post">
@@ -24,10 +22,10 @@
         <input type="text" name="roomName" required><br>
         <label for="description">説明入力欄:</label><br>
         <textarea name="description" cols="30" rows="5"></textarea><br>
-        <button type="submit">作成</button>
+        <button type="submit" class="colored_button">作成</button>
       </form>
       <br>
-      <a href="/gameroom" class="button">戻る</a>
+      <a href="../gameroom" class="button">戻る</a>
     </div>
   </div>
 </body>

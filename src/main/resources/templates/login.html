@@ -5,7 +5,6 @@
   <meta charset="utf-8">
   <title>Quiz_7/ログイン</title>
   <link rel="stylesheet" href="/css/origin.css" />
-  <link rel="stylesheet" href="/css/login.css" />
 </head>
 
 <body>
@@ -14,24 +13,22 @@
       <h1>Quiz_7（仮）</h1>
     </header>
 
-    <div class="links-section">
+    <div class="input-form">
       <h2>ログイン</h2>
       <hr>
 
-      <div th:if="${result}" class="error-message">[[${result}]]</div>
-      <div th:if="${session[SPRING_SECURITY_LAST_EXCEPTION]}" class="error-message">
-        <span th:text="${session[SPRING_SECURITY_LAST_EXCEPTION].message}"></span>
-      </div>
+      <div th:if="${session[SPRING_SECURITY_LAST_EXCEPTION]}"
+        th:text="${session[SPRING_SECURITY_LAST_EXCEPTION].message}" class="error-message" />
 
       <form th:action="@{/login}" method="post">
         <label for="username">ユーザ名:</label><br>
         <input type="text" name="username" required><br>
         <label for="password">パスワード:</label><br>
         <input type="password" name="password" required><br>
-        <button type="submit">認証</button>
+        <button type="submit" class="colored_button">認証</button>
       </form>
       <br>
-      <a href="/" class="button">戻る</a>
+      <a href="./" class="button">戻る</a>
     </div>
   </div>
 </body>
