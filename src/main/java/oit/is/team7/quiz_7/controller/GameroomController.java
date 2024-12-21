@@ -71,7 +71,13 @@ public class GameroomController {
   }
 
   @GetMapping("/prepare_open")
-  public String prepare_open_gameroom(@RequestParam("room") int roomID, ModelMap model) {
+  public String get_prepare_open_gameroom(@RequestParam("room") int roomID, ModelMap model) {
+    model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID));
+    return "gameroom/prepare_open.html";
+  }
+
+  @PostMapping("/prepare_open")
+  public String post_prepare_open_gameroom() {
     return "";
   }
 
