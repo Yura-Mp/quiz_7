@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Quiz_7/公開準備</title>
+  <link rel="stylesheet" href="/css/origin.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="display">
+      <h3>ゲームルーム情報</h3>
+      <p>ルーム名： <span th:text="${gameroom.roomName}"></span></p>
+      <p>ルーム概要： <span th:text="${gameroom.description}"></span></p>
+      <h3>クイズリスト</h3>
+      <ul th:if="${quizList}">
+        <li th:each="quiz : ${quizList}">
+          <span th:text="${quiz.title}"></span>
+        </li>
+      </ul>
+
+      <form th:action="@{/gameroom/prepare_open(room=${gameroom.ID})}" method="post" id="max_players"
+        class="form-inline">
+        <label for="max_players">最大参加人数： </label>
+        <input type="number" name="max_players" size="5" value="50" min="1" max="50" style="width:80px;" required />
+      </form>
+    </div>
+
+    <div class="input-form">
+      <button type="submit" form="max_players" class="colored_button">公開</button><br />
+      <a href="../gameroom" class="button">戻る</a>
+    </div>
+  </div>
+</body>
+
+</html>

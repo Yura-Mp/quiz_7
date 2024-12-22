@@ -250,3 +250,10 @@ select {
   justify-content: space-evenly;
   align-items: center;
 }
+
+/* ラベルと入力欄を横並び */
+.form-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
