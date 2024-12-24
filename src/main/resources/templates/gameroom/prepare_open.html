@@ -28,6 +28,7 @@
     </div>
 
     <div class="input-form">
+      <p th:if="${error_result}" th:text="${error_result}" class="error-message"></p>
       <button type="submit" form="max_players" class="colored_button">公開</button><br />
       <a href="../gameroom" class="button">戻る</a>
     </div>
