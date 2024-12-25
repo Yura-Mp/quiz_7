@@ -2,7 +2,10 @@ package oit.is.team7.quiz_7.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -18,6 +21,8 @@ import oit.is.team7.quiz_7.model.Gameroom;
 import oit.is.team7.quiz_7.model.GameroomMapper;
 import oit.is.team7.quiz_7.model.HasQuiz;
 import oit.is.team7.quiz_7.model.HasQuizMapper;
+import oit.is.team7.quiz_7.model.PGameRoomManager;
+import oit.is.team7.quiz_7.model.PublicGameRoom;
 import oit.is.team7.quiz_7.model.QuizFormatListMapper;
 import oit.is.team7.quiz_7.model.QuizJson;
 import oit.is.team7.quiz_7.model.QuizTable;
@@ -27,6 +32,8 @@ import oit.is.team7.quiz_7.model.UserAccountMapper;
 @Controller
 @RequestMapping("/gameroom")
 public class GameroomController {
+  private final Logger logger = LoggerFactory.getLogger(GameroomController.class);
+
   @Autowired
   UserAccountMapper userAccountMapper;
   @Autowired
@@ -37,6 +44,9 @@ public class GameroomController {
   QuizTableMapper quizTableMapper;
   @Autowired
   QuizFormatListMapper quizFormatListMapper;
+
+  @Autowired
+  PGameRoomManager pGameRoomManager;
 
   @GetMapping
   public String gameroom(Principal principal, ModelMap model) {
@@ -83,8 +93,35 @@ public class GameroomController {
   }
 
   @PostMapping("/prepare_open")
-  public String post_prepare_open_gameroom() {
-    return "";
+  public String post_prepare_open_gameroom(@RequestParam("room") int roomID,
+      @RequestParam("max_players") int max_players, ModelMap model) {
+    Gameroom gameroom = gameroomMapper.selectGameroomByID(roomID);
+    ArrayList<HasQuiz> quizIDList = hasQuizMapper.selectHasQuizByRoomID(roomID);
+    if (quizIDList == null || quizIDList.size() == 0) {
+      logger.error("クイズが登録されていないルームが公開されようとしました");
+      model.addAttribute("gameroom", gameroom);
+      model.addAttribute("error_result", "エラー：このルームにはクイズが登録されていません");
+      return "gameroom/prepare_open.html";
+    }
+    ArrayList<Long> quizPool = new ArrayList<Long>();
+    for (HasQuiz hasQuiz : quizIDList) {
+      quizPool.add((long) hasQuiz.getQuizID());
+    }
+    PublicGameRoom newPublicGameRoom = new PublicGameRoom(roomID, gameroom.getHostUserID(), max_players, quizPool);
+    LinkedHashMap<Long, PublicGameRoom> publicGameRooms = this.pGameRoomManager.getPublicGameRooms();
+    publicGameRooms.put((long) roomID, newPublicGameRoom);
+    this.pGameRoomManager.setPublicGameRooms(publicGameRooms);
+    gameroomMapper.updatePublishedByID(roomID, true);
+    logger.info("PGRManager.publicGameRooms:" + this.pGameRoomManager.getPublicGameRooms());
+
+    return "redirect:/gameroom/standby?room=" + roomID;
+  }
+
+  @GetMapping("/standby")
+  public String standby(@RequestParam("room") int roomID, ModelMap model) {
+    PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    model.addAttribute("publicGameroom", publicGameRoom);
+    return "gameroom/standby.html";
   }
 
   @GetMapping("/delete")
