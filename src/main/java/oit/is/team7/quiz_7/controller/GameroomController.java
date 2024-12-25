@@ -114,7 +114,13 @@ public class GameroomController {
     gameroomMapper.updatePublishedByID(roomID, true);
     logger.info("PGRManager.publicGameRooms:" + this.pGameRoomManager.getPublicGameRooms());
 
-    model.addAttribute("publicGameroom", newPublicGameRoom);
+    return "redirect:/gameroom/standby?room=" + roomID;
+  }
+
+  @GetMapping("/standby")
+  public String standby(@RequestParam("room") int roomID, ModelMap model) {
+    PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    model.addAttribute("publicGameroom", publicGameRoom);
     return "gameroom/standby.html";
   }
 
