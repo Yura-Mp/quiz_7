@@ -1,7 +1,6 @@
 package oit.is.team7.quiz_7.controller;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +10,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import oit.is.team7.quiz_7.model.Gameroom;
+import oit.is.team7.quiz_7.model.GameroomMapper;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 import oit.is.team7.quiz_7.model.PublicGameRoom;
 
@@ -22,13 +23,18 @@ public class PlaygameController {
   @Autowired
   PGameRoomManager pGameRoomManager;
 
+  @Autowired
+  GameroomMapper gameroomMapper;
+
   @GetMapping
   public String playgame(ModelMap model) {
-    Set<Long> roomIDSet = this.pGameRoomManager.getPublicGameRooms().keySet();
+    ArrayList<Gameroom> publicRooms = gameroomMapper.selectGameroomByPublished(true);
     ArrayList<PublicGameRoom> publicGameRoomList = new ArrayList<PublicGameRoom>();
-    for (Long roomID : roomIDSet) {
-      PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get(roomID);
-      publicGameRoomList.add(publicGameRoom);
+    for (Gameroom room : publicRooms) {
+      PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) room.getID());
+      if (publicGameRoom != null) {
+        publicGameRoomList.add(publicGameRoom);
+      }
     }
     model.addAttribute("publicGameroomList", publicGameRoomList);
     logger.info("PGRManager.pgrs:" + this.pGameRoomManager.getPublicGameRooms());
