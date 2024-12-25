@@ -56,7 +56,7 @@ public class GameroomController {
     return "gameroom/gameroom.html";
   }
 
-  @GetMapping("create")
+  @GetMapping("/create")
   public String get_create_gameroom() {
     return "gameroom/create.html";
   }
