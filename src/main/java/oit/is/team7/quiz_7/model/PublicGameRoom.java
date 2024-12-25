@@ -11,14 +11,19 @@ import java.util.LinkedHashMap;
  */
 public class PublicGameRoom {
   private long gameRoomID;
+  private String gameRoomName;
   private long hostUserID;
+  private String hostUserName;
   private LinkedHashMap<Long, GameRoomParticipant> participants;
   private int maxPlayers = 50;
   private ArrayList<Long> quizPool;
 
-  public PublicGameRoom(long gameRoomID, long hostUserID, int maxPlayers, ArrayList<Long> quizPool) {
+  public PublicGameRoom(long gameRoomID, String gameRoomName, long hostUserID, String hostUserName, int maxPlayers,
+      ArrayList<Long> quizPool) {
     this.gameRoomID = gameRoomID;
+    this.gameRoomName = gameRoomName;
     this.hostUserID = hostUserID;
+    this.hostUserName = hostUserName;
     this.participants = new LinkedHashMap<Long, GameRoomParticipant>();
     this.maxPlayers = maxPlayers;
     this.quizPool = quizPool;
@@ -28,8 +33,16 @@ public class PublicGameRoom {
     return gameRoomID;
   }
 
+  public String getGameRoomName() {
+    return gameRoomName;
+  }
+
   public long getHostUserID() {
     return hostUserID;
+  }
+
+  public String getHostUserName() {
+    return hostUserName;
   }
 
   public LinkedHashMap<Long, GameRoomParticipant> getParticipants() {

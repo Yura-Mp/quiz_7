@@ -83,6 +83,7 @@ h3,
 p,
 span,
 li,
+th,
 td,
 option {
   font-family: 'Orbitron', sans-serif;
@@ -123,6 +124,11 @@ select {
   border-radius: 5px;
   font-size: 1em;
   box-sizing: border-box;
+}
+
+th,
+td {
+  padding: 5px;
 }
 
 /* ボタン */

@@ -3,6 +3,7 @@ package oit.is.team7.quiz_7.controller;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 
 @Controller
-@RequestMapping("/gameroom")
+// @RequestMapping("/gameroom")
 public class GameroomController {
   private final Logger logger = LoggerFactory.getLogger(GameroomController.class);
 
@@ -48,7 +49,7 @@ public class GameroomController {
   @Autowired
   PGameRoomManager pGameRoomManager;
 
-  @GetMapping
+  @GetMapping("/gameroom")
   public String gameroom(Principal principal, ModelMap model) {
     int userId = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
     ArrayList<Gameroom> gameroomList = gameroomMapper.selectGameroomByHostUserID(userId);
@@ -56,12 +57,12 @@ public class GameroomController {
     return "gameroom/gameroom.html";
   }
 
-  @GetMapping("/create")
+  @GetMapping("/gameroom/create")
   public String get_create_gameroom() {
     return "gameroom/create.html";
   }
 
-  @PostMapping("/create")
+  @PostMapping("/gameroom/create")
   public String post_create_gameroom(@RequestParam String roomName, @RequestParam String description,
       Principal principal, ModelMap model) {
     int hostId = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
@@ -80,7 +81,7 @@ public class GameroomController {
     return "gameroom/create_result.html";
   }
 
-  @GetMapping("/prepare_open")
+  @GetMapping("/gameroom/prepare_open")
   public String get_prepare_open_gameroom(@RequestParam("room") int roomID, ModelMap model) {
     model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID));
     ArrayList<HasQuiz> quizIDList = hasQuizMapper.selectHasQuizByRoomID(roomID);
@@ -92,10 +93,13 @@ public class GameroomController {
     return "gameroom/prepare_open.html";
   }
 
-  @PostMapping("/prepare_open")
+  @PostMapping("/gameroom/prepare_open")
   public String post_prepare_open_gameroom(@RequestParam("room") int roomID,
       @RequestParam("max_players") int max_players, ModelMap model) {
     Gameroom gameroom = gameroomMapper.selectGameroomByID(roomID);
+    String roomName = gameroom.getRoomName();
+    int hostId = gameroom.getHostUserID();
+    String hostName = userAccountMapper.selectUserAccountById(hostId).getUserName();
     ArrayList<HasQuiz> quizIDList = hasQuizMapper.selectHasQuizByRoomID(roomID);
     if (quizIDList == null || quizIDList.size() == 0) {
       logger.error("クイズが登録されていないルームが公開されようとしました");
@@ -107,7 +111,7 @@ public class GameroomController {
     for (HasQuiz hasQuiz : quizIDList) {
       quizPool.add((long) hasQuiz.getQuizID());
     }
-    PublicGameRoom newPublicGameRoom = new PublicGameRoom(roomID, gameroom.getHostUserID(), max_players, quizPool);
+    PublicGameRoom newPublicGameRoom = new PublicGameRoom(roomID, roomName, hostId, hostName, max_players, quizPool);
     LinkedHashMap<Long, PublicGameRoom> publicGameRooms = this.pGameRoomManager.getPublicGameRooms();
     publicGameRooms.put((long) roomID, newPublicGameRoom);
     this.pGameRoomManager.setPublicGameRooms(publicGameRooms);
@@ -117,14 +121,14 @@ public class GameroomController {
     return "redirect:/gameroom/standby?room=" + roomID;
   }
 
-  @GetMapping("/standby")
+  @GetMapping("/gameroom/standby")
   public String standby(@RequestParam("room") int roomID, ModelMap model) {
     PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) roomID);
     model.addAttribute("publicGameroom", publicGameRoom);
     return "gameroom/standby.html";
   }
 
-  @GetMapping("/delete")
+  @GetMapping("/gameroom/delete")
   public String delete_gameroom(@RequestParam("room") int roomID, ModelMap model) {
     model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID));
     ArrayList<HasQuiz> quizIDList = hasQuizMapper.selectHasQuizByRoomID(roomID);
@@ -136,14 +140,14 @@ public class GameroomController {
     return "gameroom/delete_gameroom.html";
   }
 
-  @GetMapping("/delete/confirm")
+  @GetMapping("/gameroom/delete/confirm")
   public String delete_gameroom_confirm(@RequestParam("room") int roomID, ModelMap model) {
     hasQuizMapper.deleteHasQuizByRoomID(roomID);
     gameroomMapper.deleteGameroomByID(roomID);
     return "redirect:/gameroom";
   }
 
-  @GetMapping("/register_quiz")
+  @GetMapping("/gameroom/register_quiz")
   public String register_quiz(@RequestParam("room") int roomID, ModelMap model) {
     model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID));
     ArrayList<HasQuiz> quizIDList = hasQuizMapper.selectHasQuizByRoomID(roomID);
@@ -155,14 +159,14 @@ public class GameroomController {
     return "gameroom/register_quiz.html";
   }
 
-  @GetMapping("/edit_quiz")
+  @GetMapping("/gameroom/edit_quiz")
   public String get_edit_quiz(@RequestParam("room") int roomID, ModelMap model) {
     model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID)); // 編集対象のゲームルームの情報を追加
 
     return "gameroom/edit_quiz.html";
   }
 
-  @PostMapping("/edit_quiz")
+  @PostMapping("/gameroom/edit_quiz")
   public String post_edit_quiz(@RequestParam("room") int roomID, @RequestParam String title,
       @RequestParam String description, @RequestParam int correct_num, @RequestParam String choice1,
       @RequestParam String choice2, @RequestParam String choice3, @RequestParam String choice4,
@@ -206,5 +210,18 @@ public class GameroomController {
 
     model.addAttribute("result", "【成功】問題を作成しました");
     return "gameroom/edit_quiz.html";
+  }
+
+  @GetMapping("/playgame")
+  public String playgame(ModelMap model) {
+    Set<Long> roomIDSet = this.pGameRoomManager.getPublicGameRooms().keySet();
+    ArrayList<PublicGameRoom> publicGameRoomList = new ArrayList<PublicGameRoom>();
+    for (Long roomID : roomIDSet) {
+      PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get(roomID);
+      publicGameRoomList.add(publicGameRoom);
+    }
+    model.addAttribute("publicGameroomList", publicGameRoomList);
+    logger.info("PGRManager.pgrs:" + this.pGameRoomManager.getPublicGameRooms());
+    return "gameroom/playgame.html";
   }
 }
