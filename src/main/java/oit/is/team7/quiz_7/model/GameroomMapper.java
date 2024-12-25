@@ -20,6 +20,9 @@ public interface GameroomMapper {
   @Select("SELECT * FROM gameroom WHERE hostUserID = #{hostUserID} and roomName = #{roomName}")
   Gameroom selectGameroomByHostAndName(int hostUserID, String roomName);
 
+  @Select("SELECT * FROM gameroom WHERE published = #{published}")
+  ArrayList<Gameroom> selectGameroomByPublished(boolean published);
+
   @Update("UPDATE gameroom SET published = #{published} WHERE id = #{id}")
   void updatePublishedByID(int id, boolean published);
 

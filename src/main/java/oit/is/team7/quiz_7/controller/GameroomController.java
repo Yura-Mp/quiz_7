@@ -96,6 +96,9 @@ public class GameroomController {
   public String post_prepare_open_gameroom(@RequestParam("room") int roomID,
       @RequestParam("max_players") int max_players, ModelMap model) {
     Gameroom gameroom = gameroomMapper.selectGameroomByID(roomID);
+    String roomName = gameroom.getRoomName();
+    int hostId = gameroom.getHostUserID();
+    String hostName = userAccountMapper.selectUserAccountById(hostId).getUserName();
     ArrayList<HasQuiz> quizIDList = hasQuizMapper.selectHasQuizByRoomID(roomID);
     if (quizIDList == null || quizIDList.size() == 0) {
       logger.error("クイズが登録されていないルームが公開されようとしました");
@@ -107,7 +110,7 @@ public class GameroomController {
     for (HasQuiz hasQuiz : quizIDList) {
       quizPool.add((long) hasQuiz.getQuizID());
     }
-    PublicGameRoom newPublicGameRoom = new PublicGameRoom(roomID, gameroom.getHostUserID(), max_players, quizPool);
+    PublicGameRoom newPublicGameRoom = new PublicGameRoom(roomID, roomName, hostId, hostName, max_players, quizPool);
     LinkedHashMap<Long, PublicGameRoom> publicGameRooms = this.pGameRoomManager.getPublicGameRooms();
     publicGameRooms.put((long) roomID, newPublicGameRoom);
     this.pGameRoomManager.setPublicGameRooms(publicGameRooms);
@@ -207,4 +210,5 @@ public class GameroomController {
     model.addAttribute("result", "【成功】問題を作成しました");
     return "gameroom/edit_quiz.html";
   }
+
 }

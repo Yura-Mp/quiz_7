@@ -11,6 +11,9 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface UserAccountMapper {
+  @Select("SELECT * FROM userAccount WHERE id = #{id}")
+  UserAccount selectUserAccountById(int id);
+
   @Select("SELECT * FROM userAccount WHERE username = #{userName}")
   UserAccount selectUserAccountByUsername(String username);
 
