@@ -1,19 +1,24 @@
 package oit.is.team7.quiz_7.controller;
 
+import java.security.Principal;
 import java.util.ArrayList;
 
+import org.apache.ibatis.jdbc.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import oit.is.team7.quiz_7.model.Gameroom;
 import oit.is.team7.quiz_7.model.GameroomMapper;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 import oit.is.team7.quiz_7.model.PublicGameRoom;
+import oit.is.team7.quiz_7.model.PublicGameRoomBean;
 
 @Controller
 @RequestMapping("/playgame")
@@ -38,6 +43,31 @@ public class PlaygameController {
     }
     model.addAttribute("publicGameroomList", publicGameRoomList);
     logger.info("PGRManager.pgrs:" + this.pGameRoomManager.getPublicGameRooms());
-    return "playgame.html";
+    return "playgame/playgame.html";
+  }
+
+  @GetMapping("/join_check")
+  public String getJoinCheck(@RequestParam("room") long roomID, Principal principal, ModelMap model) {
+    PublicGameRoom targetPRoom = this.pGameRoomManager.getPublicGameRooms().get(roomID);
+
+    if(targetPRoom == null) {
+      logger.warn("PlaygameController.getJoinCheck(...): PublicGameRoom #%d is null. ", roomID);
+    }
+
+    PublicGameRoomBean targetPRoomBean = new PublicGameRoomBean();
+    targetPRoomBean.setHostUserName(targetPRoom.getHostUserName());
+    targetPRoomBean.setMaxPlayers(targetPRoom.getMaxPlayers());
+
+    Gameroom targetRoom = gameroomMapper.selectGameroomByID((int)roomID);
+
+    model.addAttribute("pgameroom", targetPRoomBean);
+    model.addAttribute("gameroom", targetRoom);
+    logger.info("PlaygameController.getJoinCheck(...): Called. ");
+    return "playgame/join_check.html";
+  }
+
+  @PostMapping("/join_check")
+  public String postJoinCheck(@RequestParam("room") long roonID) {
+    return "redirect:/playgame/standby";
   }
 }
