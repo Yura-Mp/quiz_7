@@ -106,6 +106,13 @@ label {
   margin-bottom: 8px;
 }
 
+/* ラベルと入力欄を横並び */
+.form-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 input,
 textarea {
   width: 100%;
@@ -257,9 +264,17 @@ td {
   align-items: center;
 }
 
-/* ラベルと入力欄を横並び */
-.form-inline {
+/* iframe 表示用 */
+.iframe-section {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 10px;
+  height: auto;
+}
+
+iframe {
+  width: 360px;
+  height: 100%;
+  border: 2px solid #2c3e50;
+  border-radius: 5px;
 }
