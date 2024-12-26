@@ -3,7 +3,6 @@ package oit.is.team7.quiz_7.controller;
 import java.security.Principal;
 import java.util.ArrayList;
 
-import org.apache.ibatis.jdbc.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
