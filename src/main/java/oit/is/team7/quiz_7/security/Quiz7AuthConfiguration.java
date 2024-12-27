@@ -37,10 +37,10 @@ public class Quiz7AuthConfiguration {
             .logoutSuccessUrl("/")) // ログアウト後に / にリダイレクト
         .authorizeHttpRequests(authz -> authz
             .requestMatchers(
-              "/", "/login", "/register_useracc", "/css/**"
+              "/", "/login", "/register_useracc", "/register_useracc/send", "/css/**", "/js/**"
             ).permitAll()
 
-            .requestMatchers("/h2-console/*").permitAll() // 一時的開発用に全許可
+            .requestMatchers("/h2-console", "/h2-console/*").permitAll() // 一時的開発用に全許可
 
             .anyRequest().authenticated()
             ) // 上記URL以外アカウント認証必要
