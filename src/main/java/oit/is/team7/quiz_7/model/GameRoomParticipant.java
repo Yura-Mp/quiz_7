@@ -13,4 +13,12 @@ public class GameRoomParticipant {
   private boolean answered;
   private double answerTime;
   private AnswerObj answerContent;
+
+  public void setUserID(long userID) {
+    this.userID = userID;
+  }
+
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
 }
