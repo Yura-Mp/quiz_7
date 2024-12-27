@@ -5,17 +5,35 @@
   <meta charset="utf-8">
   <title>Quiz_7/待機</title>
   <link rel="stylesheet" href="/css/origin.css">
+  <script>
+    function confirmBack(event) {
+      if (!confirm("ゲームルームを中止しますか？")) {
+        event.preventDefault();
+      }
+    }
+  </script>
 </head>
 
 <body>
   <div class="container">
     <div class="display">
       <h3>ゲームルーム情報</h3>
-      <p>ルームID: <span th:text="${publicGameroom.gameRoomID}"></span></p>
+      <p>ルーム名： <span th:text="${gameroom.roomName}"></span></p>
+      <p>ルーム概要： <span th:text="${gameroom.description}"></span></p>
+      <p>参加状況： <span th:text="${#maps.size(pgameroom.participants)}"></span> / <span
+          th:text="${pgameroom.maxPlayers}"></span></p>
+      <h3>参加者リスト</h3>
+      <ul th:if="${pgameroom.participants.values().size() > 0}">
+        <li th:each="participant : ${pgameroom.participants.values()}">
+          <span th:text="${participant.userName}"></span>
+        </li>
+      </ul>
+      <p th:if="${pgameroom.participants.values().size() == 0}">現在参加者はいません。</p>
     </div>
 
-    <div class="input-form">
-      <a href="../gameroom" class="button">戻る</a>
+    <div class="links-section">
+      <a th:href="@{/playing/wait(room=${pgameroom.gameRoomID})}">ゲーム開始</a>
+      <a href="../gameroom" onclick="confirmBack(event)">中止</a>
     </div>
   </div>
 </body>

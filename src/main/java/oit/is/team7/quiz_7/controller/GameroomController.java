@@ -122,8 +122,9 @@ public class GameroomController {
 
   @GetMapping("/standby")
   public String standby(@RequestParam("room") int roomID, ModelMap model) {
+    model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID));
     PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) roomID);
-    model.addAttribute("publicGameroom", publicGameRoom);
+    model.addAttribute("pgameroom", publicGameRoom);
     return "gameroom/standby.html";
   }
 
