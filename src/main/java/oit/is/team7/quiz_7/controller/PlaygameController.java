@@ -56,7 +56,7 @@ public class PlaygameController {
   public String getJoinCheck(@RequestParam("room") long roomID, Principal principal, ModelMap model) {
     PublicGameRoom targetPRoom = this.pGameRoomManager.getPublicGameRooms().get(roomID);
 
-    if(targetPRoom == null) {
+    if (targetPRoom == null) {
       logger.warn("PlaygameController.getJoinCheck(...): PublicGameRoom #%d is null. ", roomID);
     }
 
@@ -64,7 +64,7 @@ public class PlaygameController {
     targetPRoomBean.setHostUserName(targetPRoom.getHostUserName());
     targetPRoomBean.setMaxPlayers(targetPRoom.getMaxPlayers());
 
-    Gameroom targetRoom = gameroomMapper.selectGameroomByID((int)roomID);
+    Gameroom targetRoom = gameroomMapper.selectGameroomByID((int) roomID);
 
     model.addAttribute("pgameroom", targetPRoomBean);
     model.addAttribute("gameroom", targetRoom);
@@ -75,8 +75,9 @@ public class PlaygameController {
   @PostMapping("/join_check")
   public String postJoinCheck(@RequestParam("room") long roomID, Principal principal) {
     // roomIDに対応する公開ゲームルームがない場合(エラー)
-    if(pGameRoomManager.getPublicGameRooms().get(roomID) == null) {
-      logger.warn(String.format("PlaygameController.postJoinCheck(...): Requested NOT exist PublicGameRoom by roomID:%d", roomID));
+    if (pGameRoomManager.getPublicGameRooms().get(roomID) == null) {
+      logger.warn(String
+          .format("PlaygameController.postJoinCheck(...): Requested NOT exist PublicGameRoom by roomID:%d", roomID));
       return "";
     }
 
@@ -88,18 +89,32 @@ public class PlaygameController {
     PublicGameRoom targetPGameRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
 
     targetPGameRoom.getParticipants().put(userID, newParticipant);
-    if(DBG) {
+    if (DBG) {
       PublicGameRoom checkedRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
       GameRoomParticipant subject = checkedRoom.getParticipants().get(userID);
 
-      logger.info(String.format("[DBG] PlaygameController.postJoinCheck(...): Result of put participants(GameRoomParticipant). userID: %d, subject: " + subject, userID));
+      logger.info(String.format(
+          "[DBG] PlaygameController.postJoinCheck(...): Result of put participants(GameRoomParticipant). userID: %d, subject: "
+              + subject,
+          userID));
     }
 
     pGameRoomManager.getBelonging().put(userID, roomID);
-    if(DBG) {
-      logger.info(String.format("[DBG] PlaygameController.postJoinCheck(...): Result of put belonging(gameRoomID(long)). userID: %d, subject: " + pGameRoomManager.getBelonging().get(userID), userID));
+    if (DBG) {
+      logger.info(String.format(
+          "[DBG] PlaygameController.postJoinCheck(...): Result of put belonging(gameRoomID(long)). userID: %d, subject: "
+              + pGameRoomManager.getBelonging().get(userID),
+          userID));
     }
 
-    return "redirect:/playgame/standby";
+    return "redirect:/playgame/standby?room=" + roomID;
+  }
+
+  @GetMapping("/standby")
+  public String standby(@RequestParam("room") int roomID, ModelMap model) {
+    model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID));
+    PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    model.addAttribute("pgameroom", publicGameRoom);
+    return "playgame/standby.html";
   }
 }
