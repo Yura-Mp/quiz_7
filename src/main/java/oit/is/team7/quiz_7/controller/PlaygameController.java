@@ -19,8 +19,8 @@ import oit.is.team7.quiz_7.model.GameRoomParticipant;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 import oit.is.team7.quiz_7.model.PublicGameRoom;
 import oit.is.team7.quiz_7.model.PublicGameRoomBean;
-import oit.is.team7.quiz_7.model.UserAccount;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
+import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 
 @Controller
 @RequestMapping("/playgame")
@@ -36,6 +36,12 @@ public class PlaygameController {
 
   @Autowired
   UserAccountMapper userAccountMapper;
+
+  @Autowired
+  AsyncPGameRoomService asyncPGRService;
+
+  @Autowired
+  SseController sseController;
 
   @GetMapping
   public String playgame(ModelMap model) {
@@ -86,9 +92,10 @@ public class PlaygameController {
     newParticipant.setUserID(userID);
     newParticipant.setUserName(principal.getName());
 
-    PublicGameRoom targetPGameRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
+    // 参加者を追加し、更新を通知
+    asyncPGRService.addParticipantToRoom(roomID, newParticipant);
+    logger.info("PlaygameController.postJoinCheck(...): Participants updated.");
 
-    targetPGameRoom.getParticipants().put(userID, newParticipant);
     if (DBG) {
       PublicGameRoom checkedRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
       GameRoomParticipant subject = checkedRoom.getParticipants().get(userID);

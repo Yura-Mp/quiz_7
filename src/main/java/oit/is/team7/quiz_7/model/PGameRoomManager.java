@@ -37,4 +37,13 @@ public class PGameRoomManager {
   public void setBelonging(LinkedHashMap<Long, Long> belonging) {
     this.belonging = belonging;
   }
+
+  public boolean addPublicGameRoom(PublicGameRoom pgroom) {
+    if (this.publicGameRooms.size() < MAX_ROOM_NUM) {
+      this.publicGameRooms.put(pgroom.getGameRoomID(), pgroom);
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
