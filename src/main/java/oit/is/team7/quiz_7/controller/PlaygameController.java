@@ -124,4 +124,11 @@ public class PlaygameController {
     model.addAttribute("pgameroom", publicGameRoom);
     return "playgame/standby.html";
   }
+
+  @PostMapping("/standby/exit")
+  public String exitGameRoom(@RequestParam("room") long roomID, Principal principal) {
+    long userID = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
+    pGameRoomManager.removeParticipantFromGameRoom(userID, roomID);
+    return "redirect:/playgame";
+  }
 }

@@ -46,4 +46,12 @@ public class PGameRoomManager {
       return false;
     }
   }
+
+  public void removeParticipantFromGameRoom(long userID, long roomID) {
+    belonging.remove(userID);
+    PublicGameRoom gameRoom = publicGameRooms.get(roomID);
+    if (gameRoom != null) {
+      gameRoom.removeParticipant(userID);
+    }
+  }
 }

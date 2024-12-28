@@ -105,6 +105,10 @@ public class PublicGameRoom {
     }
   }
 
+  public void removeParticipant(long userID) {
+    participants.remove(userID);
+  }
+
   public List<SseEmitter> getEmitters() {
     return emitters;
   }
