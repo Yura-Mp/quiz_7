@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Quiz_7/出題待機</title>
+  <link rel="stylesheet" href="/css/origin.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="display">
+      <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
+      <div th:if="${participant}">
+        <p>[[${participant.userName}]] さんの</p>
+        <p>現在の順位：[[${participant.rank}]]位</p>
+        <p>現在の得点：[[${participant.point}]]点</p>
+      </div>
+
+      <!--テスト表示用-->
+      <h3>ゲームルーム名</h3>
+      <h2>クイズの出題を待っています</h2>
+      <div>
+        <p>Player さんの</p>
+        <p>現在の順位：1位</p>
+        <p>現在の得点：100点</p>
+      </div>
+    </div>
+
+    <div class="iframe-section">
+      <iframe th:src="@{./ranking}"></iframe>
+    </div>
+  </div>
+</body>
+
+</html>
