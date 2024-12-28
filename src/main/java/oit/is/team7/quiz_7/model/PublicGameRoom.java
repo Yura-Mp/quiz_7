@@ -57,4 +57,7 @@ public class PublicGameRoom {
     return quizPool;
   }
 
+  public void removeParticipant(long userID) {
+    participants.remove(userID);
+  }
 }
