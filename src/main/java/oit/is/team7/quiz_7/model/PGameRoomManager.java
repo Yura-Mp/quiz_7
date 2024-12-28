@@ -37,4 +37,12 @@ public class PGameRoomManager {
   public void setBelonging(LinkedHashMap<Long, Long> belonging) {
     this.belonging = belonging;
   }
+
+  public void removeParticipantFromGameRoom(long userID, long roomID) {
+    belonging.remove(userID);
+    PublicGameRoom gameRoom = publicGameRooms.get(roomID);
+    if(gameRoom != null){
+      gameRoom.removeParticipant(userID);
+    }
+  }
 }
