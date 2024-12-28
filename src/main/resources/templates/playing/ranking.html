@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Quiz_7/ランキング</title>
+
+  <link rel="stylesheet" href="/css/origin.css">
+  <style>
+    html {
+      width: 360px;
+    }
+
+    body {
+      background: transparent;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+
+    table.ranking {
+      border-collapse: collapse;
+      border: solid 2px black;
+      overflow: auto;
+    }
+
+    table.ranking th,
+    table.ranking td {
+      background-color: white;
+      border: solid 1px black;
+      padding: 0.25em;
+    }
+
+    table.ranking thead th {
+      background-color: #dbd9d9;
+      border-bottom: 3px double black;
+    }
+
+    table.ranking .rank {
+      text-align: right;
+    }
+
+    table.ranking .diff {
+      text-align: center;
+    }
+
+    table.ranking .point {
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>ランキング</h2>
+  <h3 th:if="${gameroom}">ルーム名: [[${gameroom.roomName}]]</h3>
+  <h3 th:unless="${gameroom}">(テストページ) 該当のルームが見つかりませんでした．</h3>
+
+  <table class="ranking">
+    <thead>
+      <tr>
+        <th>順位</th>
+        <th>変化</th>
+        <th>名前</th>
+        <th>得点</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <!-- テスト表示用 -->
+      <tr th:unless="${participants}">
+        <td class="rank">1</td>
+        <td class="diff">ー</td>
+        <td class="name">テスト</td>
+        <td class="point">100000</td>
+      </tr>
+      <tr th:unless="${participants}">
+        <td class="rank">2</td>
+        <td class="diff">ーー</td>
+        <td class="name">テストテスト</td>
+        <td class="point">10000</td>
+      </tr>
+
+      <!-- onePtc = one Participant -->
+      <tr th:each="onePtc : ${participants}">
+        <td class="rank" th:text="${onePtc.rank}"></td>
+        <td class="diff" th:text="${onePtc.diff}"></td>
+        <td class="name" th:text="${onePtc.name}"></td>
+        <td class="point" th:text="${onePtc.point}"></td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+</html>
