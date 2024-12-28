@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Quiz_7/ランキング</title>
+
+  <link rel="stylesheet" href="/css/origin.css">
+  <style>
+    html {
+      width: 360px;
+    }
+
+    body {
+      background: transparent;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+
+    .ranking {
+      overflow: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>ランキング</h2>
+  <h3 th:if="${gameroom}">ルーム名: [[${gameroom.roomName}]]</h3>
+  <h3 th:unless="${gameroom}">(テストページ) 該当のルームが見つかりませんでした．</h3>
+
+  <table class="ranking">
+    <tr>
+      <th>順位</th>
+      <th>変化</th>
+      <th>名前</th>
+      <th>得点</th>
+    </tr>
+
+    <!-- onePtc = one Participant -->
+    <tr th:each="onePtc : ${participants}">
+      <td th:text="${onePtc.rank}"></td>
+      <td th:text="${onePtc.diff}"></td>
+      <td th:text="${onePtc.name}"></td>
+      <td th:text="${onePtc.point}"></td>
+    </tr>
+  </table>
+</body>
+
+</html>
