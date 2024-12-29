@@ -21,6 +21,9 @@ window.onload = function () {
       console.log("Error parsing event data:", e);
     }
   }
+  sse.addEventListener('init', function (event) {
+    console.log("Init event received: " + event.data);
+  });
   sse.onerror = function (error) {
     console.log("SSE error:", error);
   }

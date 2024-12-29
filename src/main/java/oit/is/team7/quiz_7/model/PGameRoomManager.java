@@ -47,11 +47,12 @@ public class PGameRoomManager {
     }
   }
 
-  public void removeParticipantFromGameRoom(long userID, long roomID) {
-    belonging.remove(userID);
-    PublicGameRoom gameRoom = publicGameRooms.get(roomID);
-    if (gameRoom != null) {
-      gameRoom.removeParticipant(userID);
-    }
+  public void addParticipantToBelonging(long userID, long roomID) {
+    belonging.put(userID, roomID);
   }
+
+  public void removeParticipantFromBelonging(long userID) {
+    belonging.remove(userID);
+  }
+
 }

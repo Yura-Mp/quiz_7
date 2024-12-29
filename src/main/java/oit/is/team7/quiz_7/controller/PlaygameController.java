@@ -106,7 +106,7 @@ public class PlaygameController {
           userID));
     }
 
-    pGameRoomManager.getBelonging().put(userID, roomID);
+    pGameRoomManager.addParticipantToBelonging(userID, roomID);
     if (DBG) {
       logger.info(String.format(
           "[DBG] PlaygameController.postJoinCheck(...): Result of put belonging(gameRoomID(long)). userID: %d, subject: "
@@ -128,7 +128,9 @@ public class PlaygameController {
   @PostMapping("/standby/exit")
   public String exitGameRoom(@RequestParam("room") long roomID, Principal principal) {
     long userID = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
-    pGameRoomManager.removeParticipantFromGameRoom(userID, roomID);
+    pGameRoomManager.removeParticipantFromBelonging(userID);
+    // 参加者を削除し、更新を通知
+    asyncPGRService.removeParticipantFromRoom(roomID, userID);
     return "redirect:/playgame";
   }
 }

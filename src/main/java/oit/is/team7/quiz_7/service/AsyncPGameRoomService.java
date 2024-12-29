@@ -3,6 +3,7 @@ package oit.is.team7.quiz_7.service;
 import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import oit.is.team7.quiz_7.model.PublicGameRoom;
 import oit.is.team7.quiz_7.model.GameRoomParticipant;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
@@ -18,39 +21,44 @@ import oit.is.team7.quiz_7.model.PGameRoomManager;
 @Service
 public class AsyncPGameRoomService {
   private final Logger logger = LoggerFactory.getLogger(AsyncPGameRoomService.class);
-  private boolean participantsUpdated = false;
+  private final AtomicBoolean participantsUpdated = new AtomicBoolean(false);
 
   @Autowired
   PGameRoomManager pGameRoomManager;
 
   @Async
-  public void asyncSendParticipantsList(SseEmitter emitter, PublicGameRoom pgroom) {
+  public void asyncSendParticipantsList(PublicGameRoom pgroom) {
     logger.info("asyncSendParticipantsList called");
     try {
       while (true) {
-        if (participantsUpdated) {
+        if (this.participantsUpdated.getAndSet(false)) {
           List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
-          logger.info("Participants list: " + participants);
-          for (SseEmitter emitterInRoom : pgroom.getEmitters()) {
+          logger.info("Participants list updated: " + participants);
+
+          String jsonData = new ObjectMapper().writeValueAsString(participants);
+
+          for (SseEmitter emitter : pgroom.getEmitters()) {
             try {
-              emitterInRoom.send(SseEmitter.event().name("participantsUpdate").data(participants));
-              logger.info("Event sent: " + participants);
+              logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
+              emitter.send(SseEmitter.event().name("participantsUpdate").data(jsonData));
+              logger.info("Event sent: " + jsonData);
             } catch (Exception e) {
-              pgroom.removeEmitter(emitterInRoom);
+              pgroom.removeEmitter(emitter);
               logger.error("Error sending event: " + e.getMessage());
             }
           }
           logger.info("Participants list sent");
-          participantsUpdated = false;
         }
         TimeUnit.MILLISECONDS.sleep(1000);
       }
     } catch (Exception e) {
       logger.error("Error in asyncSendParticipantsList(...): {}", e.getMessage());
-      emitter.completeWithError(e);
-    } finally {
-      emitter.complete();
     }
+  }
+
+  public void setParticipantsUpdated() {
+    logger.info("setParticipantsUpdated called");
+    this.participantsUpdated.set(true);
   }
 
   public void addParticipantToRoom(long roomID, GameRoomParticipant participant) {
@@ -58,7 +66,15 @@ public class AsyncPGameRoomService {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
     if (pgroom.addParticipant(participant)) {
       logger.info("Participant added");
-      participantsUpdated = true;
+      setParticipantsUpdated();
     }
+  }
+
+  public void removeParticipantFromRoom(long roomID, long userID) {
+    logger.info("removeParticipantFromRoom called");
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
+    pgroom.removeParticipant(userID);
+    logger.info("Participant removed");
+    setParticipantsUpdated();
   }
 }

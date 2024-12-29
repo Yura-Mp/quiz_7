@@ -23,11 +23,10 @@ public class PublicGameRoom {
   private LinkedHashMap<Long, GameRoomParticipant> participants;
   private int maxPlayers = 50;
   private ArrayList<Long> quizPool;
+  private List<SseEmitter> emitters;
 
   @Autowired
   AsyncPGameRoomService asyncPGRService;
-
-  private List<SseEmitter> emitters = new ArrayList<>();
 
   public PublicGameRoom(long gameRoomID, String gameRoomName, long hostUserID, String hostUserName, int maxPlayers,
       ArrayList<Long> quizPool) {
@@ -38,6 +37,7 @@ public class PublicGameRoom {
     this.participants = new LinkedHashMap<Long, GameRoomParticipant>();
     this.maxPlayers = maxPlayers;
     this.quizPool = quizPool;
+    this.emitters = new ArrayList<SseEmitter>();
   }
 
   public long getGameRoomID() {
@@ -110,11 +110,14 @@ public class PublicGameRoom {
   }
 
   public List<SseEmitter> getEmitters() {
-    return emitters;
+    return this.emitters;
   }
 
   public void addEmitter(SseEmitter emitter) {
-    emitters.add(emitter);
+    this.emitters.add(emitter);
+    emitter.onCompletion(() -> this.emitters.remove(emitter));
+    emitter.onTimeout(() -> this.emitters.remove(emitter));
+    emitter.onError((e) -> this.emitters.remove(emitter));
   }
 
   public void removeEmitter(SseEmitter emitter) {

@@ -26,7 +26,7 @@ public class SseController {
   @GetMapping("/participantsList")
   public SseEmitter getParticipantsList(@RequestParam("room") long roomID) {
     logger.info("getParticipantsList called with roomID:" + roomID);
-    final SseEmitter emitter = new SseEmitter(0L);
+    final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
     if (pgroom == null) {
       logger.error("Room not found: {}", roomID);
@@ -34,11 +34,11 @@ public class SseController {
       return emitter;
     }
     pgroom.addEmitter(emitter);
-    emitter.onCompletion(() -> pgroom.removeEmitter(emitter));
-    emitter.onTimeout(() -> pgroom.removeEmitter(emitter));
-    emitter.onError((e) -> pgroom.removeEmitter(emitter));
     try {
-      asyncPGRService.asyncSendParticipantsList(emitter, pgroom);
+      // 初期メッセージを送信して接続が確立されたことを確認
+      logger.info("Sending init message to roomID: " + roomID);
+      emitter.send(SseEmitter.event().name("init").data("SSE connection established"));
+      asyncPGRService.asyncSendParticipantsList(pgroom);
     } catch (Exception e) {
       logger.error("Error in getParticipantsList(...): {}", e.getMessage());
       emitter.completeWithError(e);
