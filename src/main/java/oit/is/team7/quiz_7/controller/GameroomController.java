@@ -2,6 +2,8 @@ package oit.is.team7.quiz_7.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.LinkedHashMap;
 
 import org.slf4j.Logger;
@@ -126,6 +128,24 @@ public class GameroomController {
     PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) roomID);
     model.addAttribute("pgameroom", publicGameRoom);
     return "gameroom/standby.html";
+  }
+
+  @PostMapping("/standby/cancel")
+  public String cancelGameRoom(@RequestParam("room") long roomID, Principal principal) {
+    PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    publicGameRoom.getParticipants().clear();
+    pGameRoomManager.removeGameRoom(roomID);
+    List<Long> usersToBeRemove = new ArrayList<>();
+    for (Map.Entry<Long, Long> entry : pGameRoomManager.getBelonging().entrySet()) {
+      if (entry.getValue() == roomID) {
+        usersToBeRemove.add(entry.getKey());
+      }
+    }
+    for (Long userID : usersToBeRemove) {
+      pGameRoomManager.getBelonging().remove(userID);
+    }
+    gameroomMapper.updatePublishedByID((int) roomID, false);
+    return "redirect:/gameroom";
   }
 
   @GetMapping("/delete")
