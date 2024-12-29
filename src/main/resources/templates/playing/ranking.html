@@ -42,7 +42,7 @@
       text-align: right;
     }
 
-    table.ranking .diff {
+    table.ranking .rankDiffStr {
       text-align: center;
     }
 
@@ -55,7 +55,7 @@
 <body>
   <h2>ランキング</h2>
   <h3 th:if="${gameroom}">ルーム名: [[${gameroom.roomName}]]</h3>
-  <h3 th:unless="${gameroom}">(テストページ) 該当のルームが見つかりませんでした．</h3>
+  <h3 th:unless="${gameroom}">該当のルームが見つかりませんでした．</h3>
 
   <table class="ranking">
     <thead>
@@ -69,25 +69,28 @@
 
     <tbody>
       <!-- テスト表示用 -->
-      <tr th:unless="${participants}">
+      <tr th:unless="${ranking}">
         <td class="rank">1</td>
-        <td class="diff">ー</td>
+        <td class="rankDiffStr">ー</td>
         <td class="name">テスト</td>
         <td class="point">100000</td>
       </tr>
-      <tr th:unless="${participants}">
+      <tr th:unless="${ranking}">
         <td class="rank">2</td>
-        <td class="diff">ーー</td>
+        <td class="rankDiffStr">ーー</td>
         <td class="name">テストテスト</td>
         <td class="point">10000</td>
       </tr>
 
-      <!-- onePtc = one Participant -->
-      <tr th:each="onePtc : ${participants}">
-        <td class="rank" th:text="${onePtc.rank}"></td>
-        <td class="diff" th:text="${onePtc.diff}"></td>
-        <td class="name" th:text="${onePtc.name}"></td>
-        <td class="point" th:text="${onePtc.point}"></td>
+      <tr th:each="entry : ${ranking}">
+        <td class="rank" th:text="${entry.rank}"></td>
+
+        <td class="rankDiffStr" th:if="${entry.rankDiff} lt 0" style="color: red;" th:text="${entry.rankDiffStr}"></td>
+        <td class="rankDiffStr" th:if="${entry.rankDiff} gt 0" style="color: blue;" th:text="${entry.rankDiffStr}"></td>
+        <td class="rankDiffStr" th:if="${entry.rankDiff} eq 0" style="color: black;" th:text="${entry.rankDiffStr}"></td>
+
+        <td class="name" th:text="${entry.name}"></td>
+        <td class="point" th:text="${entry.point}"></td>
       </tr>
     </tbody>
   </table>
