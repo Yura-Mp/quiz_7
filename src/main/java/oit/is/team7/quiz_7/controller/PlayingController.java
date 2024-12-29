@@ -32,7 +32,7 @@ public class PlayingController {
   }
 
   @GetMapping("/ranking")
-  public String getRanking(@RequestParam(name = "room", required = false) Long roomID, @RequestParam(name = "user", required = false) Long userID, Principal prin, ModelMap model) {
+  public String getRanking(@RequestParam(name = "room", required = false) Long roomID, @RequestParam(name = "user", required = false) Long userID, @RequestParam(name = "DBG", defaultValue = "false") final Boolean DBG_FLAG, Principal prin, ModelMap model) {
     // 返り値となるtemplatesが固定的であるため定数化．
     final String RETURN_TEMPLATE = "/playing/ranking.html";
 
@@ -41,41 +41,42 @@ public class PlayingController {
       return RETURN_TEMPLATE;
     }
 
-    // Test 連動時に以下のコードを削除(or コメントアウト)．
-    //
-    PGameRoomRanking testRanking = new PGameRoomRanking();
+    // デバッグ用．
+    if(DBG_FLAG) {
+      PGameRoomRanking testRanking = new PGameRoomRanking();
 
-    testRanking.addEntry(new PGameRoomRankingEntryBean(-1L, "Test1", 100000L));
-    testRanking.addEntry(new PGameRoomRankingEntryBean(-2L, "Test2", 55400L));
-    testRanking.addEntry(new PGameRoomRankingEntryBean(-3L, "Test3", 184000L));
-    testRanking.addEntry(new PGameRoomRankingEntryBean(-4L, "Test4", 8000L));
-    testRanking.addEntry(new PGameRoomRankingEntryBean(-5L, "Test5", 250000L));
-    testRanking.addEntry(new PGameRoomRankingEntryBean(-6L, "Test6", 55400L));
-    testRanking.addEntry(new PGameRoomRankingEntryBean(-7L, "--------------------", 100000000L));
+      testRanking.addEntry(new PGameRoomRankingEntryBean(-1L, "Test1", 100000L));
+      testRanking.addEntry(new PGameRoomRankingEntryBean(-2L, "Test2", 55400L));
+      testRanking.addEntry(new PGameRoomRankingEntryBean(-3L, "Test3", 184000L));
+      testRanking.addEntry(new PGameRoomRankingEntryBean(-4L, "Test4", 8000L));
+      testRanking.addEntry(new PGameRoomRankingEntryBean(-5L, "Test5", 250000L));
+      testRanking.addEntry(new PGameRoomRankingEntryBean(-6L, "Test6", 55400L));
+      testRanking.addEntry(new PGameRoomRankingEntryBean(-7L, "--------------------", 100000000L));
+      for(long i = -8L; i > -18L; i--) {
+        testRanking.addEntry(new PGameRoomRankingEntryBean(i, "Test", 1000L));
+      }
 
-    testRanking.sortByPoint();
+      testRanking.sortByPoint();
 
-    model.addAttribute("ranking", testRanking.getRanking());
+      model.addAttribute("ranking", testRanking.getRanking());
 
-    // [打ち切り] ユーザIDが指定されていない場合，普通のランキングを表示．
-    if(userID == null) {
+      // [打ち切り] ユーザIDが指定されていない場合，普通のランキングを表示．
+      if(userID == null) {
+        return RETURN_TEMPLATE;
+      }
+
+      if(testRanking.getIndexesByUserID().get(userID) == null) {
+        return RETURN_TEMPLATE;
+      }
+
+      PGameRoomRankingEntryBean testUser =  testRanking.getRanking().get(testRanking.getIndexesByUserID().get(userID));
+      model.addAttribute("yourID", testUser.ID);
+      model.addAttribute("yourRank", testUser.rank);
+      model.addAttribute("yourPoint", testUser.point);
+
       return RETURN_TEMPLATE;
     }
-
-    if(testRanking.getIndexesByUserID().get(userID) == null) {
-      return RETURN_TEMPLATE;
-    }
-
-    PGameRoomRankingEntryBean testUser =  testRanking.getRanking().get(testRanking.getIndexesByUserID().get(userID));
-    model.addAttribute("yourID", testUser.ID);
-    model.addAttribute("yourRank", testUser.rank);
-    model.addAttribute("yourPoint", testUser.point);
-
-    if(true) {
-      return RETURN_TEMPLATE;
-    }
-    //
-    // Test END
+    // デバッグ用 END．
 
 
     Gameroom targetGameroom = gameroomMapper.selectGameroomByID(roomID.intValue());
