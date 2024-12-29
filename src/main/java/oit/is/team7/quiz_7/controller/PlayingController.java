@@ -15,6 +15,7 @@ import oit.is.team7.quiz_7.model.PGameRoomManager;
 import oit.is.team7.quiz_7.model.PGameRoomRanking;
 import oit.is.team7.quiz_7.model.PGameRoomRankingEntryBean;
 import oit.is.team7.quiz_7.model.PublicGameRoom;
+import oit.is.team7.quiz_7.model.PublicGameRoomBean;
 
 
 @Controller
@@ -31,9 +32,17 @@ public class PlayingController {
   }
 
   @GetMapping("/ranking")
-  public String getRanking(@RequestParam("room") long roomID, Principal prin, ModelMap model) {
-    // Test
-    // 連動時に以下のコードを削除(or コメントアウト)．
+  public String getRanking(@RequestParam(name = "room", required = false) Long roomID, @RequestParam(name = "user", required = false) Long userID, Principal prin, ModelMap model) {
+    // 返り値となるtemplatesが固定的であるため定数化．
+    final String RETURN_TEMPLATE = "/playing/ranking.html";
+
+    // [打ち切り] ルームIDが指定されていない場合，テストページを表示．
+    if(roomID == null) {
+      return RETURN_TEMPLATE;
+    }
+
+    // Test 連動時に以下のコードを削除(or コメントアウト)．
+    //
     PGameRoomRanking testRanking = new PGameRoomRanking();
 
     testRanking.addEntry(new PGameRoomRankingEntryBean(-1L, "Test1", 100000L));
@@ -41,16 +50,35 @@ public class PlayingController {
     testRanking.addEntry(new PGameRoomRankingEntryBean(-3L, "Test3", 184000L));
     testRanking.addEntry(new PGameRoomRankingEntryBean(-4L, "Test4", 8000L));
     testRanking.addEntry(new PGameRoomRankingEntryBean(-5L, "Test5", 250000L));
+    testRanking.addEntry(new PGameRoomRankingEntryBean(-6L, "Test6", 55400L));
+    testRanking.addEntry(new PGameRoomRankingEntryBean(-7L, "--------------------", 100000000L));
 
     testRanking.sortByPoint();
 
     model.addAttribute("ranking", testRanking.getRanking());
 
-    if(true) return "/playing/ranking.html";
+    // [打ち切り] ユーザIDが指定されていない場合，普通のランキングを表示．
+    if(userID == null) {
+      return RETURN_TEMPLATE;
+    }
+
+    if(testRanking.getIndexesByUserID().get(userID) == null) {
+      return RETURN_TEMPLATE;
+    }
+
+    PGameRoomRankingEntryBean testUser =  testRanking.getRanking().get(testRanking.getIndexesByUserID().get(userID));
+    model.addAttribute("yourID", testUser.ID);
+    model.addAttribute("yourRank", testUser.rank);
+    model.addAttribute("yourPoint", testUser.point);
+
+    if(true) {
+      return RETURN_TEMPLATE;
+    }
+    //
     // Test END
 
 
-    Gameroom targetGameroom = gameroomMapper.selectGameroomByID((int)roomID);
+    Gameroom targetGameroom = gameroomMapper.selectGameroomByID(roomID.intValue());
 
     PublicGameRoom targetPGameRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
     // 公開ゲームルームがない場合:
@@ -65,6 +93,21 @@ public class PlayingController {
     model.addAttribute("gameroom", targetGameroom);
     model.addAttribute("ranking", targetRanking.getRanking());
 
-    return "/playing/ranking.html";
+    // [打ち切り] ユーザIDが指定されていない場合，普通のランキングを表示．
+    if(userID == null) {
+      return RETURN_TEMPLATE;
+    }
+
+    if(targetRanking.getIndexesByUserID().get(userID) == null) {
+      return RETURN_TEMPLATE;
+    }
+
+    PGameRoomRankingEntryBean targetUser = targetRanking.getRanking().get(targetRanking.getIndexesByUserID().get(userID));
+    model.addAttribute("yourID", targetUser.ID);
+    model.addAttribute("yourRank", targetUser.rank);
+    model.addAttribute("yourPoint", targetUser.point);
+
+    // リクエストパラメータが全て正常に指定されている場合，ユーザを軸にしたランキングを表示．
+    return RETURN_TEMPLATE;
   }
 }

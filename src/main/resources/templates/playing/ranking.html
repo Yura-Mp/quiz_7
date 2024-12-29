@@ -49,6 +49,10 @@
     table.ranking .point {
       text-align: right;
     }
+
+    #bg-highlight td {
+      background-color: #fff299;
+    }
   </style>
 </head>
 
@@ -56,6 +60,11 @@
   <h2>ランキング</h2>
   <h3 th:if="${gameroom}">ルーム名: [[${gameroom.roomName}]]</h3>
   <h3 th:unless="${gameroom}">該当のルームが見つかりませんでした．</h3>
+
+  <p th:if="${yourRank} AND ${yourPoint}">
+    あなたの順位: <b>[[${yourRank}]]位</b><br>
+    あなたの得点: <b>[[${yourPoint}]]点</b>
+  </p>
 
   <table class="ranking">
     <thead>
@@ -82,7 +91,7 @@
         <td class="point">10000</td>
       </tr>
 
-      <tr th:each="entry : ${ranking}">
+      <tr th:each="entry : ${ranking}" th:id="${entry.ID == yourID} ? 'bg-highlight'">
         <td class="rank" th:text="${entry.rank}"></td>
 
         <td class="rankDiffStr" th:if="${entry.rankDiff} lt 0" style="color: red;" th:text="${entry.rankDiffStr}"></td>

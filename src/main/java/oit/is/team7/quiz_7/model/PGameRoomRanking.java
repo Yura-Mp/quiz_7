@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.Optional;
 
 public class PGameRoomRanking {
   private enum SortState {
