@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Quiz_7/出題待機</title>
+  <link rel="stylesheet" href="/css/origin.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="display">
+      <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
+      <h3>クイズリスト</h3>
+      <div class="scroll-half">
+        <ol th:if="${quizList}" th:each="quiz : ${quizList}">
+          <li th:text="${quiz.title}"></li>
+        </ol>
+      </div>
+      <h3>次のクイズ</h3>
+      <div th:if="${nextQuiz}">
+        <p>タイトル:[[${nextQuiz.title}]]</p>
+        <p>問題文:[[${nextQuiz.description}]]</p>
+      </div>
+      <p>選択肢</p>
+      <div th:if="${nextQuizJson}">
+        <ol>
+          <li th:each="choice : ${nextQuizJson.choices}" th:text="${choice}"></li>
+        </ol>
+        <p>答え：[[${nextQuizJson.correct}]]</p>
+      </div>
+    </div>
+
+    <div class="input-form">
+      <a th:href="@{/sse/publishQuiz(id=${nextQuiz.ID})}" class="colored_button">出題する</a>
+    </div>
+  </div>
+</body>
+
+</html>

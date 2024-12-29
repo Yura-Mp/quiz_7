@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oit.is.team7.quiz_7.model.Gameroom;
@@ -208,13 +209,13 @@ public class GameroomController {
 
     int hostId = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
     int formatId = quizFormatListMapper.selectQuizFormatByFormat("4choices").getId();
-    String jsonStr = objectMapper.writeValueAsString(quizJson);
+    JsonNode jsonNode = objectMapper.valueToTree(quizJson);
     QuizTable newQuizTable = new QuizTable();
     newQuizTable.setQuizFormatID(formatId);
     newQuizTable.setAuthorID(hostId);
     newQuizTable.setTitle(title);
     newQuizTable.setDescription(description);
-    newQuizTable.setQuizJSON(jsonStr);
+    newQuizTable.setQuizJSON(jsonNode);
     quizTableMapper.insertQuizTable(newQuizTable);
 
     HasQuiz latestHasQuiz = hasQuizMapper.maxIndexByRoomID(roomID);
