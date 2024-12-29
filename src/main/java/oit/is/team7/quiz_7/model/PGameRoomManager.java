@@ -38,6 +38,10 @@ public class PGameRoomManager {
     this.belonging = belonging;
   }
 
+  public void removeGameRoom(long roomID) {
+    publicGameRooms.remove(roomID);
+  }
+
   public void removeParticipantFromGameRoom(long userID, long roomID) {
     belonging.remove(userID);
     PublicGameRoom gameRoom = publicGameRooms.get(roomID);
