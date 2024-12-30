@@ -62,4 +62,8 @@ public class PublicGameRoom {
   public PGameRoomRanking getRanking() {
     return ranking;
   }
+
+  public void removeParticipant(long userID) {
+      participants.remove(userID);
+  }
 }
