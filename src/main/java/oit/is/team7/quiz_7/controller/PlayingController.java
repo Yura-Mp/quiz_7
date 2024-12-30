@@ -43,6 +43,15 @@ public class PlayingController {
 
     // デバッグ用．
     if(DBG_FLAG) {
+      Gameroom testGameroom = new Gameroom();
+      testGameroom.setID(-1);
+      testGameroom.setRoomName("デバッグ用");
+
+      // [打ち切り] ルームIDが違う場合(-1じゃない場合)，対象のルームがないとしてテストページを表示．
+      if(roomID != -1) {
+        return RETURN_TEMPLATE;
+      }
+
       PGameRoomRanking testRanking = new PGameRoomRanking();
 
       testRanking.addEntry(new PGameRoomRankingEntryBean(-1L, "Test1", 100000L));
@@ -58,6 +67,7 @@ public class PlayingController {
 
       testRanking.sortByPoint();
 
+      model.addAttribute("gameroom", testGameroom);
       model.addAttribute("ranking", testRanking.getRanking());
 
       // [打ち切り] ユーザIDが指定されていない場合，普通のランキングを表示．
@@ -65,6 +75,7 @@ public class PlayingController {
         return RETURN_TEMPLATE;
       }
 
+      // [打ち切り] ランキングに指定のユーザIDのエントリがない場合，普通のランキングを表示．
       if(testRanking.getIndexesByUserID().get(userID) == null) {
         return RETURN_TEMPLATE;
       }
@@ -82,9 +93,9 @@ public class PlayingController {
     Gameroom targetGameroom = gameroomMapper.selectGameroomByID(roomID.intValue());
 
     PublicGameRoom targetPGameRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
-    // 公開ゲームルームがない場合:
+    // [打ち切り] 公開ゲームルームがない場合，対象のルームがないとしてテストページを表示．
     if(targetPGameRoom == null) {
-      return "/playing/ranking.html";
+      return RETURN_TEMPLATE;
     }
 
     PGameRoomRanking targetRanking = targetPGameRoom.getRanking();
@@ -99,6 +110,7 @@ public class PlayingController {
       return RETURN_TEMPLATE;
     }
 
+    // [打ち切り] ランキングに指定のユーザIDのエントリがない場合，普通のランキングを表示．
     if(targetRanking.getIndexesByUserID().get(userID) == null) {
       return RETURN_TEMPLATE;
     }
