@@ -18,6 +18,7 @@ public class PublicGameRoom {
   private int maxPlayers = 50;
   private ArrayList<Long> quizPool;
   private PGameRoomRanking ranking;
+  private int nextQuizIndex;
 
   public PublicGameRoom(long gameRoomID, String gameRoomName, long hostUserID, String hostUserName, int maxPlayers,
       ArrayList<Long> quizPool) {
@@ -29,6 +30,7 @@ public class PublicGameRoom {
     this.maxPlayers = maxPlayers;
     this.quizPool = quizPool;
     this.ranking = new PGameRoomRanking();
+    this.nextQuizIndex = 0;
   }
 
   public long getGameRoomID() {
@@ -61,6 +63,14 @@ public class PublicGameRoom {
 
   public PGameRoomRanking getRanking() {
     return ranking;
+  }
+
+  public int getNextQuizIndex() {
+    return nextQuizIndex;
+  }
+
+  public void incrementNextQuizIndex() {
+    this.nextQuizIndex++;
   }
 
   public void removeParticipant(long userID) {

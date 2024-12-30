@@ -4,6 +4,14 @@ public class QuizJson {
   public int correct;
   public String[] choices;
 
+  public QuizJson() {
+  }
+
+  public QuizJson(int correct, String[] choices) {
+    this.correct = correct;
+    this.choices = choices;
+  }
+
   public int getCorrect() {
     return correct;
   }
