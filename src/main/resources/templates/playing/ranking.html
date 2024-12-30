@@ -58,7 +58,7 @@
 
 <body>
   <h2>ランキング</h2>
-  <h3 th:if="${gameroom}">ルームID: [[${gameroom.ID}]]<br />ルーム名: [[${gameroom.roomName}]]</h3>
+  <h3 th:if="${gameroom}">ルーム名: [[${gameroom.roomName}]]</h3>
   <h3 th:unless="${gameroom}">該当のルームが見つかりませんでした．</h3>
 
   <p th:if="${yourRank} AND ${yourPoint}">
