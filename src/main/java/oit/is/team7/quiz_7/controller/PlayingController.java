@@ -2,6 +2,8 @@ package oit.is.team7.quiz_7.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +17,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.qos.logback.classic.Logger;
+
 import oit.is.team7.quiz_7.model.Gameroom;
 import oit.is.team7.quiz_7.model.GameroomMapper;
+import oit.is.team7.quiz_7.model.GameRoomParticipant;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 import oit.is.team7.quiz_7.model.PublicGameRoom;
 import oit.is.team7.quiz_7.model.PublicGameRoomBean;
@@ -25,6 +29,7 @@ import oit.is.team7.quiz_7.model.PGameRoomRankingEntryBean;
 import oit.is.team7.quiz_7.model.QuizJson;
 import oit.is.team7.quiz_7.model.QuizTable;
 import oit.is.team7.quiz_7.model.QuizTableMapper;
+import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.utils.JsonUtils;
 
 @Controller
@@ -40,18 +45,36 @@ public class PlayingController {
   @Autowired
   QuizTableMapper quizTableMapper;
 
-  public String get_wait_guest(Principal prin, ModelMap model) {
+  @Autowired
+  UserAccountMapper userAccountMapper;
+
+  public String get_wait_guest(int roomID, Principal prin, ModelMap model) {
+    long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
+    Map<Long, GameRoomParticipant> participants = this.pGameRoomManager.getPublicGameRooms().get((long) roomID)
+        .getParticipants();
+    GameRoomParticipant participant = participants.get(userID);
+    if (participant != null) {
+      model.addAttribute("participant", participant);
+    }
+    List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
+    sortParticipants.sort((p1, p2) -> Long.compare(p2.getPoint(), p1.getPoint()));
+    for (int rank = 0; rank < sortParticipants.size(); rank++) {
+      GameRoomParticipant target = sortParticipants.get(rank);
+      if (target.getUserID() == userID) {
+        model.addAttribute("participant_rank", rank + 1);
+      }
+    }
     return "/playing/guest/wait.html";
   }
 
   @GetMapping("/wait")
   public String get_wait_host(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    model.addAttribute("pgameroom", pgroom);
     if (!pgroom.getHostUserName().equals(prin.getName())) {
       // ユーザがホストでなければゲスト向けの待機画面を表示
-      return get_wait_guest(prin, model);
+      return get_wait_guest(roomID, prin, model);
     }
-    model.addAttribute("pgameroom", pgroom);
     ArrayList<QuizTable> quizList = new ArrayList<QuizTable>();
     for (long quizID : pgroom.getQuizPool()) {
       quizList.add(quizTableMapper.selectQuizTableByID((int) quizID));
