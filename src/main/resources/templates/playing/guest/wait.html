@@ -11,19 +11,11 @@
   <div class="container">
     <div class="display">
       <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
+      <h2>クイズの出題を待っています</h2>
       <div th:if="${participant}">
         <p>[[${participant.userName}]] さんの</p>
-        <p>現在の順位：[[${participant.rank}]]位</p>
+        <p>現在の順位：[[${participant_rank}]]位</p>
         <p>現在の得点：[[${participant.point}]]点</p>
-      </div>
-
-      <!--テスト表示用-->
-      <h3>ゲームルーム名</h3>
-      <h2>クイズの出題を待っています</h2>
-      <div>
-        <p>Player さんの</p>
-        <p>現在の順位：1位</p>
-        <p>現在の得点：100点</p>
       </div>
     </div>
 
