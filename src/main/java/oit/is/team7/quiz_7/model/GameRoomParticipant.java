@@ -22,10 +22,6 @@ public class GameRoomParticipant {
     this.userID = userID;
   }
 
-  public long getUserID() {
-    return userID;
-  }
-
   public String getUserName() {
     return userName;
   }
