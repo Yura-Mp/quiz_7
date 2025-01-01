@@ -40,7 +40,7 @@ public class AsyncPGameRoomService {
           for (SseEmitter emitter : pgroom.getEmitters()) {
             try {
               logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
-              emitter.send(SseEmitter.event().name("participantsUpdate").data(jsonData));
+              emitter.send(jsonData);
               logger.info("Event sent: " + jsonData);
             } catch (Exception e) {
               pgroom.removeEmitter(emitter);

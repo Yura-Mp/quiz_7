@@ -11,12 +11,20 @@ window.onload = function () {
     try {
       var participants = JSON.parse(event.data);
       console.log("Parsed participants:", participants);
-      var content = "<ul>";
+      var participantList = "<ul>";
       participants.forEach(function (participant) {
-        content += "<li>" + participant.userName + "</li>";
+        participantList += "<li>" + participant.userName + "</li>";
       });
-      content += "</ul>";
-      document.getElementById("participantsList").innerHTML = content;
+      participantList += "</ul>";
+      document.getElementById("participantsList").innerHTML = participantList;
+      let participantNum = participants.length;
+      document.getElementById("participantNum").textContent = participantNum;
+      if (participantNum === 0) {
+        document.getElementById("noParticipant").textContent = "現在参加者はいません。";
+        document.getElementById("noParticipant").style.display = "block";
+      } else {
+        document.getElementById("noParticipant").style.display = "none";
+      }
     } catch (e) {
       console.log("Error parsing event data:", e);
     }
