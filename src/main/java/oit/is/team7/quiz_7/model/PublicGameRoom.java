@@ -17,6 +17,7 @@ public class PublicGameRoom {
   private LinkedHashMap<Long, GameRoomParticipant> participants;
   private int maxPlayers = 50;
   private ArrayList<Long> quizPool;
+  private PGameRoomRanking ranking;
   private int nextQuizIndex;
 
   public PublicGameRoom(long gameRoomID, String gameRoomName, long hostUserID, String hostUserName, int maxPlayers,
@@ -28,6 +29,7 @@ public class PublicGameRoom {
     this.participants = new LinkedHashMap<Long, GameRoomParticipant>();
     this.maxPlayers = maxPlayers;
     this.quizPool = quizPool;
+    this.ranking = new PGameRoomRanking();
     this.nextQuizIndex = 0;
   }
 
@@ -59,6 +61,10 @@ public class PublicGameRoom {
     return quizPool;
   }
 
+  public PGameRoomRanking getRanking() {
+    return ranking;
+  }
+
   public int getNextQuizIndex() {
     return nextQuizIndex;
   }
@@ -68,6 +74,6 @@ public class PublicGameRoom {
   }
 
   public void removeParticipant(long userID) {
-    participants.remove(userID);
+      participants.remove(userID);
   }
 }
