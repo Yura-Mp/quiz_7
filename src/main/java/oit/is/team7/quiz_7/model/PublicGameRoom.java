@@ -24,6 +24,8 @@ public class PublicGameRoom {
   private int maxPlayers = 50;
   private ArrayList<Long> quizPool;
   private List<SseEmitter> emitters;
+  private PGameRoomRanking ranking;
+  private int nextQuizIndex;
 
   @Autowired
   AsyncPGameRoomService asyncPGRService;
@@ -38,6 +40,8 @@ public class PublicGameRoom {
     this.maxPlayers = maxPlayers;
     this.quizPool = quizPool;
     this.emitters = new ArrayList<SseEmitter>();
+    this.ranking = new PGameRoomRanking();
+    this.nextQuizIndex = 0;
   }
 
   public long getGameRoomID() {
@@ -105,8 +109,20 @@ public class PublicGameRoom {
     }
   }
 
+  public PGameRoomRanking getRanking() {
+    return ranking;
+  }
+
+  public int getNextQuizIndex() {
+    return nextQuizIndex;
+  }
+
+  public void incrementNextQuizIndex() {
+    this.nextQuizIndex++;
+  }
+
   public void removeParticipant(long userID) {
-    participants.remove(userID);
+      participants.remove(userID);
   }
 
   public List<SseEmitter> getEmitters() {
