@@ -35,8 +35,7 @@ CREATE TABLE IF NOT EXISTS gameRoom (
   ID IDENTITY, -- ルームID．
   hostUserID BIGINT NOT NULL REFERENCES userAccount(ID), -- ルームのホスト．
   roomName VARCHAR(30), -- ルーム名．
-  description VARCHAR, -- ルームの説明文．
-  published BOOLEAN NOT NULL DEFAULT FALSE -- 公開状態であるかのブーリアン．
+  description VARCHAR -- ルームの説明文．
 );
 
 -- 問題形式リストテーブル (Author: Yura-Mp)

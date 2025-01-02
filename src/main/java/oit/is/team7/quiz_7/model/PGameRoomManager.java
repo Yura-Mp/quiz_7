@@ -1,5 +1,6 @@
 package oit.is.team7.quiz_7.model;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import org.springframework.stereotype.Component;
@@ -51,10 +52,20 @@ public class PGameRoomManager {
     publicGameRooms.remove(roomID);
   }
 
+  public ArrayList<PublicGameRoom> getOpenPublicGameRoomList() {
+    ArrayList<PublicGameRoom> publicGameRoomList = new ArrayList<PublicGameRoom>();
+    for (PublicGameRoom room : publicGameRooms.values()) {
+      if (room.isOpen()) {
+        publicGameRoomList.add(room);
+      }
+    }
+    return publicGameRoomList;
+  }
+
   public void removeParticipantFromGameRoom(long userID, long roomID) {
     belonging.remove(userID);
     PublicGameRoom gameRoom = publicGameRooms.get(roomID);
-    if(gameRoom != null){
+    if (gameRoom != null) {
       gameRoom.removeParticipant(userID);
     }
   }

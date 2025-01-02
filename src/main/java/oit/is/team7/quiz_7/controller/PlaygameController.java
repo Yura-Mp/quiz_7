@@ -45,14 +45,7 @@ public class PlaygameController {
 
   @GetMapping
   public String playgame(ModelMap model) {
-    ArrayList<Gameroom> publicRooms = gameroomMapper.selectGameroomByPublished(true);
-    ArrayList<PublicGameRoom> publicGameRoomList = new ArrayList<PublicGameRoom>();
-    for (Gameroom room : publicRooms) {
-      PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) room.getID());
-      if (publicGameRoom != null) {
-        publicGameRoomList.add(publicGameRoom);
-      }
-    }
+    ArrayList<PublicGameRoom> publicGameRoomList = pGameRoomManager.getOpenPublicGameRoomList();
     model.addAttribute("publicGameroomList", publicGameRoomList);
     logger.info("PGRManager.pgrs:" + this.pGameRoomManager.getPublicGameRooms());
     return "playgame/playgame.html";

@@ -26,6 +26,7 @@ public class PublicGameRoom {
   private List<SseEmitter> emitters;
   private PGameRoomRanking ranking;
   private int nextQuizIndex;
+  private boolean open;
 
   @Autowired
   AsyncPGameRoomService asyncPGRService;
@@ -42,6 +43,7 @@ public class PublicGameRoom {
     this.emitters = new ArrayList<SseEmitter>();
     this.ranking = new PGameRoomRanking();
     this.nextQuizIndex = 0;
+    this.open = true;
   }
 
   public long getGameRoomID() {
@@ -122,7 +124,7 @@ public class PublicGameRoom {
   }
 
   public void removeParticipant(long userID) {
-      participants.remove(userID);
+    participants.remove(userID);
   }
 
   public List<SseEmitter> getEmitters() {
@@ -138,6 +140,14 @@ public class PublicGameRoom {
 
   public void removeEmitter(SseEmitter emitter) {
     emitters.remove(emitter);
+  }
+  
+    public boolean isOpen() {
+    return open;
+  }
+
+  public void setOpen(boolean open) {
+    this.open = open;
   }
 
 }
