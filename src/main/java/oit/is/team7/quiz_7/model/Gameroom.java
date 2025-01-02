@@ -5,7 +5,6 @@ public class Gameroom {
   int hostUserID;
   String roomName;
   String description;
-  boolean published;
 
   public int getID() {
     return id;
@@ -37,14 +36,6 @@ public class Gameroom {
 
   public void setDescription(String description) {
     this.description = description;
-  }
-
-  public boolean isPublished() {
-    return published;
-  }
-
-  public void setPublished(boolean published) {
-    this.published = published;
   }
 
 }

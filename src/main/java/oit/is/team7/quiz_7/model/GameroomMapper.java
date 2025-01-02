@@ -7,7 +7,6 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface GameroomMapper {
@@ -19,12 +18,6 @@ public interface GameroomMapper {
 
   @Select("SELECT * FROM gameroom WHERE hostUserID = #{hostUserID} and roomName = #{roomName}")
   Gameroom selectGameroomByHostAndName(int hostUserID, String roomName);
-
-  @Select("SELECT * FROM gameroom WHERE published = #{published}")
-  ArrayList<Gameroom> selectGameroomByPublished(boolean published);
-
-  @Update("UPDATE gameroom SET published = #{published} WHERE id = #{id}")
-  void updatePublishedByID(int id, boolean published);
 
   @Insert("INSERT INTO gameroom (hostUserID, roomName, description) VALUES (#{hostUserID}, #{roomName}, #{description})")
   @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")

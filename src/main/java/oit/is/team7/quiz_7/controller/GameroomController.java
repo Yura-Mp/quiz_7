@@ -117,7 +117,6 @@ public class GameroomController {
     LinkedHashMap<Long, PublicGameRoom> publicGameRooms = this.pGameRoomManager.getPublicGameRooms();
     publicGameRooms.put((long) roomID, newPublicGameRoom);
     this.pGameRoomManager.setPublicGameRooms(publicGameRooms);
-    gameroomMapper.updatePublishedByID(roomID, true);
     logger.info("PGRManager.publicGameRooms:" + this.pGameRoomManager.getPublicGameRooms());
 
     return "redirect:/gameroom/standby?room=" + roomID;
@@ -145,7 +144,7 @@ public class GameroomController {
     for (Long userID : usersToBeRemove) {
       pGameRoomManager.getBelonging().remove(userID);
     }
-    gameroomMapper.updatePublishedByID((int) roomID, false);
+    publicGameRoom.setOpen(false);
     return "redirect:/gameroom";
   }
 
