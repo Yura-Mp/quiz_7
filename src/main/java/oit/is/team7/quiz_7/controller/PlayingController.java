@@ -70,11 +70,16 @@ public class PlayingController {
   @GetMapping("/wait")
   public String get_wait_host(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
-    model.addAttribute("pgameroom", pgroom);
     if (!pgroom.getHostUserName().equals(prin.getName())) {
       // ユーザがホストでなければゲスト向けの待機画面を表示
+      model.addAttribute("pgameroom", pgroom);
       return get_wait_guest(roomID, prin, model);
     }
+    if (pgroom != null) {
+      pgroom.resetAllParticipants();
+      logger.info("[DBG]{}人の初期化を完了", pgroom.getParticipants().size());
+    }
+    model.addAttribute("pgameroom", pgroom);
     ArrayList<QuizTable> quizList = new ArrayList<QuizTable>();
     for (long quizID : pgroom.getQuizPool()) {
       quizList.add(quizTableMapper.selectQuizTableByID((int) quizID));
@@ -96,23 +101,25 @@ public class PlayingController {
   }
 
   @GetMapping("/ranking")
-  public String getRanking(@RequestParam(name = "room", required = false) Long roomID, @RequestParam(name = "user", required = false) Long userID, @RequestParam(name = "DBG", defaultValue = "false") final Boolean DBG_FLAG, Principal prin, ModelMap model) {
+  public String getRanking(@RequestParam(name = "room", required = false) Long roomID,
+      @RequestParam(name = "user", required = false) Long userID,
+      @RequestParam(name = "DBG", defaultValue = "false") final Boolean DBG_FLAG, Principal prin, ModelMap model) {
     // 返り値となるtemplatesが固定的であるため定数化．
     final String RETURN_TEMPLATE = "/playing/ranking.html";
 
     // [打ち切り] ルームIDが指定されていない場合，テストページを表示．
-    if(roomID == null) {
+    if (roomID == null) {
       return RETURN_TEMPLATE;
     }
 
     // デバッグ用．
-    if(DBG_FLAG) {
+    if (DBG_FLAG) {
       Gameroom testGameroom = new Gameroom();
       testGameroom.setID(-1);
       testGameroom.setRoomName("デバッグ用");
 
       // [打ち切り] ルームIDが違う場合(-1じゃない場合)，対象のルームがないとしてテストページを表示．
-      if(roomID != -1) {
+      if (roomID != -1) {
         return RETURN_TEMPLATE;
       }
 
@@ -125,7 +132,7 @@ public class PlayingController {
       testRanking.addEntry(new PGameRoomRankingEntryBean(-5L, "Test5", 250000L));
       testRanking.addEntry(new PGameRoomRankingEntryBean(-6L, "Test6", 55400L));
       testRanking.addEntry(new PGameRoomRankingEntryBean(-7L, "--------------------", 100000000L));
-      for(long i = -8L; i > -18L; i--) {
+      for (long i = -8L; i > -18L; i--) {
         testRanking.addEntry(new PGameRoomRankingEntryBean(i, "Test", 1000L));
       }
 
@@ -135,16 +142,16 @@ public class PlayingController {
       model.addAttribute("ranking", testRanking.getRanking());
 
       // [打ち切り] ユーザIDが指定されていない場合，普通のランキングを表示．
-      if(userID == null) {
+      if (userID == null) {
         return RETURN_TEMPLATE;
       }
 
       // [打ち切り] ランキングに指定のユーザIDのエントリがない場合，普通のランキングを表示．
-      if(testRanking.getIndexesByUserID().get(userID) == null) {
+      if (testRanking.getIndexesByUserID().get(userID) == null) {
         return RETURN_TEMPLATE;
       }
 
-      PGameRoomRankingEntryBean testUser =  testRanking.getRanking().get(testRanking.getIndexesByUserID().get(userID));
+      PGameRoomRankingEntryBean testUser = testRanking.getRanking().get(testRanking.getIndexesByUserID().get(userID));
       model.addAttribute("yourID", testUser.ID);
       model.addAttribute("yourRank", testUser.rank);
       model.addAttribute("yourPoint", testUser.point);
@@ -153,12 +160,11 @@ public class PlayingController {
     }
     // デバッグ用 END．
 
-
     Gameroom targetGameroom = gameroomMapper.selectGameroomByID(roomID.intValue());
 
     PublicGameRoom targetPGameRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
     // [打ち切り] 公開ゲームルームがない場合，対象のルームがないとしてテストページを表示．
-    if(targetPGameRoom == null) {
+    if (targetPGameRoom == null) {
       return RETURN_TEMPLATE;
     }
 
@@ -170,16 +176,17 @@ public class PlayingController {
     model.addAttribute("ranking", targetRanking.getRanking());
 
     // [打ち切り] ユーザIDが指定されていない場合，普通のランキングを表示．
-    if(userID == null) {
+    if (userID == null) {
       return RETURN_TEMPLATE;
     }
 
     // [打ち切り] ランキングに指定のユーザIDのエントリがない場合，普通のランキングを表示．
-    if(targetRanking.getIndexesByUserID().get(userID) == null) {
+    if (targetRanking.getIndexesByUserID().get(userID) == null) {
       return RETURN_TEMPLATE;
     }
 
-    PGameRoomRankingEntryBean targetUser = targetRanking.getRanking().get(targetRanking.getIndexesByUserID().get(userID));
+    PGameRoomRankingEntryBean targetUser = targetRanking.getRanking()
+        .get(targetRanking.getIndexesByUserID().get(userID));
     model.addAttribute("yourID", targetUser.ID);
     model.addAttribute("yourRank", targetUser.rank);
     model.addAttribute("yourPoint", targetUser.point);

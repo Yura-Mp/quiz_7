@@ -87,4 +87,10 @@ public class PublicGameRoom {
     this.open = open;
   }
 
+  public void resetAllParticipants() {
+    for (GameRoomParticipant participant : participants.values()) {
+      participant.resetForNewGame();
+    }
+  }
+
 }
