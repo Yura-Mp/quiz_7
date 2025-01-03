@@ -73,13 +73,18 @@ public class PlayingController {
   @GetMapping("/wait")
   public String get_wait_host(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
-    model.addAttribute("pgameroom", pgroom);
     if (!pgroom.getHostUserName().equals(prin.getName())) {
       // ユーザがホストでなければゲスト向けの待機画面を表示
+      model.addAttribute("pgameroom", pgroom);
       return get_wait_guest(roomID, prin, model);
     }
     asyncPGRService.setPageTransition(roomID); // ページ遷移イベントを送信
     pgroom.setOpen(false);
+    if (pgroom != null) {
+      pgroom.resetAllParticipants();
+      logger.info("[DBG]{}人の初期化を完了", pgroom.getParticipants().size());
+    }
+    model.addAttribute("pgameroom", pgroom);
     ArrayList<QuizTable> quizList = new ArrayList<QuizTable>();
     for (long quizID : pgroom.getQuizPool()) {
       quizList.add(quizTableMapper.selectQuizTableByID((int) quizID));
