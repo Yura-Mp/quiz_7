@@ -39,6 +39,15 @@ public class PGameRoomManager {
     this.belonging = belonging;
   }
 
+  public boolean addPublicGameRoom(PublicGameRoom pgroom) {
+    if (this.publicGameRooms.size() < MAX_ROOM_NUM) {
+      this.publicGameRooms.put(pgroom.getGameRoomID(), pgroom);
+      return true;
+    } else {
+      return false;   
+    }
+  }
+  
   public void removeGameRoom(long roomID) {
     publicGameRooms.remove(roomID);
   }
@@ -60,4 +69,13 @@ public class PGameRoomManager {
       gameRoom.removeParticipant(userID);
     }
   }
+
+  public void addParticipantToBelonging(long userID, long roomID) {
+    belonging.put(userID, roomID);
+  }
+
+  public void removeParticipantFromBelonging(long userID) {
+    belonging.remove(userID);
+  }
+
 }

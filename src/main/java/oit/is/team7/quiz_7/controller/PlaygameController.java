@@ -19,8 +19,8 @@ import oit.is.team7.quiz_7.model.GameRoomParticipant;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 import oit.is.team7.quiz_7.model.PublicGameRoom;
 import oit.is.team7.quiz_7.model.PublicGameRoomBean;
-import oit.is.team7.quiz_7.model.UserAccount;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
+import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 
 @Controller
 @RequestMapping("/playgame")
@@ -36,6 +36,12 @@ public class PlaygameController {
 
   @Autowired
   UserAccountMapper userAccountMapper;
+
+  @Autowired
+  AsyncPGameRoomService asyncPGRService;
+
+  @Autowired
+  SseController sseController;
 
   @GetMapping
   public String playgame(ModelMap model) {
@@ -79,9 +85,10 @@ public class PlaygameController {
     newParticipant.setUserID(userID);
     newParticipant.setUserName(principal.getName());
 
-    PublicGameRoom targetPGameRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
+    // 参加者を追加し、更新を通知
+    asyncPGRService.addParticipantToRoom(roomID, newParticipant);
+    logger.info("PlaygameController.postJoinCheck(...): Participants updated.");
 
-    targetPGameRoom.getParticipants().put(userID, newParticipant);
     if (DBG) {
       PublicGameRoom checkedRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
       GameRoomParticipant subject = checkedRoom.getParticipants().get(userID);
@@ -92,7 +99,7 @@ public class PlaygameController {
           userID));
     }
 
-    pGameRoomManager.getBelonging().put(userID, roomID);
+    pGameRoomManager.addParticipantToBelonging(userID, roomID);
     if (DBG) {
       logger.info(String.format(
           "[DBG] PlaygameController.postJoinCheck(...): Result of put belonging(gameRoomID(long)). userID: %d, subject: "
@@ -114,7 +121,9 @@ public class PlaygameController {
   @PostMapping("/standby/exit")
   public String exitGameRoom(@RequestParam("room") long roomID, Principal principal) {
     long userID = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
-    pGameRoomManager.removeParticipantFromGameRoom(userID, roomID);
+    pGameRoomManager.removeParticipantFromBelonging(userID);
+    // 参加者を削除し、更新を通知
+    asyncPGRService.removeParticipantFromRoom(roomID, userID);
     return "redirect:/playgame";
   }
 }
