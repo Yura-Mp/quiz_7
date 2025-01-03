@@ -23,7 +23,6 @@ import oit.is.team7.quiz_7.model.GameroomMapper;
 import oit.is.team7.quiz_7.model.GameRoomParticipant;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 import oit.is.team7.quiz_7.model.PublicGameRoom;
-import oit.is.team7.quiz_7.model.PublicGameRoomBean;
 import oit.is.team7.quiz_7.model.PGameRoomRanking;
 import oit.is.team7.quiz_7.model.PGameRoomRankingEntryBean;
 import oit.is.team7.quiz_7.model.QuizJson;

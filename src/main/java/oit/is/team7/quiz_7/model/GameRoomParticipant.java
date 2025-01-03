@@ -14,12 +14,12 @@ public class GameRoomParticipant {
   private double answerTime;
   private AnswerObj answerContent;
 
-  public void setUserID(long userID) {
-    this.userID = userID;
-  }
-
   public long getUserID() {
     return userID;
+  }
+
+  public void setUserID(long userID) {
+    this.userID = userID;
   }
 
   public String getUserName() {
@@ -33,11 +33,40 @@ public class GameRoomParticipant {
   public long getPoint() {
     return point;
   }
+  
+  public void setPoint(long point) {
+    this.point = point;
+  }
 
-  public void resetForNewGame() {
+  public boolean isAnswered() {
+    return answered;
+  }
+
+  public void setAnswered(boolean answered) {
+    this.answered = answered;
+  }
+
+  public double getAnswerTime() {
+    return answerTime;
+  }
+
+  public void setAnswerTime(double answerTime) {
+    this.answerTime = answerTime;
+  }
+
+  public AnswerObj getAnswerContent() {
+    return answerContent;
+  }
+
+  public void setAnswerContent(AnswerObj answerContent) {
+    this.answerContent = answerContent;
+  }
+  
+   public void resetForNewGame() {
     this.point = 0L;
     this.answered = false;
     this.answerTime = 0.0;
     this.answerContent = null;
   }
+
 }

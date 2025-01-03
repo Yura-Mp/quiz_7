@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <title>Quiz_7/待機</title>
   <link rel="stylesheet" href="/css/origin.css">
+  <script src="/js/SseGetParticipantsList.js"></script>
   <script>
     function confirmBack() {
       if (confirm("ゲームルームを退室しますか？"))
@@ -20,16 +21,18 @@
       <p>ルーム名： <span th:text="${gameroom.roomName}"></span></p>
       <p>ルーム概要： <span th:text="${gameroom.description}"></span></p>
       <p>ホストユーザ： <span th:text="${pgameroom.hostUserName}"></span></p>
-      <p>参加状況： <span th:text="${#maps.size(pgameroom.participants)}"></span> / <span
+      <p>参加状況： <span th:text="${#maps.size(pgameroom.participants)}" id="participantNum"></span> / <span
           th:text="${pgameroom.maxPlayers}"></span></p><br>
       <h3>参加者リスト</h3>
-      <p th:if="${pgameroom.participants.values().size() == 0}">現在参加者はいません。</p>
+      <p id="noParticipant">現在参加者はいません。</p>
       <div class="scroll-half">
-        <ul th:if="${pgameroom.participants.values().size() > 0}">
-          <li th:each="participant : ${pgameroom.participants.values()}">
-            <span th:text="${participant.userName}"></span>
-          </li>
-        </ul>
+        <div id="participantsList">
+          <ul th:if="${pgameroom.participants.values().size() > 0}">
+            <li th:each="participant : ${pgameroom.participants.values()}">
+              <span th:text="${participant.userName}"></span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
