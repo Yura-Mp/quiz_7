@@ -33,7 +33,7 @@ public class GameRoomParticipant {
   public long getPoint() {
     return point;
   }
-
+  
   public void setPoint(long point) {
     this.point = point;
   }
@@ -60,6 +60,13 @@ public class GameRoomParticipant {
 
   public void setAnswerContent(AnswerObj answerContent) {
     this.answerContent = answerContent;
+  }
+  
+   public void resetForNewGame() {
+    this.point = 0L;
+    this.answered = false;
+    this.answerTime = 0.0;
+    this.answerContent = null;
   }
 
 }
