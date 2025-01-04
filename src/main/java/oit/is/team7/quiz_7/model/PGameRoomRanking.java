@@ -29,9 +29,9 @@ public class PGameRoomRanking {
     final int INVALID_IDX = -1;
     int idx = (this.indexByUserID.get(entry.ID) != null ? this.indexByUserID.get(entry.ID) : INVALID_IDX);
 
-    if(idx == INVALID_IDX) {
+    if (idx == INVALID_IDX) {
       this.ranking.add(entry);
-      this.indexByUserID.put(entry.ID, this.ranking.size()-1);
+      this.indexByUserID.put(entry.ID, this.ranking.size() - 1);
     } else {
       this.ranking.set(idx, entry);
     }
@@ -42,8 +42,9 @@ public class PGameRoomRanking {
   }
 
   public ArrayList<PGameRoomRankingEntryBean> getRanking() {
-    if(this.sortState == SortState.NON_SORTED) {
-      throw new IllegalStateException("ソートされていないランキングの参照は許可されていません．");
+    if (this.sortState == SortState.NON_SORTED) {
+      // throw new IllegalStateException("ソートされていないランキングの参照は許可されていません．");
+      this.sortByPoint();
     }
 
     return new ArrayList<PGameRoomRankingEntryBean>(this.ranking);
@@ -62,11 +63,11 @@ public class PGameRoomRanking {
 
   public void sortByPoint() {
     // [エラー] ランキングのエントリがない場合．
-    if(this.ranking.size() <= 0) {
+    if (this.ranking.size() <= 0) {
       throw new IllegalStateException("ランキングのエントリがない状態での並べ替えは許可されていません．");
     }
 
-    if(this.sortState == SortState.SORTED_ON_POINT) {
+    if (this.sortState == SortState.SORTED_ON_POINT) {
       return;
     }
 
@@ -79,7 +80,7 @@ public class PGameRoomRanking {
     });
 
     // インデックスのMapを再定義．
-    for(int i = 0; i < this.ranking.size(); i++) {
+    for (int i = 0; i < this.ranking.size(); i++) {
       this.indexByUserID.put(this.ranking.get(i).ID, i);
     }
 
@@ -87,11 +88,11 @@ public class PGameRoomRanking {
     long seePt = this.ranking.get(0).point;
 
     // 順位付け
-    for(int i = 0; i < this.ranking.size(); i++) {
-      if(seePt == this.ranking.get(i).point) {
+    for (int i = 0; i < this.ranking.size(); i++) {
+      if (seePt == this.ranking.get(i).point) {
         this.ranking.get(i).updateRank(rank);
       } else {
-        rank = (i+1);
+        rank = (i + 1);
         this.ranking.get(i).updateRank(rank);
         seePt = this.ranking.get(i).point;
       }
