@@ -60,10 +60,45 @@ window.onload = function () {
       console.log("Error parsing event data:", e);
     }
   });
+  // SSEpageTransition.addEventListener('gameCancelled', function (event) {
+  //   console.log("Event received:" + event.data);
+  //   try {
+  //     if (event.data == "gameCancelled") {
+  //       var isHost = document.body.getAttribute('data-is-host');
+  //       console.log("isHost value:", isHost);
+  //       if (isHost === 'false') {
+  //         console.log("Confirm dialog will appear.");
+  //         if (confirm("ホストによりゲームが中止されました。")) {
+  //           console.log("Page transition detected");
+  //           window.location.href = "/playgame";
+  //         }
+  //       }
+  //     }
+  //   } catch (e) {
+  //     console.log("Error parsing event data:", e);
+  //   }
+  // });
   SSEpageTransition.addEventListener('init', function (event) {
     console.log("Init event received: " + event.data);
   });
   SSEpageTransition.onerror = function (error) {
     console.log("SSE error:", error);
   }
+
+  function showModal() {
+    var modal = document.getElementById("modal");
+    modal.style.display = "flex";
+  }
+
+  // モーダルを閉じる処理
+  document.getElementById("confirmButton").addEventListener("click", function () {
+    window.location.href = "/playgame";
+  });
+
+  // SSEイベントを受け取ったときにモーダルを表示
+  SSEpageTransition.addEventListener('gameCancelled', function (event) {
+    if (event.data == "gameCancelled") {
+      showModal();
+    }
+  });
 }
