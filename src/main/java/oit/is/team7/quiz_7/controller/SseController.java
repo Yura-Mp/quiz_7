@@ -23,6 +23,7 @@ public class SseController {
   @Autowired
   PGameRoomManager pGameRoomManager;
 
+  // 参加者リストを取得するエンドポイント
   @GetMapping("/participantsList")
   public SseEmitter getParticipantsList(@RequestParam("room") long roomID) {
     logger.info("getParticipantsList called with roomID:" + roomID);
@@ -45,4 +46,29 @@ public class SseController {
     }
     return emitter;
   }
+
+  // ページ遷移イベントを受け取るエンドポイント
+  @GetMapping("/pageTransition")
+  public SseEmitter pageTransition(@RequestParam("room") long roomID) {
+    logger.info("pageTransition called with roomID:" + roomID);
+    final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
+    if (pgroom == null) {
+      logger.error("Room not found: {}", roomID);
+      emitter.completeWithError(new Exception("Room not found"));
+      return emitter;
+    }
+    pgroom.addEmitter(emitter);
+    try {
+      // 初期メッセージを送信して接続が確立されたことを確認
+      logger.info("Sending init message to roomID: " + roomID);
+      emitter.send(SseEmitter.event().name("init").data("SSE connection established"));
+      asyncPGRService.asyncSendPageTransition(pgroom);
+    } catch (Exception e) {
+      logger.error("Error in pageTransition(...): {}", e.getMessage());
+      emitter.completeWithError(e);
+    }
+    return emitter;
+  }
+
 }

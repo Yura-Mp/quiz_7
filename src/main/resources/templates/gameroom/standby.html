@@ -6,6 +6,7 @@
   <title>Quiz_7/待機</title>
   <link rel="stylesheet" href="/css/origin.css">
   <script src="/js/SseGetParticipantsList.js"></script>
+
   <script>
     function confirmBack() {
       if (confirm("ゲームルームを中止しますか？")) {
@@ -37,10 +38,9 @@
     </div>
 
     <div class="input-form">
-      <a th:href="@{/playing/wait(room=${pgameroom.gameRoomID})}" class="colored_button"
-        style="margin-bottom: 20px;">ゲーム開始</a>
+      <a th:href="@{/playing/wait(room=${pgameroom.gameRoomID})}" class="colored_button">ゲーム開始</a><br />
       <form th:action="@{./standby/cancel(room=${gameroom.ID})}" method="post" id="cancel_room"></form>
-      <button type="button" class="colored_button" onclick="confirmBack();" style="margin-top: 20px;">中止</button>
+      <button type="button" class="colored_button" onclick="confirmBack();">中止</button>
     </div>
   </div>
 </body>

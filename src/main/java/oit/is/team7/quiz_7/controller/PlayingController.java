@@ -29,6 +29,7 @@ import oit.is.team7.quiz_7.model.QuizJson;
 import oit.is.team7.quiz_7.model.QuizTable;
 import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
+import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 import oit.is.team7.quiz_7.utils.JsonUtils;
 
 @Controller
@@ -46,6 +47,9 @@ public class PlayingController {
 
   @Autowired
   UserAccountMapper userAccountMapper;
+
+  @Autowired
+  AsyncPGameRoomService asyncPGRService;
 
   public String get_wait_guest(int roomID, Principal prin, ModelMap model) {
     long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
@@ -74,6 +78,8 @@ public class PlayingController {
       model.addAttribute("pgameroom", pgroom);
       return get_wait_guest(roomID, prin, model);
     }
+    asyncPGRService.setPageTransition(roomID); // ページ遷移イベントを送信
+    pgroom.setOpen(false);
     if (pgroom != null) {
       pgroom.resetAllParticipants();
       logger.info("[DBG]{}人の初期化を完了", pgroom.getParticipants().size());
