@@ -1,12 +1,16 @@
 window.onload = function () {
   var roomID = new URLSearchParams(window.location.search).get('room');
-  var sse = new EventSource('/sse/participantsList?room=' + roomID);
+  // 参加者リスト更新用イベントソース
+  var SSEparticipantsList = new EventSource('/sse/participantsList?room=' + roomID);
   console.log("Room ID:", roomID);
   console.log("EventSource created with URL: /sse/participantsList?room=" + roomID);
-  sse.onopen = function () {
+  SSEparticipantsList.onopen = function () {
     console.log("SSE connection opened");
   }
-  sse.onmessage = function (event) {
+  SSEparticipantsList.onmessage = function (event) {
+    console.log("SSEparticipantsList received:" + event.data);
+  }
+  SSEparticipantsList.addEventListener('participantsList', function (event) {
     console.log("Event received:" + event.data);
     try {
       var participants = JSON.parse(event.data);
@@ -28,11 +32,38 @@ window.onload = function () {
     } catch (e) {
       console.log("Error parsing event data:", e);
     }
-  }
-  sse.addEventListener('init', function (event) {
+  });
+  SSEparticipantsList.addEventListener('init', function (event) {
     console.log("Init event received: " + event.data);
   });
-  sse.onerror = function (error) {
+  SSEparticipantsList.onerror = function (error) {
+    console.log("SSE error:", error);
+  }
+
+  // ページ遷移用イベントソース
+  var SSEpageTransition = new EventSource('/sse/pageTransition?room=' + roomID);
+  console.log("EventSource created with URL: /sse/pageTransition?room=" + roomID);
+  SSEpageTransition.onopen = function () {
+    console.log("SSE connection opened");
+  }
+  SSEpageTransition.onmessage = function (event) {
+    console.log("SSEpageTransition received:" + event.data);
+  }
+  SSEpageTransition.addEventListener('pageTransition', function (event) {
+    console.log("Event received:" + event.data);
+    try {
+      if (event.data == "pageTransition") {
+        console.log("Page transition detected");
+        window.location.href = "/playing/wait?room=" + roomID;
+      }
+    } catch (e) {
+      console.log("Error parsing event data:", e);
+    }
+  });
+  SSEpageTransition.addEventListener('init', function (event) {
+    console.log("Init event received: " + event.data);
+  });
+  SSEpageTransition.onerror = function (error) {
     console.log("SSE error:", error);
   }
 }
