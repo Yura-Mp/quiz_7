@@ -27,6 +27,9 @@ public class PublicGameRoom {
   private PGameRoomRanking ranking;
   private int nextQuizIndex;
   private boolean open;
+  private long startedAnswerAt_ms;
+  private boolean answering;
+  private boolean confirmedResult;
 
   @Autowired
   AsyncPGameRoomService asyncPGRService;
@@ -44,6 +47,8 @@ public class PublicGameRoom {
     this.ranking = new PGameRoomRanking();
     this.nextQuizIndex = 0;
     this.open = true;
+    this.startedAnswerAt_ms = System.currentTimeMillis();
+    this.answering = false;
   }
 
   public long getGameRoomID() {
@@ -141,7 +146,7 @@ public class PublicGameRoom {
   public void removeEmitter(SseEmitter emitter) {
     emitters.remove(emitter);
   }
-  
+
     public boolean isOpen() {
     return open;
   }
@@ -156,4 +161,39 @@ public class PublicGameRoom {
     }
   }
 
+  public long getStartedAnswerAt_ms() {
+    return this.startedAnswerAt_ms;
+  }
+
+  public void setStartedAnswerAt_ms(long startedAnswerAt_ms) {
+    this.startedAnswerAt_ms = startedAnswerAt_ms;
+  }
+
+  public long setStartedAnswerAt_msNow() {
+    return this.startedAnswerAt_ms = System.currentTimeMillis();
+  }
+
+  public boolean isAnswering() {
+    return this.answering;
+  }
+
+  public void startAnswer() {
+    this.answering = true;
+  }
+
+  public void endAnswer() {
+    this.answering = false;
+  }
+
+  public boolean isConfirmedResult() {
+    return this.confirmedResult;
+  }
+
+  public void confirmResult() {
+    this.confirmedResult = true;
+  }
+
+  public void unconfirmResult() {
+    this.confirmedResult = false;
+  }
 }
