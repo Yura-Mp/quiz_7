@@ -77,4 +77,31 @@ public class AsyncPGameRoomService {
     logger.info("Participant removed");
     setParticipantsUpdated();
   }
+
+  public void asyncSendAnswerList(PublicGameRoom pgroom) {
+    logger.info("asyncSendAnswerList called");
+    try {
+      while (true) {
+        List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
+        logger.info("Participants list : " + participants);
+
+        String jsonData = new ObjectMapper().writeValueAsString(participants);
+
+        for (SseEmitter emitter : pgroom.getEmitters()) {
+          try {
+            logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
+            emitter.send(SseEmitter.event().name("refresh").data(jsonData));
+            logger.info("Event sent");
+          } catch (Exception e) {
+            pgroom.removeEmitter(emitter);
+            logger.error("Error sending event: " + e.getMessage());
+          }
+        }
+        logger.info("refresh event sent");
+        TimeUnit.MILLISECONDS.sleep(1000);
+      }
+    } catch (Exception e) {
+      logger.error("Error in asyncSendAnswerList(...): {}", e.getMessage());
+    }
+  }
 }

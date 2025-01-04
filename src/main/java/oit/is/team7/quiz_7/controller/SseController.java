@@ -45,4 +45,27 @@ public class SseController {
     }
     return emitter;
   }
+
+  @GetMapping("/answerList")
+  public SseEmitter getAnswerList(@RequestParam("room") long roomID) {
+    logger.info("getAnswerList called with roomID:" + roomID);
+    final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
+    if (pgroom == null) {
+      logger.error("Room not found: {}", roomID);
+      emitter.completeWithError(new Exception("Room not found"));
+      return emitter;
+    }
+    pgroom.addEmitter(emitter);
+    try {
+      // 初期メッセージを送信して接続が確立されたことを確認
+      logger.info("Sending init message to roomID: " + roomID);
+      emitter.send(SseEmitter.event().name("init").data("SSE connection established"));
+      asyncPGRService.asyncSendAnswerList(pgroom);
+    } catch (Exception e) {
+      logger.error("Error in getAnswerList(...): {}", e.getMessage());
+      emitter.completeWithError(e);
+    }
+    return emitter;
+  }
 }

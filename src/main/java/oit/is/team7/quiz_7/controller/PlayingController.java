@@ -99,6 +99,39 @@ public class PlayingController {
     return "/playing/host/wait.html";
   }
 
+  @GetMapping("/ans_result")
+  public String get_ans_result_host(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    // if (!pgroom.getHostUserName().equals(prin.getName())) {
+    // // ユーザがホストでなければゲスト向けの回答結果画面を表示
+    // model.addAttribute("pgameroom", pgroom);
+    // return get_wait_guest(roomID, prin, model);
+    // }
+    model.addAttribute("pgameroom", pgroom);
+    ArrayList<QuizTable> quizList = new ArrayList<QuizTable>();
+    for (long quizID : pgroom.getQuizPool()) {
+      quizList.add(quizTableMapper.selectQuizTableByID((int) quizID));
+    }
+    model.addAttribute("quizList", quizList);
+    long curQuizID = pgroom.getQuizPool().get(pgroom.getNextQuizIndex());
+    QuizTable curQuiz = quizTableMapper.selectQuizTableByID((int) curQuizID);
+    model.addAttribute("curQuiz", curQuiz);
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode quizJsonNode = curQuiz.getQuizJSON();
+    String quizJsonString = JsonUtils.parseJsonNodeToString(quizJsonNode);
+    try {
+      QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
+      model.addAttribute("curQuizJson", quizJson);
+    } catch (Exception e) {
+      logger.error("Error at parsing quizJson: " + e.toString());
+    }
+    // 参加者リストをマッピング
+    Map<Long, GameRoomParticipant> participants = pgroom.getParticipants();
+    ArrayList<GameRoomParticipant> participantsList = new ArrayList<>(participants.values());
+    model.addAttribute("participantsList", participantsList);
+    return "/playing/host/ans_result.html";
+  }
+
   @GetMapping("/ranking")
   public String getRanking(@RequestParam(name = "room", required = false) Long roomID,
       @RequestParam(name = "user", required = false) Long userID,
