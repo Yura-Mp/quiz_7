@@ -105,6 +105,40 @@ public class PlayingController {
     return "/playing/host/wait.html";
   }
 
+  @GetMapping("/overall")
+  public String get_overall_host(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    if (!pgroom.getHostUserName().equals(prin.getName())) {
+      // ユーザがホストでなければゲスト向けの待機画面を表示
+      model.addAttribute("pgameroom", pgroom);
+      return get_overall_guest(roomID, prin, model);
+    }
+    model.addAttribute("pgameroom", pgroom);
+    return "/playing/host/overall.html";
+  }
+
+  public String get_overall_guest(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
+    long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    Map<Long, GameRoomParticipant> participants = pgroom.getParticipants();
+    GameRoomParticipant participant = participants.get(userID);
+    if (pgroom != null) {
+      model.addAttribute("pgameroom", pgroom);
+    }
+    if (participant != null) {
+      model.addAttribute("participant", participant);
+    }
+    List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
+    sortParticipants.sort((p1, p2) -> Long.compare(p2.getPoint(), p1.getPoint()));
+    for (int rank = 0; rank < sortParticipants.size(); rank++) {
+      GameRoomParticipant target = sortParticipants.get(rank);
+      if (target.getUserID() == userID) {
+        model.addAttribute("participantRank", rank + 1);
+      }
+    }
+    return "/playing/guest/overall.html";
+  }
+
   @GetMapping("/ranking")
   public String getRanking(@RequestParam(name = "room", required = false) Long roomID,
       @RequestParam(name = "user", required = false) Long userID,
