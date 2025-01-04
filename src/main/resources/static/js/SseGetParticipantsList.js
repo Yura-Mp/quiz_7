@@ -60,24 +60,6 @@ window.onload = function () {
       console.log("Error parsing event data:", e);
     }
   });
-  // SSEpageTransition.addEventListener('gameCancelled', function (event) {
-  //   console.log("Event received:" + event.data);
-  //   try {
-  //     if (event.data == "gameCancelled") {
-  //       var isHost = document.body.getAttribute('data-is-host');
-  //       console.log("isHost value:", isHost);
-  //       if (isHost === 'false') {
-  //         console.log("Confirm dialog will appear.");
-  //         if (confirm("ホストによりゲームが中止されました。")) {
-  //           console.log("Page transition detected");
-  //           window.location.href = "/playgame";
-  //         }
-  //       }
-  //     }
-  //   } catch (e) {
-  //     console.log("Error parsing event data:", e);
-  //   }
-  // });
   SSEpageTransition.addEventListener('init', function (event) {
     console.log("Init event received: " + event.data);
   });
