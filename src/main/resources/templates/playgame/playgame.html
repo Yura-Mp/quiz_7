@@ -16,13 +16,13 @@
           <tr>
             <th>ゲームルーム名</th>
             <th>ホスト名</th>
-            <th>最大人数</th>
+            <th>参加状況</th>
             <th>リンク</th>
           </tr>
           <tr th:each="pgameroom : ${publicGameroomList}">
             <td th:text="${pgameroom.gameRoomName}"></td>
             <td th:text="${pgameroom.hostUserName}"></td>
-            <td align="right" th:text="${pgameroom.maxPlayers}"></td>
+            <td align="right" th:text="${#maps.size(pgameroom.participants)} + '/' + ${pgameroom.maxPlayers}"></td>
             <td><a th:href="@{/playgame/join_check(room=${pgameroom.gameRoomID})}">選択</a></td>
           </tr>
         </table>

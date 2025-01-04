@@ -59,13 +59,9 @@ public class PlaygameController {
       logger.warn("PlaygameController.getJoinCheck(...): PublicGameRoom #%d is null. ", roomID);
     }
 
-    PublicGameRoomBean targetPRoomBean = new PublicGameRoomBean();
-    targetPRoomBean.setHostUserName(targetPRoom.getHostUserName());
-    targetPRoomBean.setMaxPlayers(targetPRoom.getMaxPlayers());
-
     Gameroom targetRoom = gameroomMapper.selectGameroomByID((int) roomID);
 
-    model.addAttribute("pgameroom", targetPRoomBean);
+    model.addAttribute("pgameroom", targetPRoom);
     model.addAttribute("gameroom", targetRoom);
     logger.info("PlaygameController.getJoinCheck(...): Called. ");
     return "playgame/join_check.html";

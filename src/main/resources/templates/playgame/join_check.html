@@ -14,7 +14,8 @@
       <p>ルーム名： <span th:text="${gameroom.roomName}"></span></p>
       <p>ルーム概要： <span th:text="${gameroom.description}"></span></p>
       <p>ホストユーザ： <span th:text="${pgameroom.hostUserName}"></span></p>
-      <p>最大参加人数： <span th:text="${pgameroom.maxPlayers}"></span></p>
+      <p>参加状況： <span th:text="${#maps.size(pgameroom.participants)}"></span> / <span
+          th:text="${pgameroom.maxPlayers}"></span></p>
 
       <form th:action="@{./join_check(room=${gameroom.ID})}" method="post" id="join_room"></form>
     </div>
