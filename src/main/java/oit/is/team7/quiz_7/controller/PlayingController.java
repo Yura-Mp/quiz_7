@@ -100,7 +100,8 @@ public class PlayingController {
   }
 
   @GetMapping("/ans_result")
-  public String get_ans_result_host(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
+  public String get_ans_result_host(@RequestParam("room") int roomID, @RequestParam("quiz") int curQuizID,
+      Principal prin, ModelMap model) {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     // if (!pgroom.getHostUserName().equals(prin.getName())) {
     // // ユーザがホストでなければゲスト向けの回答結果画面を表示
@@ -113,8 +114,7 @@ public class PlayingController {
       quizList.add(quizTableMapper.selectQuizTableByID((int) quizID));
     }
     model.addAttribute("quizList", quizList);
-    long curQuizID = pgroom.getQuizPool().get(pgroom.getNextQuizIndex());
-    QuizTable curQuiz = quizTableMapper.selectQuizTableByID((int) curQuizID);
+    QuizTable curQuiz = quizTableMapper.selectQuizTableByID(curQuizID);
     model.addAttribute("curQuiz", curQuiz);
     ObjectMapper objectMapper = new ObjectMapper();
     JsonNode quizJsonNode = curQuiz.getQuizJSON();

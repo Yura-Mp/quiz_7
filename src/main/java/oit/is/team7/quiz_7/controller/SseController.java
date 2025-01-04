@@ -47,7 +47,7 @@ public class SseController {
   }
 
   @GetMapping("/answerList")
-  public SseEmitter getAnswerList(@RequestParam("room") long roomID) {
+  public SseEmitter getAnswerList(@RequestParam("room") long roomID, @RequestParam("quiz") int quizID) {
     logger.info("getAnswerList called with roomID:" + roomID);
     final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
@@ -61,7 +61,7 @@ public class SseController {
       // 初期メッセージを送信して接続が確立されたことを確認
       logger.info("Sending init message to roomID: " + roomID);
       emitter.send(SseEmitter.event().name("init").data("SSE connection established"));
-      asyncPGRService.asyncSendAnswerList(pgroom);
+      asyncPGRService.asyncSendAnswerList(pgroom, quizID);
     } catch (Exception e) {
       logger.error("Error in getAnswerList(...): {}", e.getMessage());
       emitter.completeWithError(e);

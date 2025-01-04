@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oit.is.team7.quiz_7.model.PublicGameRoom;
+import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.GameRoomParticipant;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 
@@ -25,6 +26,9 @@ public class AsyncPGameRoomService {
 
   @Autowired
   PGameRoomManager pGameRoomManager;
+
+  @Autowired
+  QuizTableMapper quizTableMapper;
 
   @Async
   public void asyncSendParticipantsList(PublicGameRoom pgroom) {
@@ -78,8 +82,10 @@ public class AsyncPGameRoomService {
     setParticipantsUpdated();
   }
 
-  public void asyncSendAnswerList(PublicGameRoom pgroom) {
+  @Async
+  public void asyncSendAnswerList(PublicGameRoom pgroom, int quizID) {
     logger.info("asyncSendAnswerList called");
+    double time = quizTableMapper.selectQuizTableByID(quizID).getTimelimit();
     try {
       while (true) {
         List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
@@ -91,14 +97,15 @@ public class AsyncPGameRoomService {
           try {
             logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
             emitter.send(SseEmitter.event().name("refresh").data(jsonData));
-            logger.info("Event sent");
+            emitter.send(SseEmitter.event().name("countdown").data(time--));
+            // TODO: if pgroom.confirmedResult is true, send event to page transition
+            logger.info("Events sent");
           } catch (Exception e) {
             pgroom.removeEmitter(emitter);
             logger.error("Error sending event: " + e.getMessage());
           }
         }
-        logger.info("refresh event sent");
-        TimeUnit.MILLISECONDS.sleep(1000);
+        TimeUnit.MILLISECONDS.sleep(1000); // 1秒ごとに更新
       }
     } catch (Exception e) {
       logger.error("Error in asyncSendAnswerList(...): {}", e.getMessage());

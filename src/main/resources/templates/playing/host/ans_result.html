@@ -12,35 +12,32 @@
   <div class="container">
     <div class="display">
       <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
+      <h3>出題中のクイズ</h3>
+      <div th:if="${curQuiz}">
+        <p>タイトル:[[${curQuiz.title}]]</p>
+        <p>問題文:[[${curQuiz.description}]]</p>
+      </div>
+      <p>選択肢</p>
+      <div th:if="${curQuizJson}">
+        <ol>
+          <li th:each="choice : ${curQuizJson.choices}" th:text="${choice}"></li>
+        </ol>
+        <p>答え：[[${curQuizJson.correct}]]</p>
+      </div>
+      <!-- 残り回答時間 -->
+      <h3 id="remainTime"></h3>
+    </div>
+
+    <div class="display">
+      <!-- 全参加者の名前と回答内容のリスト -->
+      <h3>回答結果</h3>
       <div class="scroll-full">
-        <h3>出題中のクイズ</h3>
-        <div th:if="${curQuiz}">
-          <p>タイトル:[[${curQuiz.title}]]</p>
-          <p>問題文:[[${curQuiz.description}]]</p>
-        </div>
-        <p>選択肢</p>
-        <div th:if="${curQuizJson}">
-          <ol>
-            <li th:each="choice : ${curQuizJson.choices}" th:text="${choice}"></li>
-          </ol>
-          <p>答え：[[${curQuizJson.correct}]]</p>
-        </div>
-        <!-- 全参加者の名前と回答内容のリスト -->
-        <h3>回答結果</h3>
         <div th:if="${participantsList}">
           <ul th:each="participant : ${participantsList}" id="answerList">
             <li th:text="${participant.userName} + ': 未回答'"></li>
           </ul>
         </div>
       </div>
-      <!-- 残り回答時間 -->
-      <div>制限時間：<p id="remainTime" th:text="${curQuiz.timelimit} + ' 秒'"></p>
-      </div>
-    </div>
-
-    <div class="input-form">
-      <a id="toRanking"></a>
-      <a id="toFinalResult"></a>
     </div>
   </div>
 </body>
