@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Quiz_7/最終結果</title>
+  <link rel="stylesheet" href="/css/origin.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="display">
+      <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
+      <!-- 実施したクイズの情報 -->
+      <h3>クイズリスト</h3>
+      <div class="scroll-full">
+        <ol th:if="${quizList}">
+          <li th:each="quiz : ${quizList}">
+            <p th:text="${quiz.title}"></p>
+            <p th:text="${quiz.description}"></p>
+          </li>
+        </ol>
+      </div>
+      <a th:href="@{/main}">ゲーム終了</a>
+    </div>
+
+    <div class="iframe-section">
+      <iframe th:src="@{./ranking}"></iframe>
+    </div>
+
+  </div>
+</body>
+
+</html>

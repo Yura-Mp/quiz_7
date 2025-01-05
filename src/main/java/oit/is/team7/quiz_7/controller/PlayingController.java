@@ -137,10 +137,15 @@ public class PlayingController {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     if (!pgroom.getHostUserName().equals(prin.getName())) {
       // ユーザがホストでなければゲスト向けの待機画面を表示
-      model.addAttribute("pgameroom", pgroom);
       return get_overall_guest(roomID, prin, model);
     }
     model.addAttribute("pgameroom", pgroom);
+    // クイズリストをマッピング
+    ArrayList<QuizTable> quizList = new ArrayList<QuizTable>();
+    for (long quizID : pgroom.getQuizPool()) {
+      quizList.add(quizTableMapper.selectQuizTableByID((int) quizID));
+    }
+    model.addAttribute("quizList", quizList);
     return "/playing/host/overall.html";
   }
 
