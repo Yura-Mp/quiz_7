@@ -11,31 +11,23 @@
   <div class="container">
     <div class="display">
       <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
-      <!-- 参加者のランキングを表示 -->
-      <h3>最終結果</h3>
+      <!-- 実施したクイズの情報 -->
+      <h3>クイズリスト</h3>
       <div class="scroll-full">
-        <table>
-          <thead>
-            <tr>
-              <th>順位</th>
-              <th>ユーザ名</th>
-              <th>得点</th>
-            </tr>
-          </thead>
-          <tbody th:if="${participantsList}">
-            <tr th:each="participant, index : ${participantsList}">
-              <td th:text="${index.index + 1}" align="right"></td>
-              <td th:text="${participant.userName}"></td>
-              <td th:text="${participant.point}" align="right"></td>
-            </tr>
-          </tbody>
-        </table>
+        <ol th:if="${quizList}">
+          <li th:each="quiz : ${quizList}">
+            <p th:text="${quiz.title}"></p>
+            <p th:text="${quiz.description}"></p>
+          </li>
+        </ol>
       </div>
+      <a th:href="@{/main}">ゲーム終了</a>
     </div>
 
-    <div class="input-form">
-      <a th:href="@{/main}" class="colored_button">終了</a>
+    <div class="iframe-section">
+      <iframe th:src="@{./ranking}"></iframe>
     </div>
+
   </div>
 </body>
 

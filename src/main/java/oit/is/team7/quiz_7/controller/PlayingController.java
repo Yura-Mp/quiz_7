@@ -113,10 +113,12 @@ public class PlayingController {
       return get_overall_guest(roomID, prin, model);
     }
     model.addAttribute("pgameroom", pgroom);
-    List<GameRoomParticipant> sortParticipants = new ArrayList<>(pgroom.getParticipants().values());
-    sortParticipants.sort((p1, p2) -> Long.compare(p2.getPoint(), p1.getPoint()));
-    logger.info("mapping participants: " + sortParticipants);
-    model.addAttribute("participantsList", sortParticipants);
+    // クイズリストをマッピング
+    ArrayList<QuizTable> quizList = new ArrayList<QuizTable>();
+    for (long quizID : pgroom.getQuizPool()) {
+      quizList.add(quizTableMapper.selectQuizTableByID((int) quizID));
+    }
+    model.addAttribute("quizList", quizList);
     return "/playing/host/overall.html";
   }
 
