@@ -32,6 +32,9 @@ import oit.is.team7.quiz_7.model.QuizFormatListMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 import oit.is.team7.quiz_7.utils.JsonUtils;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 @Controller
@@ -298,5 +301,25 @@ public class PlayingController {
     }
 
     return "/playing/answer_4choices.html";
+  }
+
+  @PostMapping(value = "/answer_4choices", params = "choiceNo1")
+  public String postAnswer4choicesNo1(Principal prin, ModelMap model) {
+    return this.postAnswer4choices(1, prin, model);
+  }
+  @PostMapping(value = "/answer_4choices", params = "choiceNo2")
+  public String postAnswer4choicesNo2(Principal prin, ModelMap model) {
+    return this.postAnswer4choices(2, prin, model);
+  }
+  @PostMapping(value = "/answer_4choices", params = "choiceNo3")
+  public String postAnswer4choicesNo3(Principal prin, ModelMap model) {
+    return this.postAnswer4choices(3, prin, model);
+  }
+  @PostMapping(value = "/answer_4choices", params = "choiceNo4")
+  public String postAnswer4choicesNo4(Principal prin, ModelMap model) {
+    return this.postAnswer4choices(4, prin, model);
+  }
+  public String postAnswer4choices(final int chooseNum, Principal prin, ModelMap model) {
+
   }
 }
