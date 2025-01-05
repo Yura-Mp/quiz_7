@@ -110,10 +110,13 @@ public class PlayingController {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     if (!pgroom.getHostUserName().equals(prin.getName())) {
       // ユーザがホストでなければゲスト向けの待機画面を表示
-      model.addAttribute("pgameroom", pgroom);
       return get_overall_guest(roomID, prin, model);
     }
     model.addAttribute("pgameroom", pgroom);
+    List<GameRoomParticipant> sortParticipants = new ArrayList<>(pgroom.getParticipants().values());
+    sortParticipants.sort((p1, p2) -> Long.compare(p2.getPoint(), p1.getPoint()));
+    logger.info("mapping participants: " + sortParticipants);
+    model.addAttribute("participantsList", sortParticipants);
     return "/playing/host/overall.html";
   }
 

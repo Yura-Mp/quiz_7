@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Quiz_7/最終結果</title>
+  <link rel="stylesheet" href="/css/origin.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="display">
+      <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
+      <!-- 参加者のランキングを表示 -->
+      <h3>最終結果</h3>
+      <div class="scroll-full">
+        <table>
+          <thead>
+            <tr>
+              <th>順位</th>
+              <th>ユーザ名</th>
+              <th>得点</th>
+            </tr>
+          </thead>
+          <tbody th:if="${participantsList}">
+            <tr th:each="participant, index : ${participantsList}">
+              <td th:text="${index.index + 1}" align="right"></td>
+              <td th:text="${participant.userName}"></td>
+              <td th:text="${participant.point}" align="right"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="input-form">
+      <a th:href="@{/main}" class="colored_button">終了</a>
+    </div>
+  </div>
+</body>
+
+</html>
