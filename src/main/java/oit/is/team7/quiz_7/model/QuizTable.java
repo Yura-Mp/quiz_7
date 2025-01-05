@@ -2,6 +2,8 @@ package oit.is.team7.quiz_7.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import oit.is.team7.quiz_7.utils.JsonUtils;
+
 public class QuizTable {
   int ID;
   int quizFormatID;
@@ -69,8 +71,8 @@ public class QuizTable {
     this.point = point;
   }
 
-  public JsonNode getQuizJSON() {
-    return quizJSON;
+  public String getQuizJSON() {
+    return JsonUtils.parseJsonNodeToString(this.quizJSON);
   }
 
   public void setQuizJSON(JsonNode quizJSON) {
