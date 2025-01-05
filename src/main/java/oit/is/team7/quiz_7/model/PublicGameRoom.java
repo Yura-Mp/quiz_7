@@ -46,7 +46,7 @@ public class PublicGameRoom {
     this.ranking = new PGameRoomRanking();
     this.nextQuizIndex = 0;
     this.open = true;
-    this.startedAnswerAt_ms = System.currentTimeMillis();
+    this.startedAnswerAt_ms = System.currentTimeMillis() + 300000L;
     this.answering = false;
   }
 

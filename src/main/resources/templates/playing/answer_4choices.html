@@ -55,20 +55,29 @@
     <div class="display">
       <h3 id="quiz-title">[[${title}]]</h3>
       <p id="quiz-desc">[[${description}]]</p>
-      <form th:action="@{./answer_4choices}" method="post" id="quiz-form">
+      <form th:action="@{./answer_4choices(room=${roomID})}" method="post" id="quiz-form">
         <table>
           <tr>
-            <td><input type="submit" name="choiceNo1" th:value="${choices1}"></td>
-            <td><input type="submit" name="choiceNo2" th:value="${choices2}"></td>
+            <td><input type="submit" name="choiceNo1" th:value="${choices1}" th:disabled="${yourChoiceContent}" /></td>
+            <td><input type="submit" name="choiceNo2" th:value="${choices2}" th:disabled="${yourChoiceContent}" /></td>
           </tr>
           <tr>
-            <td><input type="submit" name="choiceNo3" th:value="${choices3}"></td>
-            <td><input type="submit" name="choiceNo4" th:value="${choices4}"></td>
+            <td><input type="submit" name="choiceNo3" th:value="${choices3}" th:disabled="${yourChoiceContent}" /></td>
+            <td><input type="submit" name="choiceNo4" th:value="${choices4}" th:disabled="${yourChoiceContent}" /></td>
           </tr>
         </table>
       </form>
 
-      <p>解答残り時間: <span id="QuizTimer" /></p>
+      <p>
+        解答残り時間: <span id="QuizTimer" />
+      </p>
+
+      <p>
+        <span id="ansResultTime" th:if="${yourAnsTime} and ${quizTimelimit}">あなたの解答時間: [[${yourAnsTime}]] / [[${quizTimelimit}]]s <br /></span>
+        <span id="ansResultChoice" th:if="${yourChoiceContent}">あなたの解答選択肢: [[${yourChoiceContent}]] <br /></span>
+      </p>
+
+      <p th:if="${error_result}" th:text="${error_result}" class="error-message"></p>
     </div>
 
     <div class="iframe-section">
