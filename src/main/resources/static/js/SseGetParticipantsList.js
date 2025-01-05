@@ -66,4 +66,21 @@ window.onload = function () {
   SSEpageTransition.onerror = function (error) {
     console.log("SSE error:", error);
   }
+
+  function showModal() {
+    var modal = document.getElementById("modal");
+    modal.style.display = "flex";
+  }
+
+  // モーダルを閉じる処理
+  document.getElementById("confirmButton").addEventListener("click", function () {
+    window.location.href = "/playgame";
+  });
+
+  // SSEイベントを受け取ったときにモーダルを表示
+  SSEpageTransition.addEventListener('gameCancelled', function (event) {
+    if (event.data == "gameCancelled") {
+      showModal();
+    }
+  });
 }
