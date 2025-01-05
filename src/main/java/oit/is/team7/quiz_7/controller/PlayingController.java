@@ -28,9 +28,14 @@ import oit.is.team7.quiz_7.model.PGameRoomRankingEntryBean;
 import oit.is.team7.quiz_7.model.QuizJson;
 import oit.is.team7.quiz_7.model.QuizTable;
 import oit.is.team7.quiz_7.model.QuizTableMapper;
+import oit.is.team7.quiz_7.model.QuizFormatList;
+import oit.is.team7.quiz_7.model.QuizFormatListMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 import oit.is.team7.quiz_7.utils.JsonUtils;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @Controller
 @RequestMapping("/playing")
@@ -44,6 +49,9 @@ public class PlayingController {
 
   @Autowired
   QuizTableMapper quizTableMapper;
+
+  @Autowired
+  QuizFormatListMapper quizFormatListMapper;
 
   @Autowired
   UserAccountMapper userAccountMapper;
@@ -246,5 +254,52 @@ public class PlayingController {
 
     // リクエストパラメータが全て正常に指定されている場合，ユーザを軸にしたランキングを表示．
     return RETURN_TEMPLATE;
+  }
+
+  @GetMapping("/answer")
+  public String getAnswerPage(@RequestParam("room") final long roomID, Principal prin, ModelMap model) {
+    // [エラー] 対象の公開ゲームルームが解答中でない場合．
+    if(false && !(pGameRoomManager.getPublicGameRooms().get(roomID).isAnswering())) {
+      return "/error";
+    }
+
+    final long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
+    final long quizID = pGameRoomManager.getPublicGameRooms().get(roomID).getNextQuizID();
+    final QuizTable quiz = quizTableMapper.selectQuizTableByID((int)quizID);
+    final String quizFormat = quizFormatListMapper.selectQuizFormatById((long)quiz.getQuizFormatID()).getQuizFormat();
+
+    model.addAttribute("roomID", roomID);
+    model.addAttribute("userID", userID);
+
+    model.addAttribute("remainAnsTime_ms", quiz.getTimelimit() - pGameRoomManager.getPublicGameRooms().get(roomID).getElapsedAnswerTime_ms());
+
+    switch (quizFormat) {
+      case "4choices":
+        return this.getAnswer4choicesPage(roomID, userID, quiz, prin, model);
+
+      default:
+        return "/error";
+    }
+  }
+
+  public String getAnswer4choicesPage(final long roomID, final long userID, final QuizTable quiz, Principal prin, ModelMap model) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode quizJsonNode = quiz.getQuizJSON();
+    String quizJsonString = JsonUtils.parseJsonNodeToString(quizJsonNode);
+
+    model.addAttribute("title", quiz.getTitle());
+    model.addAttribute("description", quiz.getDescription());
+
+    try {
+      QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
+      model.addAttribute("choices1", quizJson.getChoices()[0]);
+      model.addAttribute("choices2", quizJson.getChoices()[1]);
+      model.addAttribute("choices3", quizJson.getChoices()[2]);
+      model.addAttribute("choices4", quizJson.getChoices()[3]);
+    } catch (Exception e) {
+      logger.error("Error at parsing quizJson: " + e.toString());
+    }
+
+    return "/playing/answer_4choices.html";
   }
 }

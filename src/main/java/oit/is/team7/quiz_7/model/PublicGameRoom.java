@@ -27,6 +27,8 @@ public class PublicGameRoom {
   private PGameRoomRanking ranking;
   private int nextQuizIndex;
   private boolean open;
+  private long startedAnswerAt_ms;
+  private boolean answering;
 
   @Autowired
   AsyncPGameRoomService asyncPGRService;
@@ -44,6 +46,8 @@ public class PublicGameRoom {
     this.ranking = new PGameRoomRanking();
     this.nextQuizIndex = 0;
     this.open = true;
+    this.startedAnswerAt_ms = System.currentTimeMillis();
+    this.answering = false;
   }
 
   public long getGameRoomID() {
@@ -105,6 +109,10 @@ public class PublicGameRoom {
   public boolean addParticipant(GameRoomParticipant participant) {
     if (this.participants.size() < this.maxPlayers) {
       this.participants.put(participant.getUserID(), participant);
+
+      PGameRoomRankingEntryBean entry = new PGameRoomRankingEntryBean(participant.getUserID(), participant.getUserName());
+      this.ranking.addEntry(entry);
+
       return true;
     } else {
       return false;
@@ -141,7 +149,7 @@ public class PublicGameRoom {
   public void removeEmitter(SseEmitter emitter) {
     emitters.remove(emitter);
   }
-  
+
     public boolean isOpen() {
     return open;
   }
@@ -156,4 +164,15 @@ public class PublicGameRoom {
     }
   }
 
+  public long getElapsedAnswerTime_ms() {
+    return System.currentTimeMillis() - this.startedAnswerAt_ms;
+  }
+
+  public boolean isAnswering() {
+    return this.answering;
+  }
+
+  public long getNextQuizID() {
+    return this.quizPool.get(this.nextQuizIndex);
+  }
 }

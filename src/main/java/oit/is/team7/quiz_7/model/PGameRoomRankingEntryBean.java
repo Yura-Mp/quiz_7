@@ -7,9 +7,9 @@ public class PGameRoomRankingEntryBean {
   public long ID = 0L; // エントリのユーザID．
   public String name = ""; // エントリのユーザ名．
   public int rank = 1; // エントリの順位．
-  public int rankDiff = -1; // updateRank()メソッドでの順位更新前後の順位差．
+  public int rankDiff = 0; // updateRank()メソッドでの順位更新前後の順位差．
   public String rankDiffStr = "-"; // updateRank()メソッドで更新される順位差文字列．
-  public long point = -1; // エントリの得点．
+  public long point = 0L; // エントリの得点．
 
   public PGameRoomRankingEntryBean() {
 
