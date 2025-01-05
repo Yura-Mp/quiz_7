@@ -28,13 +28,10 @@ import oit.is.team7.quiz_7.model.PGameRoomRankingEntryBean;
 import oit.is.team7.quiz_7.model.QuizJson;
 import oit.is.team7.quiz_7.model.QuizTable;
 import oit.is.team7.quiz_7.model.QuizTableMapper;
-import oit.is.team7.quiz_7.model.QuizFormatList;
 import oit.is.team7.quiz_7.model.QuizFormatListMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 import oit.is.team7.quiz_7.utils.JsonUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @Controller
