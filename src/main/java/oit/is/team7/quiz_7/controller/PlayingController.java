@@ -109,6 +109,54 @@ public class PlayingController {
     return "/playing/host/wait.html";
   }
 
+  @GetMapping("/overall")
+  public String get_overall_host(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    if (!pgroom.getHostUserName().equals(prin.getName())) {
+      // ユーザがホストでなければゲスト向けの待機画面を表示
+      model.addAttribute("pgameroom", pgroom);
+      return get_overall_guest(roomID, prin, model);
+    }
+    model.addAttribute("pgameroom", pgroom);
+    return "/playing/host/overall.html";
+  }
+
+  public String get_overall_guest(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
+    long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    Map<Long, GameRoomParticipant> participants = pgroom.getParticipants();
+    GameRoomParticipant participant = participants.get(userID);
+    if (pgroom != null) {
+      model.addAttribute("pgameroom", pgroom);
+    }
+    if (participant != null) {
+      model.addAttribute("participant", participant);
+    }
+    List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
+    sortParticipants.sort((p1, p2) -> Long.compare(p2.getPoint(), p1.getPoint()));
+    for (int rank = 0; rank < sortParticipants.size(); rank++) {
+      GameRoomParticipant target = sortParticipants.get(rank);
+      if (target.getUserID() == userID) {
+        model.addAttribute("participantRank", rank + 1);
+      }
+    }
+    return "/playing/guest/overall.html";
+  }
+
+  /**
+   * 　公開ゲームルームの汎用的なiframe(インラインフレーム)用のランキングページを提供するGetMappingメソッド．
+   * <p>
+   * 　{@code room (roomID)}をクエリパラメータで指定し，これに対応する公開ゲームルーム({@code PublicGameRoom}インスタンス)が公開ゲームルームマネージャ({@code PGameRoomManager}インスタンス)に存在すれば，その公開ゲームルームのランキングインスタンス({@code PGameRoomRanking})を参照して，ランキングページを作成し返却する．
+   * <p>
+   * 　加えて，{@code user (userID)}をクエリパラメータで指定していれば，そのランキングでのユーザに関する情報とランキングでの自身の位置のハイライトを追加する．
+   *
+   * @param roomID {@link Long} - どの公開ゲームルームのランキングをリクエストするかを指定するリクエスト(クエリ)パラメータ．URI上では{@code room}で指定する．
+   * @param userID {@link Long} - どのユーザ(参加者)の情報に集中するかを指定するリクエスト(クエリ)パラメータ．URI上では{@code user}で指定する．
+   * @param DBG_FLAG {@link Boolean} - デバッグフラグ．URI上では{@code DBG}で指定する．
+   * @param prin {@link Principal} - (説明省略)
+   * @param model {@link ModelMap} - (説明省略)
+   * @return {@code roomID}に対応する公開ゲームルームがマネージャにあれば，その公開ゲームルームのランキングのページ．加えて{@code userID}に対応するランキングのエントリがあれば，そのユーザに対しての情報・ハイライトをページに追加する．これら以外であれば，テストページあるいはエラーページを返す．
+   */
   @GetMapping("/ranking")
   public String getRanking(@RequestParam(name = "room", required = false) Long roomID,
       @RequestParam(name = "user", required = false) Long userID,

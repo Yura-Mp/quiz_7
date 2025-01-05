@@ -31,6 +31,7 @@ import oit.is.team7.quiz_7.model.QuizJson;
 import oit.is.team7.quiz_7.model.QuizTable;
 import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
+import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 
 @Controller
 @RequestMapping("/gameroom")
@@ -50,6 +51,9 @@ public class GameroomController {
 
   @Autowired
   PGameRoomManager pGameRoomManager;
+
+  @Autowired
+  AsyncPGameRoomService asyncPGRService;
 
   @GetMapping
   public String gameroom(Principal principal, ModelMap model) {
@@ -132,6 +136,7 @@ public class GameroomController {
 
   @PostMapping("/standby/cancel")
   public String cancelGameRoom(@RequestParam("room") long roomID, Principal principal) {
+    asyncPGRService.cancelGameRoom(roomID);
     PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) roomID);
     publicGameRoom.getParticipants().clear();
     pGameRoomManager.removeGameRoom(roomID);

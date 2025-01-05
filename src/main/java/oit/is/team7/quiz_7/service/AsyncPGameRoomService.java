@@ -144,4 +144,24 @@ public class AsyncPGameRoomService {
       emitter.complete();
     }
   }
+  
+  public void cancelGameRoom(long roomID) {
+    logger.info("cancelGameRoom called with roomID: " + roomID);
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
+    if (pgroom != null) {
+      notifyCancellation(pgroom);
+    }
+  }
+
+  @Async
+  public void notifyCancellation(PublicGameRoom pgroom) {
+    logger.info("notifyCancellation called with roomID: " + pgroom.getGameRoomID());
+    for (SseEmitter emitter : pgroom.getEmitters()) {
+      try {
+        emitter.send(SseEmitter.event().name("gameCancelled").data("gameCancelled"));
+      } catch (Exception e) {
+        pgroom.removeEmitter(emitter);
+      }
+    }
+  }
 }

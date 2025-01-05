@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Quiz_7/最終結果</title>
+  <link rel="stylesheet" href="/css/origin.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="display">
+      <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
+      <div th:if="${participant}">
+        <p>[[${participant.userName}]] さんの</p>
+        <p>最終順位：[[${participantRank}]]位</p>
+        <p>最終得点：[[${participant.point}]]点</p>
+      </div>
+      <a th:href="@{/main}">メインページ</a>
+    </div>
+
+    <div class="iframe-section">
+      <iframe th:src="@{./ranking}"></iframe>
+    </div>
+  </div>
+</body>
+
+</html>
