@@ -18,7 +18,6 @@ import oit.is.team7.quiz_7.model.GameroomMapper;
 import oit.is.team7.quiz_7.model.GameRoomParticipant;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 import oit.is.team7.quiz_7.model.PublicGameRoom;
-import oit.is.team7.quiz_7.model.PublicGameRoomBean;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 
@@ -59,13 +58,9 @@ public class PlaygameController {
       logger.warn("PlaygameController.getJoinCheck(...): PublicGameRoom #%d is null. ", roomID);
     }
 
-    PublicGameRoomBean targetPRoomBean = new PublicGameRoomBean();
-    targetPRoomBean.setHostUserName(targetPRoom.getHostUserName());
-    targetPRoomBean.setMaxPlayers(targetPRoom.getMaxPlayers());
-
     Gameroom targetRoom = gameroomMapper.selectGameroomByID((int) roomID);
 
-    model.addAttribute("pgameroom", targetPRoomBean);
+    model.addAttribute("pgameroom", targetPRoom);
     model.addAttribute("gameroom", targetRoom);
     logger.info("PlaygameController.getJoinCheck(...): Called. ");
     return "playgame/join_check.html";

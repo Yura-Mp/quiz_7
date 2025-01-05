@@ -3,6 +3,8 @@ package oit.is.team7.quiz_7.service;
 import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Iterator;
 
@@ -24,6 +26,7 @@ import oit.is.team7.quiz_7.model.PGameRoomManager;
 public class AsyncPGameRoomService {
   private final Logger logger = LoggerFactory.getLogger(AsyncPGameRoomService.class);
   private final AtomicBoolean participantsUpdated = new AtomicBoolean(false);
+  private Map<Long, Boolean> pageTransitionMap = new HashMap<>();
 
   @Autowired
   PGameRoomManager pGameRoomManager;
@@ -45,7 +48,7 @@ public class AsyncPGameRoomService {
           for (SseEmitter emitter : pgroom.getEmitters()) {
             try {
               logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
-              emitter.send(jsonData);
+              emitter.send(SseEmitter.event().name("participantsList").data(jsonData));
               logger.info("Event sent: " + jsonData);
             } catch (Exception e) {
               pgroom.removeEmitter(emitter);
@@ -121,4 +124,66 @@ public class AsyncPGameRoomService {
       logger.error("Error in asyncSendAnswerList(...): {}", e.getMessage());
     }
   }
+
+  @Async
+  public void asyncSendPageTransition(PublicGameRoom pgroom) {
+    logger.info("asyncSendPageTransition called with roomID: " + pgroom.getGameRoomID());
+    long roomID = pgroom.getGameRoomID();
+    pageTransitionMap.put(roomID, false);
+    while (true) {
+      synchronized (pageTransitionMap) {
+        if (pageTransitionMap.get(roomID)) {
+          sendPageTransition(pgroom);
+          pageTransitionMap.put(roomID, false);
+        }
+      }
+      try {
+        TimeUnit.MILLISECONDS.sleep(100);
+      } catch (Exception e) {
+        logger.error("Error in asyncSendPageTransition(...): {}", e.getMessage());
+      }
+    }
+  }
+
+  public void sendPageTransition(PublicGameRoom pgroom) {
+    logger.info("sendPageTransition called with roomID: " + pgroom.getGameRoomID());
+    for (SseEmitter emitter : pgroom.getEmitters()) {
+      try {
+        logger.info("Sending page transition event to emitter: " + emitter);
+        emitter.send(SseEmitter.event().name("pageTransition").data("pageTransition"));
+        logger.info("Page transition event sent");
+      } catch (Exception e) {
+        pgroom.removeEmitter(emitter);
+        logger.error("Error sending page transition event: " + e.getMessage());
+      }
+    }
+  }
+
+  public void setPageTransition(long roomID) {
+    logger.info("setPageTransition called with roomID: " + roomID);
+    synchronized (pageTransitionMap) {
+      pageTransitionMap.put(roomID, true);
+    }
+  }
+
+  public void cancelGameRoom(long roomID) {
+    logger.info("cancelGameRoom called with roomID: " + roomID);
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
+    if (pgroom != null) {
+      notifyCancellation(pgroom);
+    }
+  }
+
+  @Async
+  public void notifyCancellation(PublicGameRoom pgroom) {
+    logger.info("notifyCancellation called with roomID: " + pgroom.getGameRoomID());
+    for (SseEmitter emitter : pgroom.getEmitters()) {
+      try {
+        emitter.send(SseEmitter.event().name("gameCancelled").data("gameCancelled"));
+      } catch (Exception e) {
+        pgroom.removeEmitter(emitter);
+      }
+    }
+  }
+
 }
