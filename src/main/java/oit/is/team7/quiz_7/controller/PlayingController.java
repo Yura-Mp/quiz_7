@@ -105,8 +105,48 @@ public class PlayingController {
     return "/playing/host/wait.html";
   }
 
+  @GetMapping("/ans_result")
+  public String ans_result(@RequestParam("room") int roomID, @RequestParam("quiz") int quizID, Principal prin,
+      ModelMap model) {
+    PublicGameRoom pgameroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    model.addAttribute("pgameroom", pgameroom);
+
+    long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
+    Map<Long, GameRoomParticipant> participants = this.pGameRoomManager.getPublicGameRooms().get((long) roomID)
+        .getParticipants();
+    GameRoomParticipant participant = participants.get(userID);
+    if (participant != null) {
+      model.addAttribute("participant", participant);
+    }
+    List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
+    sortParticipants.sort((p1, p2) -> Long.compare((long) p1.getAnswerTime(), (long) p2.getAnswerTime()));
+    for (int rank = 0; rank < sortParticipants.size(); rank++) {
+      GameRoomParticipant target = sortParticipants.get(rank);
+      if (target.getUserID() == userID) {
+        model.addAttribute("answerTime_rank", rank + 1);
+      }
+    }
+
+    QuizTable currentQuiz = quizTableMapper.selectQuizTableByID(quizID);
+    model.addAttribute("currentQuiz", currentQuiz);
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode quizJsonNode = currentQuiz.getQuizJSON();
+    String quizJsonString = JsonUtils.parseJsonNodeToString(quizJsonNode);
+    try {
+      QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
+      model.addAttribute("currentQuizJson", quizJson);
+    } catch (Exception e) {
+      logger.error("Error at parsing quizJson: " + e.toString());
+    }
+    return "/playing/guest/ans_result.html";
+  }
+
   @GetMapping("/overall")
-  public String get_overall_host(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
+  public String get_overall_host(@RequestParam(name = "room", required = false) Long roomID, Principal prin,
+      ModelMap model) {
+    if (roomID == null) {
+      return "/playing/guest/overall.html";
+    }
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     if (!pgroom.getHostUserName().equals(prin.getName())) {
       // ユーザがホストでなければゲスト向けの待機画面を表示
@@ -117,7 +157,7 @@ public class PlayingController {
     return "/playing/host/overall.html";
   }
 
-  public String get_overall_guest(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
+  public String get_overall_guest(@RequestParam("room") Long roomID, Principal prin, ModelMap model) {
     long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     Map<Long, GameRoomParticipant> participants = pgroom.getParticipants();

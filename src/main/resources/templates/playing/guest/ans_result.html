@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Quiz_7/解答結果</title>
+  <link rel="stylesheet" href="/css/origin.css" />
+  <style>
+    .correct-choice {
+      background-color: #d4edda;
+      color: #155724;
+      font-weight: bold;
+      border: 2px solid #28a745;
+      border-radius: 5px;
+      padding: 5px 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="display">
+      <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
+      <h3>解答結果</h3>
+      <div th:if="${currentQuiz}">
+        <p>タイトル:[[${currentQuiz.title}]]</p>
+        <p>問題文:[[${currentQuiz.description}]]</p>
+      </div>
+      <p>選択肢</p>
+      <div th:if="${currentQuizJson}">
+        <ol>
+          <li th:each="choice, iterStat : ${currentQuizJson.choices}" th:text="${choice}"
+            th:classappend="${iterStat.index == currentQuizJson.correct - 1} ? 'correct-choice' : ''"></li>
+        </ol>
+        <p>あなたの回答: （取得付加）</p>
+        <p>正解: <span th:text="${currentQuizJson.choices[currentQuizJson.correct - 1]}"></span></p>
+      </div>
+      <div>
+        <p>解答時間: （取得付加）ms</p>
+        <!-- <span th:text="${participant.answerTime}"></span> -->
+        <p>解答順位: <span th:text="${answerTime_rank}"></span> 位</p>
+        <p>獲得点数: <span th:text="${currentQuiz.point}"></span> 点</p>
+      </div>
+
+      <a th:href="@{/playing/wait(room=${pgameroom.gameRoomID})}">続行</a>
+    </div>
+
+    <div class="iframe-section">
+      <iframe th:src="@{./ranking}"></iframe>
+    </div>
+  </div>
+</body>
+
+</html>
