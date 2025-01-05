@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,25 +88,34 @@ public class AsyncPGameRoomService {
     logger.info("asyncSendAnswerList called");
     double time = quizTableMapper.selectQuizTableByID(quizID).getTimelimit();
     try {
-      while (true) {
+      while (true) { // pgroom.confirmedResult の実装後はそれが true になったら抜けるようにする
         List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
         logger.info("Participants list : " + participants);
 
         String jsonData = new ObjectMapper().writeValueAsString(participants);
 
-        for (SseEmitter emitter : pgroom.getEmitters()) {
-          try {
-            logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
-            emitter.send(SseEmitter.event().name("refresh").data(jsonData));
-            emitter.send(SseEmitter.event().name("countdown").data(time--));
-            // TODO: if pgroom.confirmedResult is true, send event to page transition
-            logger.info("Events sent");
-          } catch (Exception e) {
-            pgroom.removeEmitter(emitter);
-            logger.error("Error sending event: " + e.getMessage());
+        synchronized (pgroom.getEmitters()) {
+          Iterator<SseEmitter> iterator = pgroom.getEmitters().iterator();
+          while (iterator.hasNext()) {
+            SseEmitter emitter = iterator.next();
+            try {
+              logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
+              emitter.send(SseEmitter.event().name("refresh").data(jsonData));
+              if (time >= 0) {
+                logger.info("Sending time: " + time);
+                emitter.send(SseEmitter.event().name("countdown").data(time));
+              }
+              // TODO: pgroom.confirmedResult が true ならページ遷移イベントを送信
+              // イベント名：transition、データ："toRanking" | "toOverall"
+              logger.info("Events sent");
+            } catch (Exception e) {
+              iterator.remove();
+              logger.error("Error sending event: " + e.getMessage());
+            }
           }
         }
         TimeUnit.MILLISECONDS.sleep(1000); // 1秒ごとに更新
+        time--;
       }
     } catch (Exception e) {
       logger.error("Error in asyncSendAnswerList(...): {}", e.getMessage());

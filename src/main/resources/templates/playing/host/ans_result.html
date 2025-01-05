@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Quiz_7/回答待機</title>
+  <title>Quiz_7/解答状況</title>
   <link rel="stylesheet" href="/css/origin.css" />
   <script src="/js/HostAnsResult.js"></script>
 </head>
@@ -24,19 +24,30 @@
         </ol>
         <p>答え：[[${curQuizJson.correct}]]</p>
       </div>
-      <!-- 残り回答時間 -->
+      <!-- 残り解答時間 -->
       <h3 id="remainTime"></h3>
     </div>
 
     <div class="display">
-      <!-- 全参加者の名前と回答内容のリスト -->
-      <h3>回答結果</h3>
+      <!-- 全参加者の名前と解答内容のリスト -->
+      <h3>解答結果</h3>
       <div class="scroll-full">
-        <div th:if="${participantsList}">
-          <ul th:each="participant : ${participantsList}" id="answerList">
-            <li th:text="${participant.userName} + ': 未回答'"></li>
-          </ul>
-        </div>
+        <table th:if="${participantsList}">
+          <thead>
+            <tr>
+              <th>名前</th>
+              <th>解答</th>
+              <th>解答タイム</th>
+            </tr>
+          </thead>
+          <tbody id="answerList">
+            <tr th:each="participant : ${participantsList}">
+              <td th:text="${participant.userName}"></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

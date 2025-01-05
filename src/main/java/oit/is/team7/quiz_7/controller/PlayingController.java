@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.qos.logback.classic.Logger;
@@ -29,7 +28,6 @@ import oit.is.team7.quiz_7.model.QuizJson;
 import oit.is.team7.quiz_7.model.QuizTable;
 import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
-import oit.is.team7.quiz_7.utils.JsonUtils;
 
 @Controller
 @RequestMapping("/playing")
@@ -71,7 +69,6 @@ public class PlayingController {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     if (!pgroom.getHostUserName().equals(prin.getName())) {
       // ユーザがホストでなければゲスト向けの待機画面を表示
-      model.addAttribute("pgameroom", pgroom);
       return get_wait_guest(roomID, prin, model);
     }
     if (pgroom != null) {
@@ -87,9 +84,8 @@ public class PlayingController {
     long nextQuizID = pgroom.getQuizPool().get(pgroom.getNextQuizIndex());
     QuizTable nextQuiz = quizTableMapper.selectQuizTableByID((int) nextQuizID);
     model.addAttribute("nextQuiz", nextQuiz);
+    String quizJsonString = nextQuiz.getQuizJSON();
     ObjectMapper objectMapper = new ObjectMapper();
-    JsonNode quizJsonNode = nextQuiz.getQuizJSON();
-    String quizJsonString = JsonUtils.parseJsonNodeToString(quizJsonNode);
     try {
       QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
       model.addAttribute("nextQuizJson", quizJson);
@@ -100,12 +96,11 @@ public class PlayingController {
   }
 
   @GetMapping("/ans_result")
-  public String get_ans_result_host(@RequestParam("room") int roomID, @RequestParam("quiz") int curQuizID,
+  public String get_ans_result_host(@RequestParam("room") long roomID, @RequestParam("quiz") int curQuizID,
       Principal prin, ModelMap model) {
-    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
     // if (!pgroom.getHostUserName().equals(prin.getName())) {
     // // ユーザがホストでなければゲスト向けの回答結果画面を表示
-    // model.addAttribute("pgameroom", pgroom);
     // return get_wait_guest(roomID, prin, model);
     // }
     model.addAttribute("pgameroom", pgroom);
@@ -116,9 +111,8 @@ public class PlayingController {
     model.addAttribute("quizList", quizList);
     QuizTable curQuiz = quizTableMapper.selectQuizTableByID(curQuizID);
     model.addAttribute("curQuiz", curQuiz);
+    String quizJsonString = curQuiz.getQuizJSON();
     ObjectMapper objectMapper = new ObjectMapper();
-    JsonNode quizJsonNode = curQuiz.getQuizJSON();
-    String quizJsonString = JsonUtils.parseJsonNodeToString(quizJsonNode);
     try {
       QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
       model.addAttribute("curQuizJson", quizJson);
