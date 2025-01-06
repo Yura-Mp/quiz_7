@@ -33,8 +33,10 @@
       color: white;
     }
   </style>
+  
+  <script src="/js/SseAutoRedirectToAnsResultPage.js"></script>
   <script type="text/javascript" th:inline="javascript">
-    window.onload = function() {
+    function countdown_timer() {
       const START_TIME_MS = Date.now();
       const RECEIVED_REMAIN_TIME_MS = [[${remainAnsTime_ms}]];
 
@@ -46,6 +48,12 @@
 
         quizTimer.innerText = (Math.floor(REMAIN_TIME_MS / 100) / 10) + 's';
       }, 100);
+    }
+  </script>
+  <script type="text/javascript">
+    window.onload = function() {
+      SseAutoRedirectToAnsResultPage();
+      countdown_timer();
     };
   </script>
 </head>

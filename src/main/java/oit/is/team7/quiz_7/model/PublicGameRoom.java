@@ -136,6 +136,14 @@ public class PublicGameRoom {
     return this.quizPool.get(this.nextQuizIndex);
   }
 
+  public long getNextQuizID() {
+    if(this.nextQuizIndex < 0 || this.quizPool.size() <= this.nextQuizIndex) {
+      throw new IllegalStateException("quizPoolの範囲外の添字を参照しようとしました．");
+    }
+
+    return this.quizPool.get(this.nextQuizIndex);
+  }
+
   public void removeParticipant(long userID) {
     participants.remove(userID);
   }

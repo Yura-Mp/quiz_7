@@ -209,4 +209,27 @@ public class AsyncPGameRoomService {
       }
     }
   }
+
+  @Async
+  public void asyncAutoRedirectToAnsResultPage(SseEmitter emitter, final long roomID, final long quizID) {
+    logger.info("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage is called with roomID: " + roomID + ", quizID: " + quizID);
+
+    try {
+      PublicGameRoom redirectToRoom =  pGameRoomManager.getPublicGameRooms().get(roomID);
+
+      emitter.send(SseEmitter.event().name("init").data("SSE connection established. Ready to auto-redirect to AnsResult Page of roomID: " + roomID + ", quizID: " + quizID));
+      while(true) {
+        if(redirectToRoom.isConfirmedResult()) {
+          emitter.send("room=" + roomID + "&quiz=" + quizID);
+          break;
+        }
+
+        TimeUnit.MILLISECONDS.sleep(1000L);
+      }
+    } catch(Exception e) {
+      logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage Error: " + e.getClass().getName() + ":" + e.getMessage());
+    } finally {
+      emitter.complete();
+    }
+  }
 }
