@@ -45,7 +45,7 @@ public class GameRoomParticipant {
   public void setAnswered(boolean answered) {
     this.answered = answered;
   }
-
+  
   public long getAnswerTime_ms() {
     return answerTime_ms;
   }
@@ -69,4 +69,9 @@ public class GameRoomParticipant {
     this.answerContent = null;
   }
 
+  public void resetAnswer() {
+    this.answered = false;
+    this.answerTime = 0L;
+    this.answerContent = null;
+  }
 }

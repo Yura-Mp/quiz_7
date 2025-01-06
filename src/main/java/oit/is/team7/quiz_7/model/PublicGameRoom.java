@@ -29,6 +29,7 @@ public class PublicGameRoom {
   private boolean open;
   private long startedAnswerAt_ms;
   private boolean answering;
+  private boolean confirmedResult;
 
   @Autowired
   AsyncPGameRoomService asyncPGRService;
@@ -130,6 +131,10 @@ public class PublicGameRoom {
   public void incrementNextQuizIndex() {
     this.nextQuizIndex++;
   }
+  
+  public long getNextQuizID() {
+    return this.quizPool.get(this.nextQuizIndex);
+  }
 
   public void removeParticipant(long userID) {
     participants.remove(userID);
@@ -167,12 +172,40 @@ public class PublicGameRoom {
   public long getElapsedAnswerTime_ms() {
     return System.currentTimeMillis() - this.startedAnswerAt_ms;
   }
+  
+  public long getStartedAnswerAt_ms() {
+    return this.startedAnswerAt_ms;
+  }
+
+  public void setStartedAnswerAt_ms(long startedAnswerAt_ms) {
+    this.startedAnswerAt_ms = startedAnswerAt_ms;
+  }
+
+  public long setStartedAnswerAt_msNow() {
+    return this.startedAnswerAt_ms = System.currentTimeMillis();
+  }
 
   public boolean isAnswering() {
     return this.answering;
   }
 
-  public long getNextQuizID() {
-    return this.quizPool.get(this.nextQuizIndex);
+  public void startAnswer() {
+    this.answering = true;
+  }
+
+  public void endAnswer() {
+    this.answering = false;
+  }
+
+  public boolean isConfirmedResult() {
+    return this.confirmedResult;
+  }
+
+  public void confirmResult() {
+    this.confirmedResult = true;
+  }
+
+  public void unconfirmResult() {
+    this.confirmedResult = false;
   }
 }

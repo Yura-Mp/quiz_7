@@ -44,18 +44,19 @@ public class AsyncPGameRoomService {
           logger.info("Participants list updated: " + participants);
 
           String jsonData = new ObjectMapper().writeValueAsString(participants);
-
-          for (SseEmitter emitter : pgroom.getEmitters()) {
-            try {
-              logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
-              emitter.send(SseEmitter.event().name("participantsList").data(jsonData));
-              logger.info("Event sent: " + jsonData);
-            } catch (Exception e) {
-              pgroom.removeEmitter(emitter);
-              logger.error("Error sending event: " + e.getMessage());
+          synchronized (pgroom.getEmitters()) {
+            for (SseEmitter emitter : pgroom.getEmitters()) {
+              try {
+                logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
+                emitter.send(SseEmitter.event().name("participantsList").data(jsonData));
+                logger.info("Event sent: " + jsonData);
+              } catch (Exception e) {
+                pgroom.removeEmitter(emitter);
+                logger.error("Error sending event: " + e.getMessage());
+              }
             }
+            logger.info("Participants list sent");
           }
-          logger.info("Participants list sent");
         }
         TimeUnit.MILLISECONDS.sleep(1000);
       }
@@ -166,6 +167,29 @@ public class AsyncPGameRoomService {
     }
   }
 
+  @Async
+  public void asyncAutoRedirectToAnswerPage(SseEmitter emitter, long roomID) {
+    logger.info("AsyncPGameRoomService.asyncAutoRedirectToAnswerPage is called with roomID: " + roomID);
+
+    try {
+      PublicGameRoom redirectToRoom =  pGameRoomManager.getPublicGameRooms().get(roomID);
+
+      emitter.send(SseEmitter.event().name("init").data("SSE connection established. Ready to auto-redirect to Answer Page of roomID: " + roomID));
+      while(true) {
+        if(redirectToRoom.isAnswering()) {
+          emitter.send(roomID);
+          break;
+        }
+
+        TimeUnit.MILLISECONDS.sleep(100L);
+      }
+    } catch(Exception e) {
+      logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnswerPage Error: " + e.getClass().getName() + ":" + e.getMessage());
+    } finally {
+      emitter.complete();
+    }
+  }
+  
   public void cancelGameRoom(long roomID) {
     logger.info("cancelGameRoom called with roomID: " + roomID);
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
@@ -185,5 +209,4 @@ public class AsyncPGameRoomService {
       }
     }
   }
-
 }

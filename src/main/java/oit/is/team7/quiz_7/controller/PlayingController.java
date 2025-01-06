@@ -2,6 +2,7 @@ package oit.is.team7.quiz_7.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -98,7 +100,8 @@ public class PlayingController {
     long nextQuizID = pgroom.getQuizPool().get(pgroom.getNextQuizIndex());
     QuizTable nextQuiz = quizTableMapper.selectQuizTableByID((int) nextQuizID);
     model.addAttribute("nextQuiz", nextQuiz);
-    String quizJsonString = nextQuiz.getQuizJSON();
+    String quizJsonString = nextQuiz.getParsableQuizJSON();
+    logger.info("quizJsonString: " + quizJsonString);
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
@@ -125,7 +128,7 @@ public class PlayingController {
     model.addAttribute("quizList", quizList);
     QuizTable curQuiz = quizTableMapper.selectQuizTableByID(curQuizID);
     model.addAttribute("curQuiz", curQuiz);
-    String quizJsonString = curQuiz.getQuizJSON();
+    String quizJsonString = curQuiz.getParsableQuizJSON();
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
@@ -138,6 +141,24 @@ public class PlayingController {
     ArrayList<GameRoomParticipant> participantsList = new ArrayList<>(participants.values());
     model.addAttribute("participantsList", participantsList);
     return "/playing/host/ans_result.html";
+  }
+
+  // 出題者のランキング表示ページ
+  @GetMapping("/quiz_result")
+  public String get_quiz_result(@RequestParam("room") int roomID, @RequestParam("quiz") int curQuizID, ModelMap model) {
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    model.addAttribute("pgameroom", pgroom);
+    QuizTable curQuiz = quizTableMapper.selectQuizTableByID(curQuizID);
+    model.addAttribute("curQuiz", curQuiz);
+    String quizJsonString = curQuiz.getParsableQuizJSON();
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
+      model.addAttribute("curQuizJson", quizJson);
+    } catch (Exception e) {
+      logger.error("Error at parsing quizJson: " + e.toString());
+    }
+    return "/playing/host/quiz_result.html";
   }
 
   @GetMapping("/overall")
@@ -409,5 +430,48 @@ public class PlayingController {
     }
 
     return "/playing/answer_4choices.html";
+  }
+  
+  @GetMapping("/start_quiz")
+  public String postStartQuiz(@RequestParam("room") final long roomID, @RequestParam(name = "DBG", defaultValue = "false") final Boolean DBG_FLAG, Principal prin) {
+    long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
+    PublicGameRoom targetGameRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
+
+    // [エラー] 該当する公開ゲームルームがない場合
+    if(targetGameRoom == null) {
+      return "/error";
+    }
+
+    // [エラー] リクエストしてきたユーザがホストではない場合
+    if(targetGameRoom.getHostUserID() != userID) {
+      return "/error";
+    }
+
+    targetGameRoom.setStartedAnswerAt_msNow();
+    targetGameRoom.startAnswer();
+    targetGameRoom.unconfirmResult();
+
+    for(final Map.Entry<Long, GameRoomParticipant> entry : targetGameRoom.getParticipants().entrySet()) {
+      GameRoomParticipant participant = targetGameRoom.getParticipants().get(entry.getKey());
+
+      participant.resetAnswer();
+    }
+
+    // デバッグ用
+    if(DBG_FLAG) {
+      StringBuilder logSB = new StringBuilder();
+      logSB.append("Start Quiz at roomID: " + roomID + "\n");
+      logSB.append("Now System.currentTimeMillis(): " + System.currentTimeMillis() + "\n");
+      logSB.append("targetGameRoom.startedAnswerAt_ms(): " + targetGameRoom.getStartedAnswerAt_ms() + "\n");
+      logSB.append("targetGameRoom.isAnswering(): " + targetGameRoom.isAnswering() + "\n");
+      logSB.append("targetGameRoom.isConfirmedResult(): " + targetGameRoom.isConfirmedResult() + "\n");
+      for(final Map.Entry<Long, GameRoomParticipant> entry : targetGameRoom.getParticipants().entrySet()) {
+        GameRoomParticipant participant = targetGameRoom.getParticipants().get(entry.getKey());
+        logSB.append("participant(ID: " + entry.getKey() + "): { " + "isAnswered(): " + participant.isAnswered() + ", getAnswerTime(): " + participant.getAnswerTime() + ", getAnswerContent(): " + participant.getAnswerContent() + " }" + "\n");
+      }
+      logger.info(logSB.toString());
+    }
+
+    return "redirect:/playing/ans_result";
   }
 }

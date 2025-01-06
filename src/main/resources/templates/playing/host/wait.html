@@ -32,8 +32,7 @@
     </div>
 
     <div class="input-form">
-      <a th:href="@{/playing/ans_result(room=${pgameroom.gameRoomID}, quiz=${nextQuiz.ID})}"
-        class="colored_button">出題する</a>
+      <a th:href="@{/playing/start_quiz(room=${pgameroom.gameRoomID})}" class="colored_button">出題する</a>
     </div>
   </div>
 </body>

@@ -38,7 +38,7 @@ window.onload = function () {
     console.log("Transition event received: " + event.data);
     let data = JSON.parse(event.data);
     if (data === "toRanking") {
-      window.location.href = "/playing/ranking?room=" + roomID;
+      window.location.href = "/playing/quiz_result?room=" + roomID + "&quiz=" + quizID;
     } else if (data === "toOverall") {
       window.location.href = "/playing/overall?room=" + roomID;
     }
