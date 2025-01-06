@@ -106,10 +106,14 @@ public class PlayingController {
   }
 
   @GetMapping("/ans_result")
-  public String ans_result(@RequestParam("room") int roomID, @RequestParam("quiz") int quizID, Principal prin,
-      ModelMap model) {
+  public String ans_result(@RequestParam("room") int roomID, @RequestParam("quiz") int quizID,
+      @RequestParam(name = "DBG", defaultValue = "false") final Boolean DBG_FLAG, Principal prin, ModelMap model) {
+    model.addAttribute("over_flag", false);
     PublicGameRoom pgameroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     model.addAttribute("pgameroom", pgameroom);
+    if (pgameroom.getQuizPool().size() <= pgameroom.getNextQuizIndex()) {
+      model.addAttribute("over_flag", true);
+    }
 
     long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
     Map<Long, GameRoomParticipant> participants = this.pGameRoomManager.getPublicGameRooms().get((long) roomID)
@@ -138,15 +142,15 @@ public class PlayingController {
     } catch (Exception e) {
       logger.error("Error at parsing quizJson: " + e.toString());
     }
+    if (DBG_FLAG) {
+      model.addAttribute("over_flag", true);
+    }
     return "/playing/guest/ans_result.html";
   }
 
   @GetMapping("/overall")
-  public String get_overall_host(@RequestParam(name = "room", required = false) Long roomID, Principal prin,
+  public String get_overall_host(@RequestParam("room") int roomID, Principal prin,
       ModelMap model) {
-    if (roomID == null) {
-      return "/playing/guest/overall.html";
-    }
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     if (!pgroom.getHostUserName().equals(prin.getName())) {
       // ユーザがホストでなければゲスト向けの待機画面を表示
@@ -157,7 +161,7 @@ public class PlayingController {
     return "/playing/host/overall.html";
   }
 
-  public String get_overall_guest(@RequestParam("room") Long roomID, Principal prin, ModelMap model) {
+  public String get_overall_guest(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
     long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     Map<Long, GameRoomParticipant> participants = pgroom.getParticipants();
