@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oit.is.team7.quiz_7.model.PublicGameRoom;
+import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.GameRoomParticipant;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 
@@ -28,6 +30,9 @@ public class AsyncPGameRoomService {
 
   @Autowired
   PGameRoomManager pGameRoomManager;
+
+  @Autowired
+  QuizTableMapper quizTableMapper;
 
   @Async
   public void asyncSendParticipantsList(PublicGameRoom pgroom) {
@@ -79,6 +84,45 @@ public class AsyncPGameRoomService {
     pgroom.removeParticipant(userID);
     logger.info("Participant removed");
     setParticipantsUpdated();
+  }
+
+  @Async
+  public void asyncSendAnswerList(PublicGameRoom pgroom, int quizID) {
+    logger.info("asyncSendAnswerList called");
+    double time = quizTableMapper.selectQuizTableByID(quizID).getTimelimit();
+    try {
+      while (true) { // pgroom.confirmedResult の実装後はそれが true になったら抜けるようにする
+        List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
+        logger.info("Participants list : " + participants);
+
+        String jsonData = new ObjectMapper().writeValueAsString(participants);
+
+        synchronized (pgroom.getEmitters()) {
+          Iterator<SseEmitter> iterator = pgroom.getEmitters().iterator();
+          while (iterator.hasNext()) {
+            SseEmitter emitter = iterator.next();
+            try {
+              logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
+              emitter.send(SseEmitter.event().name("refresh").data(jsonData));
+              if (time >= 0) {
+                logger.info("Sending time: " + time);
+                emitter.send(SseEmitter.event().name("countdown").data(time));
+              }
+              // TODO: pgroom.confirmedResult が true ならページ遷移イベントを送信
+              // イベント名：transition、データ："toRanking" | "toOverall"
+              logger.info("Events sent");
+            } catch (Exception e) {
+              iterator.remove();
+              logger.error("Error sending event: " + e.getMessage());
+            }
+          }
+        }
+        TimeUnit.MILLISECONDS.sleep(1000); // 1秒ごとに更新
+        time--;
+      }
+    } catch (Exception e) {
+      logger.error("Error in asyncSendAnswerList(...): {}", e.getMessage());
+    }
   }
 
   @Async
