@@ -2,6 +2,7 @@ package oit.is.team7.quiz_7.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -29,6 +32,8 @@ import oit.is.team7.quiz_7.model.QuizTable;
 import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
+import oit.is.team7.quiz_7.utils.JsonUtils;
+
 
 @Controller
 @RequestMapping("/playing")
@@ -299,5 +304,48 @@ public class PlayingController {
 
     // リクエストパラメータが全て正常に指定されている場合，ユーザを軸にしたランキングを表示．
     return RETURN_TEMPLATE;
+  }
+
+  @GetMapping("/start_quiz")
+  public String postStartQuiz(@RequestParam("room") final long roomID, @RequestParam(name = "DBG", defaultValue = "false") final Boolean DBG_FLAG, Principal prin) {
+    long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
+    PublicGameRoom targetGameRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
+
+    // [エラー] 該当する公開ゲームルームがない場合
+    if(targetGameRoom == null) {
+      return "/error";
+    }
+
+    // [エラー] リクエストしてきたユーザがホストではない場合
+    if(targetGameRoom.getHostUserID() != userID) {
+      return "/error";
+    }
+
+    targetGameRoom.setStartedAnswerAt_msNow();
+    targetGameRoom.startAnswer();
+    targetGameRoom.unconfirmResult();
+
+    for(final Map.Entry<Long, GameRoomParticipant> entry : targetGameRoom.getParticipants().entrySet()) {
+      GameRoomParticipant participant = targetGameRoom.getParticipants().get(entry.getKey());
+
+      participant.resetAnswer();
+    }
+
+    // デバッグ用
+    if(DBG_FLAG) {
+      StringBuilder logSB = new StringBuilder();
+      logSB.append("Start Quiz at roomID: " + roomID + "\n");
+      logSB.append("Now System.currentTimeMillis(): " + System.currentTimeMillis() + "\n");
+      logSB.append("targetGameRoom.startedAnswerAt_ms(): " + targetGameRoom.getStartedAnswerAt_ms() + "\n");
+      logSB.append("targetGameRoom.isAnswering(): " + targetGameRoom.isAnswering() + "\n");
+      logSB.append("targetGameRoom.isConfirmedResult(): " + targetGameRoom.isConfirmedResult() + "\n");
+      for(final Map.Entry<Long, GameRoomParticipant> entry : targetGameRoom.getParticipants().entrySet()) {
+        GameRoomParticipant participant = targetGameRoom.getParticipants().get(entry.getKey());
+        logSB.append("participant(ID: " + entry.getKey() + "): { " + "isAnswered(): " + participant.isAnswered() + ", getAnswerTime(): " + participant.getAnswerTime() + ", getAnswerContent(): " + participant.getAnswerContent() + " }" + "\n");
+      }
+      logger.info(logSB.toString());
+    }
+
+    return "redirect:/playing/ans_result";
   }
 }
