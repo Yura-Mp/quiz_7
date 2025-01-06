@@ -90,7 +90,8 @@ public class PlayingController {
     long nextQuizID = pgroom.getQuizPool().get(pgroom.getNextQuizIndex());
     QuizTable nextQuiz = quizTableMapper.selectQuizTableByID((int) nextQuizID);
     model.addAttribute("nextQuiz", nextQuiz);
-    String quizJsonString = nextQuiz.getQuizJSON();
+    String quizJsonString = nextQuiz.getParsableQuizJSON();
+    logger.info("quizJsonString: " + quizJsonString);
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
@@ -117,7 +118,7 @@ public class PlayingController {
     model.addAttribute("quizList", quizList);
     QuizTable curQuiz = quizTableMapper.selectQuizTableByID(curQuizID);
     model.addAttribute("curQuiz", curQuiz);
-    String quizJsonString = curQuiz.getQuizJSON();
+    String quizJsonString = curQuiz.getParsableQuizJSON();
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
@@ -130,6 +131,24 @@ public class PlayingController {
     ArrayList<GameRoomParticipant> participantsList = new ArrayList<>(participants.values());
     model.addAttribute("participantsList", participantsList);
     return "/playing/host/ans_result.html";
+  }
+
+  // 出題者のランキング表示ページ
+  @GetMapping("/quiz_result")
+  public String get_quiz_result(@RequestParam("room") int roomID, @RequestParam("quiz") int curQuizID, ModelMap model) {
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    model.addAttribute("pgameroom", pgroom);
+    QuizTable curQuiz = quizTableMapper.selectQuizTableByID(curQuizID);
+    model.addAttribute("curQuiz", curQuiz);
+    String quizJsonString = curQuiz.getParsableQuizJSON();
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
+      model.addAttribute("curQuizJson", quizJson);
+    } catch (Exception e) {
+      logger.error("Error at parsing quizJson: " + e.toString());
+    }
+    return "/playing/host/quiz_result.html";
   }
 
   @GetMapping("/overall")

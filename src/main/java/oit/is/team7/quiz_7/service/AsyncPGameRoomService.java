@@ -44,18 +44,19 @@ public class AsyncPGameRoomService {
           logger.info("Participants list updated: " + participants);
 
           String jsonData = new ObjectMapper().writeValueAsString(participants);
-
-          for (SseEmitter emitter : pgroom.getEmitters()) {
-            try {
-              logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
-              emitter.send(SseEmitter.event().name("participantsList").data(jsonData));
-              logger.info("Event sent: " + jsonData);
-            } catch (Exception e) {
-              pgroom.removeEmitter(emitter);
-              logger.error("Error sending event: " + e.getMessage());
+          synchronized (pgroom.getEmitters()) {
+            for (SseEmitter emitter : pgroom.getEmitters()) {
+              try {
+                logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
+                emitter.send(SseEmitter.event().name("participantsList").data(jsonData));
+                logger.info("Event sent: " + jsonData);
+              } catch (Exception e) {
+                pgroom.removeEmitter(emitter);
+                logger.error("Error sending event: " + e.getMessage());
+              }
             }
+            logger.info("Participants list sent");
           }
-          logger.info("Participants list sent");
         }
         TimeUnit.MILLISECONDS.sleep(1000);
       }
