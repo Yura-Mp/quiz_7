@@ -11,7 +11,7 @@ public class GameRoomParticipant {
   private String userName;
   private long point = 0L;
   private boolean answered;
-  private long answerTime;
+  private long answerTime_ms;
   private AnswerObj answerContent;
 
   public long getUserID() {
@@ -45,13 +45,13 @@ public class GameRoomParticipant {
   public void setAnswered(boolean answered) {
     this.answered = answered;
   }
-
-  public long getAnswerTime() {
-    return answerTime;
+  
+  public long getAnswerTime_ms() {
+    return answerTime_ms;
   }
 
-  public void setAnswerTime(long answerTime) {
-    this.answerTime = answerTime;
+  public void setAnswerTime_ms(long answerTime_ms) {
+    this.answerTime_ms = answerTime_ms;
   }
 
   public AnswerObj getAnswerContent() {
@@ -65,7 +65,7 @@ public class GameRoomParticipant {
    public void resetForNewGame() {
     this.point = 0L;
     this.answered = false;
-    this.answerTime = 0L;
+    this.answerTime_ms = 0L;
     this.answerContent = null;
   }
 

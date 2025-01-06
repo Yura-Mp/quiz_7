@@ -7,4 +7,7 @@ import org.apache.ibatis.annotations.Select;
 public interface QuizFormatListMapper {
   @Select("SELECT * FROM QuizFormatList WHERE quizFormat = #{quizFormat}")
   QuizFormatList selectQuizFormatByFormat(String quizFormat);
+
+  @Select("SELECT * FROM QuizFormatList WHERE ID = #{id}")
+  QuizFormatList selectQuizFormatById(long id);
 }
