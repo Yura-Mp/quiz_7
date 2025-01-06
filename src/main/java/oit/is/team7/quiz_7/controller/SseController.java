@@ -1,5 +1,7 @@
 package oit.is.team7.quiz_7.controller;
 
+import java.security.Principal;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 import oit.is.team7.quiz_7.model.PublicGameRoom;
+import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 
 @RestController
@@ -22,6 +25,9 @@ public class SseController {
 
   @Autowired
   PGameRoomManager pGameRoomManager;
+
+  @Autowired
+  UserAccountMapper userAccountMapper;
 
   // 参加者リストを取得するエンドポイント
   @GetMapping("/participantsList")
@@ -92,6 +98,21 @@ public class SseController {
       logger.error("Error in getAnswerList(...): {}", e.getMessage());
       emitter.completeWithError(e);
     }
+    return emitter;
+  }
+
+  // 解答結果表示ページ(/playing/ans_result)に自動遷移させるエンドポイント
+  @GetMapping("/transitToAnsResult")
+  public SseEmitter transitToAnsResult(Principal prin) {
+    logger.info("SseController.transitToAnsResult is called by user '" + prin.getName() + "'. ");
+
+    final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+    final long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
+    final long roomID = pGameRoomManager.getBelonging().get(userID);
+    final long quizID = pGameRoomManager.getPublicGameRooms().get(roomID).getNextQuizID();
+
+    asyncPGRService.asyncAutoRedirectToAnsResultPage(emitter, roomID, quizID);
+
     return emitter;
   }
 }

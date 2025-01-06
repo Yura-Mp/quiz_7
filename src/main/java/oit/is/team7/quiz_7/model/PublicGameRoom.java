@@ -27,6 +27,7 @@ public class PublicGameRoom {
   private PGameRoomRanking ranking;
   private int nextQuizIndex;
   private boolean open;
+  private boolean confirmedResult;
 
   @Autowired
   AsyncPGameRoomService asyncPGRService;
@@ -123,6 +124,14 @@ public class PublicGameRoom {
     this.nextQuizIndex++;
   }
 
+  public long getNextQuizID() {
+    if(this.nextQuizIndex < 0 || this.quizPool.size() <= this.nextQuizIndex) {
+      throw new IllegalStateException("quizPoolの範囲外の添字を参照しようとしました．");
+    }
+
+    return this.quizPool.get(this.nextQuizIndex);
+  }
+
   public void removeParticipant(long userID) {
     participants.remove(userID);
   }
@@ -141,7 +150,7 @@ public class PublicGameRoom {
   public void removeEmitter(SseEmitter emitter) {
     emitters.remove(emitter);
   }
-  
+
     public boolean isOpen() {
     return open;
   }
@@ -156,4 +165,15 @@ public class PublicGameRoom {
     }
   }
 
+  public boolean isConfirmedResult() {
+    return this.confirmedResult;
+  }
+
+  public void confirmResult() {
+    this.confirmedResult = true;
+  }
+
+  public void unconfirmResult() {
+    this.confirmedResult = false;
+  }
 }

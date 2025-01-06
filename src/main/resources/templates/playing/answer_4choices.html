@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Quiz_7/解答(4択クイズ)</title>
+  <link rel="stylesheet" href="/css/origin.css" />
+  <style>
+    #quiz-desc {
+      background-color: white;
+      height: 30%;
+      overflow: auto;
+    }
+
+    #quiz-form {
+      height: 30%;
+      width: 100%;
+    }
+
+    #quiz-form table {
+      height: 100%;
+      width: 100%;
+    }
+
+    #quiz-form input {
+      height: 100%;
+      width: 100%;
+      border: solid;
+    }
+
+    #quiz-form input:hover {
+      background-color: #add8e6;
+      color: white;
+    }
+  </style>
+
+  <script src="/js/SseAutoRedirectToAnsResultPage.js"></script>
+  <script type="text/javascript" th:inline="javascript">
+    function countdown_timer() {
+      const START_TIME_MS = Date.now();
+      const RECEIVED_REMAIN_TIME_MS = [[${remainAnsTime_ms}]];
+
+      const quizTimer = document.getElementById("QuizTimer");
+
+      setInterval(function() {
+        const NOW_TIME_MS = Date.now();
+        let REMAIN_TIME_MS = RECEIVED_REMAIN_TIME_MS - (NOW_TIME_MS - START_TIME_MS);
+
+        quizTimer.innerText = (Math.floor(REMAIN_TIME_MS / 100) / 10) + 's';
+      }, 100);
+    }
+  </script>
+  <script type="text/javascript">
+    window.onload = function() {
+      SseAutoRedirectToAnsResultPage();
+      countdown_timer();
+    };
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="display">
+      <h3 id="quiz-title">[[${title}]]</h3>
+      <p id="quiz-desc">[[${description}]]</p>
+      <form th:action="@{./answer_4choices(room=${roomID})}" method="post" id="quiz-form">
+        <table>
+          <tr>
+            <td><input type="submit" name="choiceNo1" th:value="${choices1}" th:disabled="${yourChoiceContent}" /></td>
+            <td><input type="submit" name="choiceNo2" th:value="${choices2}" th:disabled="${yourChoiceContent}" /></td>
+          </tr>
+          <tr>
+            <td><input type="submit" name="choiceNo3" th:value="${choices3}" th:disabled="${yourChoiceContent}" /></td>
+            <td><input type="submit" name="choiceNo4" th:value="${choices4}" th:disabled="${yourChoiceContent}" /></td>
+          </tr>
+        </table>
+      </form>
+
+      <p>
+        解答残り時間: <span id="QuizTimer" />
+      </p>
+
+      <p>
+        <span id="ansResultTime" th:if="${yourAnsTime} and ${quizTimelimit}">あなたの解答時間: [[${yourAnsTime}]] / [[${quizTimelimit}]]s <br /></span>
+        <span id="ansResultChoice" th:if="${yourChoiceContent}">あなたの解答選択肢: [[${yourChoiceContent}]] <br /></span>
+      </p>
+
+      <p th:if="${error_result}" th:text="${error_result}" class="error-message"></p>
+    </div>
+
+    <div class="iframe-section">
+      <iframe th:src="@{'./ranking?room=' + ${roomID} + '&user=' + ${userID}}"></iframe>
+    </div>
+  </div>
+</body>
+
+</html>
