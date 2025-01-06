@@ -9,6 +9,6 @@ public class JsonUtils {
       return null;
     }
     String jsonString = jsonNode.toString();
-    return jsonString.substring(1, jsonString.length() - 1).replace("\\\"", "\"");
+    return "{" + jsonString.substring(1, jsonString.length() - 1).replace("\\\"", "\"") + "}";
   }
 }

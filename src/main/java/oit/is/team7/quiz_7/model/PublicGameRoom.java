@@ -27,6 +27,8 @@ public class PublicGameRoom {
   private PGameRoomRanking ranking;
   private int nextQuizIndex;
   private boolean open;
+  private long startedAnswerAt_ms;
+  private boolean answering;
   private boolean confirmedResult;
 
   @Autowired
@@ -45,6 +47,8 @@ public class PublicGameRoom {
     this.ranking = new PGameRoomRanking();
     this.nextQuizIndex = 0;
     this.open = true;
+    this.startedAnswerAt_ms = System.currentTimeMillis() + 300000L;
+    this.answering = false;
   }
 
   public long getGameRoomID() {
@@ -106,6 +110,10 @@ public class PublicGameRoom {
   public boolean addParticipant(GameRoomParticipant participant) {
     if (this.participants.size() < this.maxPlayers) {
       this.participants.put(participant.getUserID(), participant);
+
+      PGameRoomRankingEntryBean entry = new PGameRoomRankingEntryBean(participant.getUserID(), participant.getUserName());
+      this.ranking.addEntry(entry);
+
       return true;
     } else {
       return false;
@@ -122,6 +130,10 @@ public class PublicGameRoom {
 
   public void incrementNextQuizIndex() {
     this.nextQuizIndex++;
+  }
+  
+  public long getNextQuizID() {
+    return this.quizPool.get(this.nextQuizIndex);
   }
 
   public long getNextQuizID() {
@@ -163,6 +175,34 @@ public class PublicGameRoom {
     for (GameRoomParticipant participant : participants.values()) {
       participant.resetForNewGame();
     }
+  }
+
+  public long getElapsedAnswerTime_ms() {
+    return System.currentTimeMillis() - this.startedAnswerAt_ms;
+  }
+  
+  public long getStartedAnswerAt_ms() {
+    return this.startedAnswerAt_ms;
+  }
+
+  public void setStartedAnswerAt_ms(long startedAnswerAt_ms) {
+    this.startedAnswerAt_ms = startedAnswerAt_ms;
+  }
+
+  public long setStartedAnswerAt_msNow() {
+    return this.startedAnswerAt_ms = System.currentTimeMillis();
+  }
+
+  public boolean isAnswering() {
+    return this.answering;
+  }
+
+  public void startAnswer() {
+    this.answering = true;
+  }
+
+  public void endAnswer() {
+    this.answering = false;
   }
 
   public boolean isConfirmedResult() {

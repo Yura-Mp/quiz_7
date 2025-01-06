@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 import oit.is.team7.quiz_7.model.PublicGameRoom;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
@@ -77,6 +78,20 @@ public class SseController {
     return emitter;
   }
 
+  // 解答ページ(/playing/answer)に強制遷移させるエンドポイント
+  @GetMapping("/transitToAnswer")
+  public SseEmitter transitToAnswer(Principal prin) {
+    logger.info("SseController.transitToAnswer is called by user '" + prin.getName() + "'. ");
+
+    final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+    long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
+    long roomID = pGameRoomManager.getBelonging().get(userID);
+
+    asyncPGRService.asyncAutoRedirectToAnswerPage(emitter, roomID);
+  
+    return emitter;
+  }
+
   // 解答状況を取得するエンドポイント
   @GetMapping("/answerList")
   public SseEmitter getAnswerList(@RequestParam("room") long roomID, @RequestParam("quiz") int quizID) {
@@ -98,6 +113,7 @@ public class SseController {
       logger.error("Error in getAnswerList(...): {}", e.getMessage());
       emitter.completeWithError(e);
     }
+
     return emitter;
   }
 
