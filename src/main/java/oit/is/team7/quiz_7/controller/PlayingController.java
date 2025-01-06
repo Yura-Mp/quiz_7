@@ -132,6 +132,24 @@ public class PlayingController {
     return "/playing/host/ans_result.html";
   }
 
+  // 出題者のランキング表示ページ
+  @GetMapping("/quiz_result")
+  public String get_result(@RequestParam("room") int roomID, @RequestParam("quiz") int curQuizID, ModelMap model) {
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    model.addAttribute("pgameroom", pgroom);
+    QuizTable curQuiz = quizTableMapper.selectQuizTableByID(curQuizID);
+    model.addAttribute("curQuiz", curQuiz);
+    String quizJsonString = curQuiz.getQuizJSON();
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
+      model.addAttribute("curQuizJson", quizJson);
+    } catch (Exception e) {
+      logger.error("Error at parsing quizJson: " + e.toString());
+    }
+    return "/playing/host/quiz_result.html";
+  }
+
   @GetMapping("/overall")
   public String get_overall_host(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);

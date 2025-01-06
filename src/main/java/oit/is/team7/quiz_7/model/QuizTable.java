@@ -71,6 +71,7 @@ public class QuizTable {
     this.point = point;
   }
 
+  // objectMapper.readValue() で QuizJson オブジェクトに変換可能な形式の JSON 文字列を返す
   public String getQuizJSON() {
     return JsonUtils.parseJsonNodeToString(this.quizJSON);
   }
