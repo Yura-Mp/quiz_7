@@ -134,7 +134,7 @@ public class PlayingController {
 
   // 出題者のランキング表示ページ
   @GetMapping("/quiz_result")
-  public String get_result(@RequestParam("room") int roomID, @RequestParam("quiz") int curQuizID, ModelMap model) {
+  public String get_quiz_result(@RequestParam("room") int roomID, @RequestParam("quiz") int curQuizID, ModelMap model) {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     model.addAttribute("pgameroom", pgroom);
     QuizTable curQuiz = quizTableMapper.selectQuizTableByID(curQuizID);
