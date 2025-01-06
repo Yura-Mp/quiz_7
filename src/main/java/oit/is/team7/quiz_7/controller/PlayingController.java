@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.qos.logback.classic.Logger;
@@ -33,8 +33,6 @@ import oit.is.team7.quiz_7.model.QuizFormatListMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 import oit.is.team7.quiz_7.utils.JsonUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-
 
 
 @Controller
@@ -83,7 +81,6 @@ public class PlayingController {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     if (!pgroom.getHostUserName().equals(prin.getName())) {
       // ユーザがホストでなければゲスト向けの待機画面を表示
-      model.addAttribute("pgameroom", pgroom);
       return get_wait_guest(roomID, prin, model);
     }
     asyncPGRService.setPageTransition(roomID); // ページ遷移イベントを送信
@@ -101,9 +98,8 @@ public class PlayingController {
     long nextQuizID = pgroom.getQuizPool().get(pgroom.getNextQuizIndex());
     QuizTable nextQuiz = quizTableMapper.selectQuizTableByID((int) nextQuizID);
     model.addAttribute("nextQuiz", nextQuiz);
+    String quizJsonString = nextQuiz.getQuizJSON();
     ObjectMapper objectMapper = new ObjectMapper();
-    JsonNode quizJsonNode = nextQuiz.getQuizJSON();
-    String quizJsonString = JsonUtils.parseJsonNodeToString(quizJsonNode);
     try {
       QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
       model.addAttribute("nextQuizJson", quizJson);
@@ -113,15 +109,51 @@ public class PlayingController {
     return "/playing/host/wait.html";
   }
 
+  @GetMapping("/ans_result")
+  public String get_ans_result_host(@RequestParam("room") long roomID, @RequestParam("quiz") int curQuizID,
+      Principal prin, ModelMap model) {
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
+    // if (!pgroom.getHostUserName().equals(prin.getName())) {
+    // // ユーザがホストでなければゲスト向けの回答結果画面を表示
+    // return get_wait_guest(roomID, prin, model);
+    // }
+    model.addAttribute("pgameroom", pgroom);
+    ArrayList<QuizTable> quizList = new ArrayList<QuizTable>();
+    for (long quizID : pgroom.getQuizPool()) {
+      quizList.add(quizTableMapper.selectQuizTableByID((int) quizID));
+    }
+    model.addAttribute("quizList", quizList);
+    QuizTable curQuiz = quizTableMapper.selectQuizTableByID(curQuizID);
+    model.addAttribute("curQuiz", curQuiz);
+    String quizJsonString = curQuiz.getQuizJSON();
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
+      model.addAttribute("curQuizJson", quizJson);
+    } catch (Exception e) {
+      logger.error("Error at parsing quizJson: " + e.toString());
+    }
+    // 参加者リストをマッピング
+    Map<Long, GameRoomParticipant> participants = pgroom.getParticipants();
+    ArrayList<GameRoomParticipant> participantsList = new ArrayList<>(participants.values());
+    model.addAttribute("participantsList", participantsList);
+    return "/playing/host/ans_result.html";
+  }
+
   @GetMapping("/overall")
   public String get_overall_host(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     if (!pgroom.getHostUserName().equals(prin.getName())) {
       // ユーザがホストでなければゲスト向けの待機画面を表示
-      model.addAttribute("pgameroom", pgroom);
       return get_overall_guest(roomID, prin, model);
     }
     model.addAttribute("pgameroom", pgroom);
+    // クイズリストをマッピング
+    ArrayList<QuizTable> quizList = new ArrayList<QuizTable>();
+    for (long quizID : pgroom.getQuizPool()) {
+      quizList.add(quizTableMapper.selectQuizTableByID((int) quizID));
+    }
+    model.addAttribute("quizList", quizList);
     return "/playing/host/overall.html";
   }
 
@@ -148,17 +180,19 @@ public class PlayingController {
   }
 
   /**
-   * 　公開ゲームルームの汎用的なiframe(インラインフレーム)用のランキングページを提供するGetMappingメソッド．
+   * 公開ゲームルームの汎用的なiframe(インラインフレーム)用のランキングページを提供するGetMappingメソッド．
    * <p>
-   * 　{@code room (roomID)}をクエリパラメータで指定し，これに対応する公開ゲームルーム({@code PublicGameRoom}インスタンス)が公開ゲームルームマネージャ({@code PGameRoomManager}インスタンス)に存在すれば，その公開ゲームルームのランキングインスタンス({@code PGameRoomRanking})を参照して，ランキングページを作成し返却する．
+   * {@code room (roomID)}をクエリパラメータで指定し，これに対応する公開ゲームルーム({@code PublicGameRoom}インスタンス)が公開ゲームルームマネージャ({@code PGameRoomManager}インスタンス)に存在すれば，その公開ゲームルームのランキングインスタンス({@code PGameRoomRanking})を参照して，ランキングページを作成し返却する．
    * <p>
-   * 　加えて，{@code user (userID)}をクエリパラメータで指定していれば，そのランキングでのユーザに関する情報とランキングでの自身の位置のハイライトを追加する．
+   * 加えて，{@code user (userID)}をクエリパラメータで指定していれば，そのランキングでのユーザに関する情報とランキングでの自身の位置のハイライトを追加する．
    *
-   * @param roomID {@link Long} - どの公開ゲームルームのランキングをリクエストするかを指定するリクエスト(クエリ)パラメータ．URI上では{@code room}で指定する．
-   * @param userID {@link Long} - どのユーザ(参加者)の情報に集中するかを指定するリクエスト(クエリ)パラメータ．URI上では{@code user}で指定する．
+   * @param roomID   {@link Long} -
+   *                 どの公開ゲームルームのランキングをリクエストするかを指定するリクエスト(クエリ)パラメータ．URI上では{@code room}で指定する．
+   * @param userID   {@link Long} -
+   *                 どのユーザ(参加者)の情報に集中するかを指定するリクエスト(クエリ)パラメータ．URI上では{@code user}で指定する．
    * @param DBG_FLAG {@link Boolean} - デバッグフラグ．URI上では{@code DBG}で指定する．
-   * @param prin {@link Principal} - (説明省略)
-   * @param model {@link ModelMap} - (説明省略)
+   * @param prin     {@link Principal} - (説明省略)
+   * @param model    {@link ModelMap} - (説明省略)
    * @return {@code roomID}に対応する公開ゲームルームがマネージャにあれば，その公開ゲームルームのランキングのページ．加えて{@code userID}に対応するランキングのエントリがあれば，そのユーザに対しての情報・ハイライトをページに追加する．これら以外であれば，テストページあるいはエラーページを返す．
    */
   @GetMapping("/ranking")
