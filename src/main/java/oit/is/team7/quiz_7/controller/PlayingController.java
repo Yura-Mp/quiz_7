@@ -90,7 +90,8 @@ public class PlayingController {
     long nextQuizID = pgroom.getQuizPool().get(pgroom.getNextQuizIndex());
     QuizTable nextQuiz = quizTableMapper.selectQuizTableByID((int) nextQuizID);
     model.addAttribute("nextQuiz", nextQuiz);
-    String quizJsonString = nextQuiz.getQuizJSON();
+    String quizJsonString = nextQuiz.getParsableQuizJSON();
+    logger.info("quizJsonString: " + quizJsonString);
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
@@ -117,7 +118,7 @@ public class PlayingController {
     model.addAttribute("quizList", quizList);
     QuizTable curQuiz = quizTableMapper.selectQuizTableByID(curQuizID);
     model.addAttribute("curQuiz", curQuiz);
-    String quizJsonString = curQuiz.getQuizJSON();
+    String quizJsonString = curQuiz.getParsableQuizJSON();
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
@@ -139,7 +140,7 @@ public class PlayingController {
     model.addAttribute("pgameroom", pgroom);
     QuizTable curQuiz = quizTableMapper.selectQuizTableByID(curQuizID);
     model.addAttribute("curQuiz", curQuiz);
-    String quizJsonString = curQuiz.getQuizJSON();
+    String quizJsonString = curQuiz.getParsableQuizJSON();
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);

@@ -1,6 +1,7 @@
 package oit.is.team7.quiz_7.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oit.is.team7.quiz_7.utils.JsonUtils;
 
@@ -71,13 +72,23 @@ public class QuizTable {
     this.point = point;
   }
 
-  // objectMapper.readValue() で QuizJson オブジェクトに変換可能な形式の JSON 文字列を返す
   public String getQuizJSON() {
-    return JsonUtils.parseJsonNodeToString(this.quizJSON);
+    return JsonUtils.parseJsonNodeToString(quizJSON);
+  }
+
+  // ObjectMapper.readValue() で QuizJson オブジェクトに変換可能な JSON 文字列を返す
+  public String getParsableQuizJSON() {
+    return getQuizJSON().substring(1, getQuizJSON().length() - 1);
   }
 
   public void setQuizJSON(JsonNode quizJSON) {
     this.quizJSON = quizJSON;
+  }
+
+  // QuizJson オブジェクトを 直接セットするメソッド
+  public void setRawQuizJSON(QuizJson quizJson) {
+    ObjectMapper mapper = new ObjectMapper();
+    this.quizJSON = mapper.valueToTree(quizJson);
   }
 
 }
