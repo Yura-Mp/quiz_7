@@ -27,6 +27,9 @@ public class PublicGameRoom {
   private PGameRoomRanking ranking;
   private int nextQuizIndex;
   private boolean open;
+  private long startedAnswerAt_ms;
+  private boolean answering;
+  private boolean confirmedResult;
 
   @Autowired
   AsyncPGameRoomService asyncPGRService;
@@ -44,6 +47,8 @@ public class PublicGameRoom {
     this.ranking = new PGameRoomRanking();
     this.nextQuizIndex = 0;
     this.open = true;
+    this.startedAnswerAt_ms = System.currentTimeMillis() + 300000L;
+    this.answering = false;
   }
 
   public long getGameRoomID() {
@@ -105,6 +110,11 @@ public class PublicGameRoom {
   public boolean addParticipant(GameRoomParticipant participant) {
     if (this.participants.size() < this.maxPlayers) {
       this.participants.put(participant.getUserID(), participant);
+
+      PGameRoomRankingEntryBean entry = new PGameRoomRankingEntryBean(participant.getUserID(),
+          participant.getUserName());
+      this.ranking.addEntry(entry);
+
       return true;
     } else {
       return false;
@@ -121,6 +131,14 @@ public class PublicGameRoom {
 
   public void incrementNextQuizIndex() {
     this.nextQuizIndex++;
+  }
+
+  public long getNextQuizID() {
+    if (this.nextQuizIndex < 0 || this.quizPool.size() <= this.nextQuizIndex) {
+      throw new IllegalStateException("quizPoolの範囲外の添字を参照しようとしました．");
+    }
+
+    return this.quizPool.get(this.nextQuizIndex);
   }
 
   public void removeParticipant(long userID) {
@@ -141,8 +159,8 @@ public class PublicGameRoom {
   public void removeEmitter(SseEmitter emitter) {
     emitters.remove(emitter);
   }
-  
-    public boolean isOpen() {
+
+  public boolean isOpen() {
     return open;
   }
 
@@ -156,4 +174,43 @@ public class PublicGameRoom {
     }
   }
 
+  public long getElapsedAnswerTime_ms() {
+    return System.currentTimeMillis() - this.startedAnswerAt_ms;
+  }
+
+  public long getStartedAnswerAt_ms() {
+    return this.startedAnswerAt_ms;
+  }
+
+  public void setStartedAnswerAt_ms(long startedAnswerAt_ms) {
+    this.startedAnswerAt_ms = startedAnswerAt_ms;
+  }
+
+  public long setStartedAnswerAt_msNow() {
+    return this.startedAnswerAt_ms = System.currentTimeMillis();
+  }
+
+  public boolean isAnswering() {
+    return this.answering;
+  }
+
+  public void startAnswer() {
+    this.answering = true;
+  }
+
+  public void endAnswer() {
+    this.answering = false;
+  }
+
+  public boolean isConfirmedResult() {
+    return this.confirmedResult;
+  }
+
+  public void confirmResult() {
+    this.confirmedResult = true;
+  }
+
+  public void unconfirmResult() {
+    this.confirmedResult = false;
+  }
 }

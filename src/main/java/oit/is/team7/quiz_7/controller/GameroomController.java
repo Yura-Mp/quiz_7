@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oit.is.team7.quiz_7.model.Gameroom;
 import oit.is.team7.quiz_7.model.GameroomMapper;
@@ -31,6 +29,7 @@ import oit.is.team7.quiz_7.model.QuizJson;
 import oit.is.team7.quiz_7.model.QuizTable;
 import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
+import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 
 @Controller
 @RequestMapping("/gameroom")
@@ -50,6 +49,9 @@ public class GameroomController {
 
   @Autowired
   PGameRoomManager pGameRoomManager;
+
+  @Autowired
+  AsyncPGameRoomService asyncPGRService;
 
   @GetMapping
   public String gameroom(Principal principal, ModelMap model) {
@@ -132,6 +134,7 @@ public class GameroomController {
 
   @PostMapping("/standby/cancel")
   public String cancelGameRoom(@RequestParam("room") long roomID, Principal principal) {
+    asyncPGRService.cancelGameRoom(roomID);
     PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) roomID);
     publicGameRoom.getParticipants().clear();
     pGameRoomManager.removeGameRoom(roomID);
@@ -192,11 +195,6 @@ public class GameroomController {
       @RequestParam String choice2, @RequestParam String choice3, @RequestParam String choice4,
       Principal principal, ModelMap model) throws JsonProcessingException {
 
-    QuizJson quizJson = new QuizJson();
-    quizJson.correct = correct_num;
-    quizJson.choices = new String[] { choice1, choice2, choice3, choice4 };
-    ObjectMapper objectMapper = new ObjectMapper();
-
     model.addAttribute("gameroom", gameroomMapper.selectGameroomByID(roomID)); // 編集対象のゲームルームの情報を追加
     String[] fields = { title, description, choice1, choice2, choice3, choice4 };
     for (String field : fields) {
@@ -208,13 +206,15 @@ public class GameroomController {
 
     int hostId = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
     int formatId = quizFormatListMapper.selectQuizFormatByFormat("4choices").getId();
-    JsonNode jsonNode = objectMapper.valueToTree(quizJson);
+    String[] choices = new String[] { choice1, choice2, choice3, choice4 };
+    QuizJson newQuizJson = new QuizJson(correct_num, choices);
+
     QuizTable newQuizTable = new QuizTable();
     newQuizTable.setQuizFormatID(formatId);
     newQuizTable.setAuthorID(hostId);
     newQuizTable.setTitle(title);
     newQuizTable.setDescription(description);
-    newQuizTable.setQuizJSON(jsonNode);
+    newQuizTable.setRawQuizJSON(newQuizJson);
     quizTableMapper.insertQuizTable(newQuizTable);
 
     HasQuiz latestHasQuiz = hasQuizMapper.maxIndexByRoomID(roomID);

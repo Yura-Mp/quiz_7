@@ -37,5 +37,4 @@ public class Gameroom {
   public void setDescription(String description) {
     this.description = description;
   }
-
 }

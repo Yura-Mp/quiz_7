@@ -13,8 +13,8 @@
       <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
       <h3>クイズリスト</h3>
       <div class="scroll-half">
-        <ol th:if="${quizList}" th:each="quiz : ${quizList}">
-          <li th:text="${quiz.title}"></li>
+        <ol th:if="${quizList}">
+          <li th:each="quiz : ${quizList}" th:text="${quiz.title}"></li>
         </ol>
       </div>
       <h3>次のクイズ</h3>
@@ -32,7 +32,7 @@
     </div>
 
     <div class="input-form">
-      <a th:href="@{/sse/publishQuiz(id=${nextQuiz.ID})}" class="colored_button">出題する</a>
+      <a th:href="@{/playing/start_quiz(room=${pgameroom.gameRoomID})}" class="colored_button">出題する</a>
     </div>
   </div>
 </body>
