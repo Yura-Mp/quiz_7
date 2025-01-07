@@ -111,7 +111,8 @@ public class PublicGameRoom {
     if (this.participants.size() < this.maxPlayers) {
       this.participants.put(participant.getUserID(), participant);
 
-      PGameRoomRankingEntryBean entry = new PGameRoomRankingEntryBean(participant.getUserID(), participant.getUserName());
+      PGameRoomRankingEntryBean entry = new PGameRoomRankingEntryBean(participant.getUserID(),
+          participant.getUserName());
       this.ranking.addEntry(entry);
 
       return true;
@@ -132,12 +133,8 @@ public class PublicGameRoom {
     this.nextQuizIndex++;
   }
 
-  // public long getNextQuizID() {
-  //   return this.quizPool.get(this.nextQuizIndex);
-  // }
-
   public long getNextQuizID() {
-    if(this.nextQuizIndex < 0 || this.quizPool.size() <= this.nextQuizIndex) {
+    if (this.nextQuizIndex < 0 || this.quizPool.size() <= this.nextQuizIndex) {
       throw new IllegalStateException("quizPoolの範囲外の添字を参照しようとしました．");
     }
 
@@ -163,7 +160,7 @@ public class PublicGameRoom {
     emitters.remove(emitter);
   }
 
-    public boolean isOpen() {
+  public boolean isOpen() {
     return open;
   }
 

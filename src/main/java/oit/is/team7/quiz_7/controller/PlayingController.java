@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.qos.logback.classic.Logger;
@@ -34,7 +35,6 @@ import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.QuizFormatListMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
-// import oit.is.team7.quiz_7.utils.JsonUtils;
 
 @Controller
 @RequestMapping("/playing")
@@ -112,6 +112,47 @@ public class PlayingController {
   }
 
   @GetMapping("/ans_result")
+  public String ans_result(@RequestParam("room") int roomID, @RequestParam("quiz") int quizID,
+      @RequestParam(name = "DBG", defaultValue = "false") final Boolean DBG_FLAG, Principal prin, ModelMap model) {
+    model.addAttribute("over_flag", false);
+    PublicGameRoom pgameroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    model.addAttribute("pgameroom", pgameroom);
+    if (pgameroom.getQuizPool().size() <= pgameroom.getNextQuizIndex()) {
+      model.addAttribute("over_flag", true);
+    }
+
+    long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
+    Map<Long, GameRoomParticipant> participants = this.pGameRoomManager.getPublicGameRooms().get((long) roomID)
+        .getParticipants();
+    GameRoomParticipant participant = participants.get(userID);
+    if (participant != null) {
+      model.addAttribute("participant", participant);
+    }
+    List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
+    sortParticipants.sort((p1, p2) -> Long.compare((long) p1.getAnswerTime_ms(), (long) p2.getAnswerTime_ms()));
+    for (int rank = 0; rank < sortParticipants.size(); rank++) {
+      GameRoomParticipant target = sortParticipants.get(rank);
+      if (target.getUserID() == userID) {
+        model.addAttribute("answerTime_rank", rank + 1);
+      }
+    }
+
+    QuizTable currentQuiz = quizTableMapper.selectQuizTableByID(quizID);
+    model.addAttribute("currentQuiz", currentQuiz);
+    ObjectMapper objectMapper = new ObjectMapper();
+    String quizJsonString = currentQuiz.getParsableQuizJSON();
+    try {
+      QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
+      model.addAttribute("currentQuizJson", quizJson);
+    } catch (Exception e) {
+      logger.error("Error at parsing quizJson: " + e.toString());
+    }
+    if (DBG_FLAG) {
+      model.addAttribute("over_flag", true);
+    }
+    return "/playing/guest/ans_result.html";
+  }
+
   public String get_ans_result_host(@RequestParam("room") long roomID, @RequestParam("quiz") int curQuizID,
       Principal prin, ModelMap model) {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
@@ -161,7 +202,8 @@ public class PlayingController {
   }
 
   @GetMapping("/overall")
-  public String get_overall_host(@RequestParam("room") int roomID, Principal prin, ModelMap model) {
+  public String get_overall_host(@RequestParam("room") int roomID, Principal prin,
+      ModelMap model) {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     if (!pgroom.getHostUserName().equals(prin.getName())) {
       // ユーザがホストでなければゲスト向けの待機画面を表示
