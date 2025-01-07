@@ -2,7 +2,7 @@ package oit.is.team7.quiz_7.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+// import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+// import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -34,8 +34,7 @@ import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.QuizFormatListMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
-import oit.is.team7.quiz_7.utils.JsonUtils;
-
+// import oit.is.team7.quiz_7.utils.JsonUtils;
 
 @Controller
 @RequestMapping("/playing")
@@ -314,19 +313,20 @@ public class PlayingController {
   @GetMapping("/answer")
   public String getAnswerPage(@RequestParam("room") final long roomID, Principal prin, ModelMap model) {
     // [エラー] 対象の公開ゲームルームが解答中でない場合．
-    if(false && !(pGameRoomManager.getPublicGameRooms().get(roomID).isAnswering())) {
+    if (false && !(pGameRoomManager.getPublicGameRooms().get(roomID).isAnswering())) {
       return "/error";
     }
 
     final long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
     final long quizID = pGameRoomManager.getPublicGameRooms().get(roomID).getNextQuizID();
-    final QuizTable quiz = quizTableMapper.selectQuizTableByID((int)quizID);
-    final String quizFormat = quizFormatListMapper.selectQuizFormatById((long)quiz.getQuizFormatID()).getQuizFormat();
+    final QuizTable quiz = quizTableMapper.selectQuizTableByID((int) quizID);
+    final String quizFormat = quizFormatListMapper.selectQuizFormatById((long) quiz.getQuizFormatID()).getQuizFormat();
 
     model.addAttribute("roomID", roomID);
     model.addAttribute("userID", userID);
 
-    model.addAttribute("remainAnsTime_ms", (long)(quiz.getTimelimit() * 1000L) - pGameRoomManager.getPublicGameRooms().get(roomID).getElapsedAnswerTime_ms());
+    model.addAttribute("remainAnsTime_ms", (long) (quiz.getTimelimit() * 1000L)
+        - pGameRoomManager.getPublicGameRooms().get(roomID).getElapsedAnswerTime_ms());
 
     switch (quizFormat) {
       case "4choices":
@@ -337,10 +337,10 @@ public class PlayingController {
     }
   }
 
-  public String getAnswer4choicesPage(final long roomID, final long userID, final QuizTable quiz, Principal prin, ModelMap model) {
+  public String getAnswer4choicesPage(final long roomID, final long userID, final QuizTable quiz, Principal prin,
+      ModelMap model) {
     ObjectMapper objectMapper = new ObjectMapper();
-    JsonNode quizJsonNode = quiz.getQuizJSON();
-    String quizJsonString = JsonUtils.parseJsonNodeToString(quizJsonNode);
+    String quizJsonString = quiz.getParsableQuizJSON();
 
     model.addAttribute("title", quiz.getTitle());
     model.addAttribute("description", quiz.getDescription());
@@ -362,18 +362,22 @@ public class PlayingController {
   public String postAnswer4choicesNo1(@RequestParam("room") final long roomID, Principal prin, ModelMap model) {
     return this.postAnswer4choices(roomID, 1, prin, model);
   }
+
   @PostMapping(value = "/answer_4choices", params = "choiceNo2")
   public String postAnswer4choicesNo2(@RequestParam("room") final long roomID, Principal prin, ModelMap model) {
     return this.postAnswer4choices(roomID, 2, prin, model);
   }
+
   @PostMapping(value = "/answer_4choices", params = "choiceNo3")
   public String postAnswer4choicesNo3(@RequestParam("room") final long roomID, Principal prin, ModelMap model) {
     return this.postAnswer4choices(roomID, 3, prin, model);
   }
+
   @PostMapping(value = "/answer_4choices", params = "choiceNo4")
   public String postAnswer4choicesNo4(@RequestParam("room") final long roomID, Principal prin, ModelMap model) {
     return this.postAnswer4choices(roomID, 4, prin, model);
   }
+
   public String postAnswer4choices(final long roomID, final int chooseNum, Principal prin, ModelMap model) {
     // DBアクセスのオーバーヘッドを見込んで先に解答経過時間を確定．
     PublicGameRoom room = pGameRoomManager.getPublicGameRooms().get(roomID);
@@ -381,18 +385,18 @@ public class PlayingController {
 
     final long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
     final long quizID = pGameRoomManager.getPublicGameRooms().get(roomID).getNextQuizID();
-    final QuizTable quiz = quizTableMapper.selectQuizTableByID((int)quizID);
-    final long timelimit_ms = (long)(quiz.getTimelimit() * 1000L);
+    final QuizTable quiz = quizTableMapper.selectQuizTableByID((int) quizID);
+    final long timelimit_ms = (long) (quiz.getTimelimit() * 1000L);
 
     // ModelMapを流用．
     this.getAnswer4choicesPage(roomID, userID, quiz, prin, model);
 
     // 解答制限時間外である場合
-    if(timelimit_ms <= elapsedAnswerTime_ms) { // || !room.isAnswering()
+    if (timelimit_ms <= elapsedAnswerTime_ms) { // || !room.isAnswering()
       model.addAttribute("error_result", "解答制限時間外です．この解答は受理されません．");
     }
     // その参加者がすでに解答済みである場合
-    else if(room.getParticipants().get(userID).isAnswered()) {
+    else if (room.getParticipants().get(userID).isAnswered()) {
       model.addAttribute("error_result", "すでに解答済みです．この解答は受理されません．");
     }
     // 上記の条件以外(その参加者がまだ解答していない場合)の場合，解答を受理．
@@ -410,20 +414,19 @@ public class PlayingController {
     model.addAttribute("remainAnsTime_ms", timelimit_ms - elapsedAnswerTime_ms);
 
     GameRoomParticipant participant = room.getParticipants().get(userID);
-    if(participant.isAnswered()) {
-      String yourAnsTime = String.format("%.2f", ((double)((participant.getAnswerTime_ms() + 9L) / 10L) / 100.0));
+    if (participant.isAnswered()) {
+      String yourAnsTime = String.format("%.2f", ((double) ((participant.getAnswerTime_ms() + 9L) / 10L) / 100.0));
       String quizTimelimit = String.format("%.2f", (quiz.getTimelimit()));
-      AnswerObjImpl_4choices ansObj = (AnswerObjImpl_4choices)participant.getAnswerContent();
+      AnswerObjImpl_4choices ansObj = (AnswerObjImpl_4choices) participant.getAnswerContent();
 
       ObjectMapper objectMapper = new ObjectMapper();
-      JsonNode quizJsonNode = quiz.getQuizJSON();
-      String quizJsonString = JsonUtils.parseJsonNodeToString(quizJsonNode);
+      String quizJsonString = quiz.getParsableQuizJSON();
 
       model.addAttribute("yourAnsTime", yourAnsTime);
       model.addAttribute("quizTimelimit", quizTimelimit);
       try {
         QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
-        model.addAttribute("yourChoiceContent", quizJson.getChoices()[ansObj.getAnsValue()-1]);
+        model.addAttribute("yourChoiceContent", quizJson.getChoices()[ansObj.getAnsValue() - 1]);
       } catch (Exception e) {
         logger.error("Error at parsing quizJson: " + e.toString());
       }
@@ -431,19 +434,20 @@ public class PlayingController {
 
     return "/playing/answer_4choices.html";
   }
-  
+
   @GetMapping("/start_quiz")
-  public String postStartQuiz(@RequestParam("room") final long roomID, @RequestParam(name = "DBG", defaultValue = "false") final Boolean DBG_FLAG, Principal prin) {
+  public String postStartQuiz(@RequestParam("room") final long roomID,
+      @RequestParam(name = "DBG", defaultValue = "false") final Boolean DBG_FLAG, Principal prin) {
     long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
     PublicGameRoom targetGameRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
 
     // [エラー] 該当する公開ゲームルームがない場合
-    if(targetGameRoom == null) {
+    if (targetGameRoom == null) {
       return "/error";
     }
 
     // [エラー] リクエストしてきたユーザがホストではない場合
-    if(targetGameRoom.getHostUserID() != userID) {
+    if (targetGameRoom.getHostUserID() != userID) {
       return "/error";
     }
 
@@ -451,23 +455,25 @@ public class PlayingController {
     targetGameRoom.startAnswer();
     targetGameRoom.unconfirmResult();
 
-    for(final Map.Entry<Long, GameRoomParticipant> entry : targetGameRoom.getParticipants().entrySet()) {
+    for (final Map.Entry<Long, GameRoomParticipant> entry : targetGameRoom.getParticipants().entrySet()) {
       GameRoomParticipant participant = targetGameRoom.getParticipants().get(entry.getKey());
 
       participant.resetAnswer();
     }
 
     // デバッグ用
-    if(DBG_FLAG) {
+    if (DBG_FLAG) {
       StringBuilder logSB = new StringBuilder();
       logSB.append("Start Quiz at roomID: " + roomID + "\n");
       logSB.append("Now System.currentTimeMillis(): " + System.currentTimeMillis() + "\n");
       logSB.append("targetGameRoom.startedAnswerAt_ms(): " + targetGameRoom.getStartedAnswerAt_ms() + "\n");
       logSB.append("targetGameRoom.isAnswering(): " + targetGameRoom.isAnswering() + "\n");
       logSB.append("targetGameRoom.isConfirmedResult(): " + targetGameRoom.isConfirmedResult() + "\n");
-      for(final Map.Entry<Long, GameRoomParticipant> entry : targetGameRoom.getParticipants().entrySet()) {
+      for (final Map.Entry<Long, GameRoomParticipant> entry : targetGameRoom.getParticipants().entrySet()) {
         GameRoomParticipant participant = targetGameRoom.getParticipants().get(entry.getKey());
-        logSB.append("participant(ID: " + entry.getKey() + "): { " + "isAnswered(): " + participant.isAnswered() + ", getAnswerTime(): " + participant.getAnswerTime() + ", getAnswerContent(): " + participant.getAnswerContent() + " }" + "\n");
+        logSB.append("participant(ID: " + entry.getKey() + "): { " + "isAnswered(): " + participant.isAnswered()
+            + ", getAnswerTime(): " + participant.getAnswerTime_ms() + ", getAnswerContent(): "
+            + participant.getAnswerContent() + " }" + "\n");
       }
       logger.info(logSB.toString());
     }
