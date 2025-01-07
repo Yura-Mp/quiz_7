@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 import oit.is.team7.quiz_7.model.PublicGameRoom;
-import oit.is.team7.quiz_7.model.UserAccountMapper;
+// import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 
 @RestController
@@ -88,7 +88,7 @@ public class SseController {
     long roomID = pGameRoomManager.getBelonging().get(userID);
 
     asyncPGRService.asyncAutoRedirectToAnswerPage(emitter, roomID);
-  
+
     return emitter;
   }
 

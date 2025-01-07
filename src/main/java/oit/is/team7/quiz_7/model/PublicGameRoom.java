@@ -131,10 +131,10 @@ public class PublicGameRoom {
   public void incrementNextQuizIndex() {
     this.nextQuizIndex++;
   }
-  
-  public long getNextQuizID() {
-    return this.quizPool.get(this.nextQuizIndex);
-  }
+
+  // public long getNextQuizID() {
+  //   return this.quizPool.get(this.nextQuizIndex);
+  // }
 
   public long getNextQuizID() {
     if(this.nextQuizIndex < 0 || this.quizPool.size() <= this.nextQuizIndex) {
@@ -180,7 +180,7 @@ public class PublicGameRoom {
   public long getElapsedAnswerTime_ms() {
     return System.currentTimeMillis() - this.startedAnswerAt_ms;
   }
-  
+
   public long getStartedAnswerAt_ms() {
     return this.startedAnswerAt_ms;
   }
