@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/css/origin.css" />
   <script src="/js/SseAutoRedirectToAnswerPage.js"></script>
   <script>
-    window.onload = function() {
+    window.onload = function () {
       SseAutoRedirectToAnswerPage();
     };
   </script>
@@ -26,7 +26,7 @@
     </div>
 
     <div class="iframe-section">
-      <iframe th:src="@{./ranking}"></iframe>
+      <iframe th:src="@{'./ranking?room=' + ${pgameroom.gameRoomID} + '&user=' + ${participant.userID}}"></iframe>
     </div>
   </div>
 </body>

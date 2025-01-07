@@ -20,7 +20,7 @@
     </div>
 
     <div class="iframe-section">
-      <iframe th:src="@{./ranking}"></iframe>
+      <iframe th:src="@{'./ranking?room=' + ${pgameroom.gameRoomID} + '&user=' + ${participant.userID}}"></iframe>
     </div>
   </div>
 </body>
