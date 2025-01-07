@@ -520,6 +520,9 @@ public class PlayingController {
       logger.info(logSB.toString());
     }
 
+    logger.info("postStartQuiz(...): Start AsyncPGameRoomService.asyncTimeupGameProc()");
+    asyncPGRService.asyncTimeupGameProc(roomID);
+
     return "redirect:/playing/ans_result";
   }
 }

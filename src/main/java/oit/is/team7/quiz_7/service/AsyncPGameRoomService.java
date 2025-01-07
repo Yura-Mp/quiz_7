@@ -189,7 +189,7 @@ public class AsyncPGameRoomService {
       emitter.complete();
     }
   }
-  
+
   public void cancelGameRoom(long roomID) {
     logger.info("cancelGameRoom called with roomID: " + roomID);
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
@@ -231,5 +231,10 @@ public class AsyncPGameRoomService {
     } finally {
       emitter.complete();
     }
+  }
+
+  @Async
+  public void asyncTimeupGameProc(final long roomID) {
+    
   }
 }
