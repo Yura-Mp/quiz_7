@@ -355,7 +355,7 @@ public class PlayingController {
   @GetMapping("/answer")
   public String getAnswerPage(@RequestParam("room") final long roomID, Principal prin, ModelMap model) {
     // [エラー] 対象の公開ゲームルームが解答中でない場合．
-    if (false && !(pGameRoomManager.getPublicGameRooms().get(roomID).isAnswering())) {
+    if (!(pGameRoomManager.getPublicGameRooms().get(roomID).isAnswering())) {
       return "/error";
     }
 
