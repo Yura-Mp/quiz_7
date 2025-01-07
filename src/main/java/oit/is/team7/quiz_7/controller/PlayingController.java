@@ -2,7 +2,7 @@ package oit.is.team7.quiz_7.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+// import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+// import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -35,7 +35,6 @@ import oit.is.team7.quiz_7.model.QuizTableMapper;
 import oit.is.team7.quiz_7.model.QuizFormatListMapper;
 import oit.is.team7.quiz_7.model.UserAccountMapper;
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
-import oit.is.team7.quiz_7.utils.JsonUtils;
 
 @Controller
 @RequestMapping("/playing")

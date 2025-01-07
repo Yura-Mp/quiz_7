@@ -62,11 +62,9 @@ public class GameRoomParticipant {
     this.answerContent = answerContent;
   }
 
-   public void resetForNewGame() {
+  public void resetForNewGame() {
     this.point = 0L;
-    this.answered = false;
-    this.answerTime_ms = 0L;
-    this.answerContent = null;
+    this.resetAnswer();
   }
 
   public void resetAnswer() {
