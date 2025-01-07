@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oit.is.team7.quiz_7.model.PublicGameRoom;
 import oit.is.team7.quiz_7.model.QuizTableMapper;
+import oit.is.team7.quiz_7.model.AnswerData;
+import oit.is.team7.quiz_7.model.AnswerObjImpl_4choices;
 import oit.is.team7.quiz_7.model.GameRoomParticipant;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
 
@@ -96,15 +98,29 @@ public class AsyncPGameRoomService {
         List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
         logger.info("Participants list : " + participants);
 
-        String jsonData = new ObjectMapper().writeValueAsString(participants);
+        ObjectMapper mapper = new ObjectMapper();
+        // JSが扱えるオブジェクトに変換
+        List<AnswerData> answerDataList = new ArrayList<>();
+        for (GameRoomParticipant participant : participants) {
+          AnswerObjImpl_4choices ansObj = (AnswerObjImpl_4choices) participant.getAnswerContent();
+          logger.info("AnswerObj: " + ansObj);
+          if (ansObj == null) {
+            continue;
+          }
+          AnswerData ansData = new AnswerData(participant, ansObj);
+          logger.info("AnswerData: " + ansData);
+          answerDataList.add(ansData);
+        }
+        String answerDataJSON = mapper.writeValueAsString(answerDataList);
+        logger.info("AnswerData JSON: " + answerDataJSON);
 
         synchronized (pgroom.getEmitters()) {
           Iterator<SseEmitter> iterator = pgroom.getEmitters().iterator();
           while (iterator.hasNext()) {
             SseEmitter emitter = iterator.next();
             try {
-              logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
-              emitter.send(SseEmitter.event().name("refresh").data(jsonData));
+              logger.info("Sending event to emitter: " + emitter + " with data: " + answerDataJSON);
+              emitter.send(SseEmitter.event().name("answerData").data(answerDataJSON));
               if (time >= 0) {
                 logger.info("Sending time: " + time);
                 emitter.send(SseEmitter.event().name("countdown").data(time));
@@ -172,24 +188,26 @@ public class AsyncPGameRoomService {
     logger.info("AsyncPGameRoomService.asyncAutoRedirectToAnswerPage is called with roomID: " + roomID);
 
     try {
-      PublicGameRoom redirectToRoom =  pGameRoomManager.getPublicGameRooms().get(roomID);
+      PublicGameRoom redirectToRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
 
-      emitter.send(SseEmitter.event().name("init").data("SSE connection established. Ready to auto-redirect to Answer Page of roomID: " + roomID));
-      while(true) {
-        if(redirectToRoom.isAnswering()) {
+      emitter.send(SseEmitter.event().name("init")
+          .data("SSE connection established. Ready to auto-redirect to Answer Page of roomID: " + roomID));
+      while (true) {
+        if (redirectToRoom.isAnswering()) {
           emitter.send(roomID);
           break;
         }
 
         TimeUnit.MILLISECONDS.sleep(100L);
       }
-    } catch(Exception e) {
-      logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnswerPage Error: " + e.getClass().getName() + ":" + e.getMessage());
+    } catch (Exception e) {
+      logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnswerPage Error: " + e.getClass().getName() + ":"
+          + e.getMessage());
     } finally {
       emitter.complete();
     }
   }
-  
+
   public void cancelGameRoom(long roomID) {
     logger.info("cancelGameRoom called with roomID: " + roomID);
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
@@ -212,22 +230,26 @@ public class AsyncPGameRoomService {
 
   @Async
   public void asyncAutoRedirectToAnsResultPage(SseEmitter emitter, final long roomID, final long quizID) {
-    logger.info("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage is called with roomID: " + roomID + ", quizID: " + quizID);
+    logger.info("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage is called with roomID: " + roomID + ", quizID: "
+        + quizID);
 
     try {
-      PublicGameRoom redirectToRoom =  pGameRoomManager.getPublicGameRooms().get(roomID);
+      PublicGameRoom redirectToRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
 
-      emitter.send(SseEmitter.event().name("init").data("SSE connection established. Ready to auto-redirect to AnsResult Page of roomID: " + roomID + ", quizID: " + quizID));
-      while(true) {
-        if(redirectToRoom.isConfirmedResult()) {
+      emitter.send(SseEmitter.event().name("init")
+          .data("SSE connection established. Ready to auto-redirect to AnsResult Page of roomID: " + roomID
+              + ", quizID: " + quizID));
+      while (true) {
+        if (redirectToRoom.isConfirmedResult()) {
           emitter.send("room=" + roomID + "&quiz=" + quizID);
           break;
         }
 
         TimeUnit.MILLISECONDS.sleep(1000L);
       }
-    } catch(Exception e) {
-      logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage Error: " + e.getClass().getName() + ":" + e.getMessage());
+    } catch (Exception e) {
+      logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage Error: " + e.getClass().getName() + ":"
+          + e.getMessage());
     } finally {
       emitter.complete();
     }

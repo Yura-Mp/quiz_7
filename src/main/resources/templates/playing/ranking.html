@@ -61,7 +61,7 @@
   <h3 th:if="${gameroom}">ルームID: [[${gameroom.ID}]]<br />ルーム名: [[${gameroom.roomName}]]</h3>
   <h3 th:unless="${gameroom}">該当のルームが見つかりませんでした．</h3>
 
-  <p th:if="${yourRank} AND ${yourPoint}">
+  <p th:if="${yourRank}">
     あなたの順位: <b>[[${yourRank}]]位</b><br>
     あなたの得点: <b>[[${yourPoint}]]点</b>
   </p>
@@ -96,7 +96,8 @@
 
         <td class="rankDiffStr" th:if="${entry.rankDiff} lt 0" style="color: red;" th:text="${entry.rankDiffStr}"></td>
         <td class="rankDiffStr" th:if="${entry.rankDiff} gt 0" style="color: blue;" th:text="${entry.rankDiffStr}"></td>
-        <td class="rankDiffStr" th:if="${entry.rankDiff} eq 0" style="color: black;" th:text="${entry.rankDiffStr}"></td>
+        <td class="rankDiffStr" th:if="${entry.rankDiff} eq 0" style="color: black;" th:text="${entry.rankDiffStr}">
+        </td>
 
         <td class="name" th:text="${entry.name}"></td>
         <td class="point" th:text="${entry.point}"></td>
