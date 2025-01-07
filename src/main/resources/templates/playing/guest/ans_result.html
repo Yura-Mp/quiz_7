@@ -44,7 +44,7 @@
       </div>
 
       <a th:unless="${over_flag}" th:href="@{/playing/wait(room=${pgameroom.gameRoomID})}">続行</a>
-      <a th:if="${over_flag}" th:href="@{/playing/overall}">最終結果表示</a>
+      <a th:if="${over_flag}" th:href="@{/playing/overall(room=${pgameroom.gameRoomID})}">最終結果表示</a>
     </div>
 
     <div class="iframe-section">
