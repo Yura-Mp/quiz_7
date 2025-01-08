@@ -15,11 +15,13 @@
       <p>ルーム概要： <span th:text="${gameroom.description}"></span></p>
 
       <h3>クイズリスト</h3>
-      <ul th:if="${quizList}">
-        <li th:each="quiz : ${quizList}">
-          <span th:text="${quiz.title}"></span>
-        </li>
-      </ul>
+      <div class="scroll-half">
+        <ul th:if="${quizList}">
+          <li th:each="quiz : ${quizList}">
+            <span th:text="${quiz.title}"></span>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <div class="links-section">

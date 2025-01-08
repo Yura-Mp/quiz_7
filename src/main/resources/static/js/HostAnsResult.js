@@ -7,18 +7,18 @@ window.onload = function () {
     console.log("SSE connection opened");
   }
   // 1秒ごとに届く
-  sse.addEventListener('refresh', function (event) {
-    console.log("Refresh event received: " + event.data);
-    let participantsList = JSON.parse(event.data);
-    if (participantsList.length === 0) {
+  sse.addEventListener('answerData', function (event) {
+    console.log("Answer Data received: " + event.data);
+    let answerDataList = JSON.parse(event.data);
+    if (answerDataList.length === 0) {
       return;
     } else {
       let answerList = "<tbody>";
-      participantsList.forEach((participant) => {
-        if (participant.answerContent === null) {
-          answerList += "<tr><td>" + participant.userName + "</td><td>未解答</td><td align='right'>----</td></tr>";
+      answerDataList.forEach((answerData) => {
+        if (answerData.answerContent === null) {
+          answerList += "<tr><td>" + answerData.userName + "</td><td>未解答</td><td align='right'>----</td></tr>";
         } else {
-          answerList += "<tr><td>" + participant.userName + "</td><td>" + participant.answerContent + "</td><td>" + participant.answerTime + "</td></tr>";
+          answerList += "<tr><td>" + answerData.userName + "</td><td align='right'>" + answerData.answerContent + "</td><td align='right'>" + (answerData.answerTime_ms/1000) + "秒</td></tr>";
         }
       });
       answerList += "</tbody>";

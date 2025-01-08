@@ -43,7 +43,7 @@
       <p>参加状況： <span th:text="${#maps.size(pgameroom.participants)}" id="participantNum"></span> / <span
           th:text="${pgameroom.maxPlayers}"></span></p><br>
       <h3>参加者リスト</h3>
-      <p id="noParticipant">現在参加者はいません。</p>
+      <p id="noParticipant"></p>
       <div class="scroll-half">
         <div id="participantsList">
           <ul th:if="${pgameroom.participants.values().size() > 0}">

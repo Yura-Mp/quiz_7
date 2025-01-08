@@ -2,7 +2,6 @@ package oit.is.team7.quiz_7.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
-// import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,11 +11,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-// import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.qos.logback.classic.Logger;
@@ -63,6 +60,10 @@ public class PlayingController {
     Map<Long, GameRoomParticipant> participants = this.pGameRoomManager.getPublicGameRooms().get((long) roomID)
         .getParticipants();
     GameRoomParticipant participant = participants.get(userID);
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
+    if (pgroom != null) {
+      model.addAttribute("pgameroom", pgroom);
+    }
     if (participant != null) {
       model.addAttribute("participant", participant);
     }
@@ -111,9 +112,8 @@ public class PlayingController {
     return "/playing/host/wait.html";
   }
 
-  @GetMapping("/ans_result")
-  public String ans_result(@RequestParam("room") int roomID, @RequestParam("quiz") int quizID,
-      @RequestParam(name = "DBG", defaultValue = "false") final Boolean DBG_FLAG, Principal prin, ModelMap model) {
+  public String get_ans_result_guest(@RequestParam("room") int roomID, @RequestParam("quiz") int quizID, Principal prin,
+      ModelMap model) {
     model.addAttribute("over_flag", false);
     PublicGameRoom pgameroom = pGameRoomManager.getPublicGameRooms().get((long) roomID);
     model.addAttribute("pgameroom", pgameroom);
@@ -147,19 +147,17 @@ public class PlayingController {
     } catch (Exception e) {
       logger.error("Error at parsing quizJson: " + e.toString());
     }
-    if (DBG_FLAG) {
-      model.addAttribute("over_flag", true);
-    }
     return "/playing/guest/ans_result.html";
   }
 
+  @GetMapping("/ans_result")
   public String get_ans_result_host(@RequestParam("room") long roomID, @RequestParam("quiz") int curQuizID,
       Principal prin, ModelMap model) {
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
-    // if (!pgroom.getHostUserName().equals(prin.getName())) {
-    // // ユーザがホストでなければゲスト向けの回答結果画面を表示
-    // return get_wait_guest(roomID, prin, model);
-    // }
+    if (!pgroom.getHostUserName().equals(prin.getName())) {
+      // ユーザがホストでなければゲスト向けの回答結果画面を表示
+      return get_ans_result_guest((int) roomID, curQuizID, prin, model);
+    }
     model.addAttribute("pgameroom", pgroom);
     ArrayList<QuizTable> quizList = new ArrayList<QuizTable>();
     for (long quizID : pgroom.getQuizPool()) {
@@ -523,6 +521,6 @@ public class PlayingController {
     logger.info("postStartQuiz(...): Start AsyncPGameRoomService.asyncTimeupGameProc()");
     asyncPGRService.asyncTimeupGameProc(roomID);
 
-    return "redirect:/playing/ans_result";
+    return "redirect:/playing/ans_result?room=" + roomID + "&quiz=" + targetGameRoom.getNextQuizID();
   }
 }

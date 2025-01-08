@@ -14,11 +14,13 @@
       <p>ルーム名： <span th:text="${gameroom.roomName}"></span></p>
       <p>ルーム概要： <span th:text="${gameroom.description}"></span></p>
       <h3>クイズリスト</h3>
-      <ul th:if="${quizList}">
-        <li th:each="quiz : ${quizList}">
-          <span th:text="${quiz.title}"></span>
-        </li>
-      </ul>
+      <div class="scroll-half">
+        <ul th:if="${quizList}">
+          <li th:each="quiz : ${quizList}">
+            <span th:text="${quiz.title}"></span>
+          </li>
+        </ul>
+      </div>
 
       <form th:action="@{/gameroom/prepare_open(room=${gameroom.ID})}" method="post" id="max_players"
         class="form-inline">

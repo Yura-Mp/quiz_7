@@ -39,7 +39,7 @@
 
     <div class="input-form">
       <a th:href="@{/playing/wait(room=${pgameroom.gameRoomID})}" class="colored_button">ゲーム開始</a><br />
-      <form th:action="@{./standby/cancel(room=${gameroom.ID})}" method="post" id="cancel_room"></form>
+      <form th:action="@{./standby/cancel(room=${gameroom.ID})}" method="post" id="cancel_room"></form><br />
       <button type="button" class="colored_button" onclick="confirmBack();">中止</button>
     </div>
   </div>
