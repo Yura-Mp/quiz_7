@@ -18,11 +18,15 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oit.is.team7.quiz_7.model.PublicGameRoom;
+import oit.is.team7.quiz_7.model.QuizJson;
+import oit.is.team7.quiz_7.model.QuizTable;
 import oit.is.team7.quiz_7.model.QuizTableMapper;
-import oit.is.team7.quiz_7.model.AnswerData;
+import oit.is.team7.quiz_7.model.AnswerObj;
 import oit.is.team7.quiz_7.model.AnswerObjImpl_4choices;
+import oit.is.team7.quiz_7.model.AnswerData;
 import oit.is.team7.quiz_7.model.GameRoomParticipant;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
+import oit.is.team7.quiz_7.model.PGameRoomRankingEntryBean;
 
 @Service
 public class AsyncPGameRoomService {
@@ -253,5 +257,70 @@ public class AsyncPGameRoomService {
     } finally {
       emitter.complete();
     }
+  }
+
+  @Async
+  public void asyncTimeupGameProc(final long roomID) {
+    PublicGameRoom targetRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
+    final long quizID = pGameRoomManager.getPublicGameRooms().get(roomID).getNextQuizID();
+    final QuizTable quiz = quizTableMapper.selectQuizTableByID((int) quizID);
+    final long timelimit_ms = (long) (quiz.getTimelimit() * 1000L);
+
+    // 解答残り時間が0以下になったとき，またはその公開ゲームルームの全参加者の解答が完了したときまで以降の処理を待機．
+    while(true) {
+      if(targetRoom.getElapsedAnswerTime_ms() > timelimit_ms) break;
+
+      int answeredNum = 0;
+      for(GameRoomParticipant ptc : targetRoom.getParticipants().values()) {
+        if(ptc.isAnswered()) answeredNum++;
+      }
+      if(targetRoom.getParticipants().size() <= answeredNum) break;
+
+      try {
+        TimeUnit.MILLISECONDS.sleep(500L);
+      } catch(Exception e) {
+        logger.error("asyncTimeupGameProc Error: " + e.getClass().getName() + ":" + e.getMessage());
+      }
+    }
+
+    // 解答終了(解答中フラグをfalseに)
+    targetRoom.endAnswer();
+
+    // 得点計算(4択クイズ) & ランキング更新
+    ObjectMapper objectMapper = new ObjectMapper();
+    String quizJsonString = quiz.getParsableQuizJSON();
+    int correctNum = 0;
+    try {
+      QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
+      correctNum = quizJson.getCorrect();
+    } catch (Exception e) {
+      logger.error("Error at parsing quizJson: " + e.toString());
+    }
+    for(GameRoomParticipant ptc : targetRoom.getParticipants().values()) {
+      long calcPoint = 0L;
+      AnswerObj ans = ptc.getAnswerContent();
+
+      if(ans != null && ((AnswerObjImpl_4choices)ans).getAnsValue() == correctNum) {
+        calcPoint = (long)((double)quiz.getPoint() * (1.0 - ((double)ptc.getAnswerTime_ms() / timelimit_ms)));
+      } else {
+        calcPoint = 0L;
+      }
+
+      ptc.setPointDiff(calcPoint);
+      ptc.addPoint(calcPoint);
+
+      PGameRoomRankingEntryBean ptc_entry = targetRoom.getRanking().getEntry(ptc.getUserID());
+      ptc_entry.point = ptc.getPoint();
+      targetRoom.getRanking().setEntry(ptc_entry);
+    }
+    targetRoom.getRanking().sortByPoint();
+
+    // クイズインデックスのインクリメント
+    targetRoom.incrementNextQuizIndex();
+
+    // 結果確定フラグのセット
+    targetRoom.confirmResult();
+
+    return;
   }
 }

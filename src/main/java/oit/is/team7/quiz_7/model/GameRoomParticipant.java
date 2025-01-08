@@ -10,6 +10,7 @@ public class GameRoomParticipant {
   private long userID;
   private String userName;
   private long point = 0L;
+  private long pointDiff = 0L;
   private boolean answered;
   private long answerTime_ms;
   private AnswerObj answerContent;
@@ -36,6 +37,18 @@ public class GameRoomParticipant {
 
   public void setPoint(long point) {
     this.point = point;
+  }
+
+  public void addPoint(long point) {
+    this.point += point;
+  }
+
+  public long getPointDiff() {
+    return pointDiff;
+  }
+
+  public void setPointDiff(long pointDiff) {
+    this.pointDiff = pointDiff;
   }
 
   public boolean isAnswered() {
