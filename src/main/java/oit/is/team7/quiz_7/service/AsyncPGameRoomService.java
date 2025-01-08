@@ -294,7 +294,10 @@ public class AsyncPGameRoomService {
     }
     targetRoom.getRanking().sortByPoint();
 
+    // クイズインデックスのインクリメント
     targetRoom.incrementNextQuizIndex();
+
+    // 結果確定フラグのセット
     targetRoom.confirmResult();
 
     return;
