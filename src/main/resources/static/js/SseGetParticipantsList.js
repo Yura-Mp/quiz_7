@@ -95,11 +95,6 @@ class SSEpageTransition {
       console.log("SSE error:", error);
     };
 
-    // モーダルを閉じる処理
-    document.getElementById("confirmButton").addEventListener("click", function () {
-      window.location.href = "/playgame";
-    });
-
     // SSEイベントを受け取ったときにモーダルを表示
     this.sse.addEventListener('gameCancelled', function (event) {
       if (event.data == "gameCancelled") {
