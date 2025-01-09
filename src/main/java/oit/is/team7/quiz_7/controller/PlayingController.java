@@ -87,7 +87,7 @@ public class PlayingController {
     }
     asyncPGRService.setPageTransition(roomID); // ページ遷移イベントを送信
     pgroom.setOpen(false);
-    if (pgroom != null) {
+    if (pgroom != null && pgroom.getNextQuizIndex() == 0) {
       pgroom.resetAllParticipants();
       logger.info("[DBG]{}人の初期化を完了", pgroom.getParticipants().size());
     }
@@ -492,8 +492,8 @@ public class PlayingController {
     }
 
     targetGameRoom.setStartedAnswerAt_msNow();
-    targetGameRoom.startAnswer();
     targetGameRoom.unconfirmResult();
+    targetGameRoom.startAnswer();
 
     for (final Map.Entry<Long, GameRoomParticipant> entry : targetGameRoom.getParticipants().entrySet()) {
       GameRoomParticipant participant = targetGameRoom.getParticipants().get(entry.getKey());
