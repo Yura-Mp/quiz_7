@@ -7,8 +7,15 @@
   <link rel="stylesheet" href="/css/origin.css" />
   <script src="/js/SseAutoRedirectToAnswerPage.js"></script>
   <script>
+    var sseAutoRedirectToAnswerPage;
+
     window.onload = function () {
-      SseAutoRedirectToAnswerPage();
+      sseAutoRedirectToAnswerPage = new SseAutoRedirectToAnswerPage;
+      sseAutoRedirectToAnswerPage.run();
+    };
+
+    window.onbeforeunload = function () {
+      sseAutoRedirectToAnswerPage.close();
     };
   </script>
 </head>

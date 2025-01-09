@@ -33,7 +33,7 @@
       color: white;
     }
   </style>
-  
+
   <script src="/js/SseAutoRedirectToAnsResultPage.js"></script>
   <script type="text/javascript" th:inline="javascript">
     function countdown_timer() {
@@ -51,9 +51,16 @@
     }
   </script>
   <script type="text/javascript">
+    var sseAutoRedirectToAnsResultPage;
+
     window.onload = function() {
-      SseAutoRedirectToAnsResultPage();
+      sseAutoRedirectToAnsResultPage = new SseAutoRedirectToAnsResultPage;
+      sseAutoRedirectToAnsResultPage.run();
       countdown_timer();
+    };
+
+    window.onbeforeunload = function() {
+      sseAutoRedirectToAnsResultPage.close();
     };
   </script>
 </head>

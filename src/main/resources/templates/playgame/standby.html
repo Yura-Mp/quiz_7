@@ -6,11 +6,31 @@
   <title>Quiz_7/待機</title>
   <link rel="stylesheet" href="/css/origin.css">
   <script src="/js/SseGetParticipantsList.js"></script>
-  <script>
+  <script type="text/javascript">
     function confirmBack() {
       if (confirm("ゲームルームを退室しますか？"))
         document.getElementById('exit_room').submit();
     }
+
+    var sseParticipantsList;
+    var ssePageTransition;
+
+    window.onload = function () {
+      sseParticipantsList = new SSEparticipantsList;
+      ssePageTransition = new SSEpageTransition;
+      sseParticipantsList.run();
+      ssePageTransition.run();
+
+      // モーダルを閉じる処理
+      document.getElementById("confirmButton").addEventListener("click", function () {
+        window.location.href = "/playgame";
+      });
+    };
+
+    window.onbeforeunload = function () {
+      sseParticipantsList.close();
+      ssePageTransition.close();
+    };
   </script>
   <style>
     .modal {

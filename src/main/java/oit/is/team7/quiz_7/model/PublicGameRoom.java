@@ -145,7 +145,7 @@ public class PublicGameRoom {
     participants.remove(userID);
   }
 
-  public List<SseEmitter> getEmitters() {
+  public synchronized List<SseEmitter> getEmitters() {
     return this.emitters;
   }
 
