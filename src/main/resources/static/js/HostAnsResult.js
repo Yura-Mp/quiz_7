@@ -26,7 +26,7 @@ class HostAnsResult {
           if (answerData.answerContent === null) {
             answerList += "<tr><td>" + answerData.userName + "</td><td>未解答</td><td align='right'>----</td></tr>";
           } else {
-            answerList += "<tr><td>" + answerData.userName + "</td><td align='right'>" + answerData.answerContent + "</td><td align='right'>" + (answerData.answerTime_ms/1000) + "秒</td></tr>";
+            answerList += "<tr><td>" + answerData.userName + "</td><td align='right'>" + answerData.answerContent + "</td><td align='right'>" + (answerData.answerTime_ms　/　1000) + "秒</td></tr>";
           }
         });
         answerList += "</tbody>";
@@ -44,7 +44,7 @@ class HostAnsResult {
     });
     this.sse.addEventListener('transition', function (event) {
       console.log("Transition event received: " + event.data);
-      let data = JSON.parse(event.data);
+      let data = event.data;
       if (data === "toRanking") {
         window.location.href = "/playing/quiz_result?room=" + roomID + "&quiz=" + quizID;
       } else if (data === "toOverall") {

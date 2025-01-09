@@ -111,7 +111,7 @@ public class AsyncPGameRoomService {
     logger.info("asyncSendAnswerList called");
     double time = quizTableMapper.selectQuizTableByID(quizID).getTimelimit();
     try {
-      while (true) { // pgroom.confirmedResult の実装後はそれが true になったら抜けるようにする
+      while (true) {
         List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
         logger.info("Participants list : " + participants);
 
@@ -142,8 +142,13 @@ public class AsyncPGameRoomService {
                 logger.info("Sending time: " + time);
                 emitter.send(SseEmitter.event().name("countdown").data(time));
               }
-              // TODO: pgroom.confirmedResult が true ならページ遷移イベントを送信
-              // イベント名：transition、データ："toRanking" | "toOverall"
+              if (pgroom.isConfirmedResult()) {
+                if (pgroom.getNextQuizIndex() >= pgroom.getQuizPool().size()) {
+                  emitter.send(SseEmitter.event().name("transition").data("toOverall"));
+                } else {
+                  emitter.send(SseEmitter.event().name("transition").data("toRanking"));
+                }
+              }
               logger.info("Events sent");
             } catch (Exception e) {
               iterator.remove();
@@ -308,18 +313,21 @@ public class AsyncPGameRoomService {
     final long timelimit_ms = (long) (quiz.getTimelimit() * 1000L);
 
     // 解答残り時間が0以下になったとき，またはその公開ゲームルームの全参加者の解答が完了したときまで以降の処理を待機．
-    while(true) {
-      if(targetRoom.getElapsedAnswerTime_ms() > timelimit_ms) break;
+    while (true) {
+      if (targetRoom.getElapsedAnswerTime_ms() > timelimit_ms)
+        break;
 
       int answeredNum = 0;
-      for(GameRoomParticipant ptc : targetRoom.getParticipants().values()) {
-        if(ptc.isAnswered()) answeredNum++;
+      for (GameRoomParticipant ptc : targetRoom.getParticipants().values()) {
+        if (ptc.isAnswered())
+          answeredNum++;
       }
-      if(targetRoom.getParticipants().size() <= answeredNum) break;
+      if (targetRoom.getParticipants().size() <= answeredNum)
+        break;
 
       try {
         TimeUnit.MILLISECONDS.sleep(500L);
-      } catch(Exception e) {
+      } catch (Exception e) {
         logger.error("asyncTimeupGameProc Error: " + e.getClass().getName() + ":" + e.getMessage());
       }
     }
@@ -337,12 +345,12 @@ public class AsyncPGameRoomService {
     } catch (Exception e) {
       logger.error("Error at parsing quizJson: " + e.toString());
     }
-    for(GameRoomParticipant ptc : targetRoom.getParticipants().values()) {
+    for (GameRoomParticipant ptc : targetRoom.getParticipants().values()) {
       long calcPoint = 0L;
       AnswerObj ans = ptc.getAnswerContent();
 
-      if(ans != null && ((AnswerObjImpl_4choices)ans).getAnsValue() == correctNum) {
-        calcPoint = (long)((double)quiz.getPoint() * (1.0 - ((double)ptc.getAnswerTime_ms() / timelimit_ms)));
+      if (ans != null && ((AnswerObjImpl_4choices) ans).getAnsValue() == correctNum) {
+        calcPoint = (long) ((double) quiz.getPoint() * (1.0 - ((double) ptc.getAnswerTime_ms() / timelimit_ms)));
       } else {
         calcPoint = 0L;
       }
