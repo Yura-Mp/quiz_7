@@ -207,7 +207,9 @@ public class AsyncPGameRoomService {
     } catch (Exception e) {
       logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnswerPage Error: " + e.getClass().getName() + ":"
           + e.getMessage());
+      emitter.complete();
     } finally {
+      try { TimeUnit.MILLISECONDS.sleep(100L); } catch(Exception e) {} // マージン
       emitter.complete();
     }
   }
@@ -254,7 +256,9 @@ public class AsyncPGameRoomService {
     } catch (Exception e) {
       logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage Error: " + e.getClass().getName() + ":"
           + e.getMessage());
+      emitter.complete();
     } finally {
+      try { TimeUnit.MILLISECONDS.sleep(500L); } catch(Exception e) {} // マージン
       emitter.complete();
     }
   }

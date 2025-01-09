@@ -2,9 +2,9 @@ class SseAutoRedirectToAnswerPage {
   sse = undefined;
 
   run() {
-    console.log("SseAutoRedirectToAnswerPage.run() is called. ")
+    console.log("SseAutoRedirectToAnswerPage.run() is called. ");
 
-    try { this.sse.close(); } catch(e) { console.warn("SseAutoRedirectToAnswerPage.run():  ", e); }
+    try { this.sse.close(); } catch(e) { console.warn("SseAutoRedirectToAnswerPage.run(): ", e); }
 
     this.sse = new EventSource("/sse/transitToAnswer");
     this.sse.onopen = function() {
@@ -31,7 +31,7 @@ class SseAutoRedirectToAnswerPage {
   }
 
   close() {
-    console.log("SseAutoRedirectToAnswerPage.close() is called. ")
-    try { this.sse.close(); } catch { console.error("SseAutoRedirectToAnswerPage.close():  ", e); }
+    console.log("SseAutoRedirectToAnswerPage.close() is called. ");
+    try { this.sse.close(); } catch { console.error("SseAutoRedirectToAnswerPage.close(): ", e); }
   }
 }
