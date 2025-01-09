@@ -98,7 +98,7 @@ public class AsyncPGameRoomService {
     logger.info("asyncSendAnswerList called");
     double time = quizTableMapper.selectQuizTableByID(quizID).getTimelimit();
     try {
-      while (true) { // pgroom.confirmedResult の実装後はそれが true になったら抜けるようにする
+      while (true) {
         List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
         logger.info("Participants list : " + participants);
 
