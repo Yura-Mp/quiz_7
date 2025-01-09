@@ -6,6 +6,18 @@
   <title>Quiz_7/解答状況</title>
   <link rel="stylesheet" href="/css/origin.css" />
   <script src="/js/HostAnsResult.js"></script>
+  <script type="text/javascript">
+    var hostAnsResult;
+
+    window.onload = function() {
+      hostAnsResult = new HostAnsResult;
+      hostAnsResult.run();
+    };
+
+    window.onbeforeunload = function() {
+      hostAnsResult.close();
+    };
+  </script>
 </head>
 
 <body>

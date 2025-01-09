@@ -50,19 +50,32 @@ public class AsyncPGameRoomService {
           logger.info("Participants list updated: " + participants);
 
           String jsonData = new ObjectMapper().writeValueAsString(participants);
-          synchronized (pgroom.getEmitters()) {
-            for (SseEmitter emitter : pgroom.getEmitters()) {
-              try {
-                logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
-                emitter.send(SseEmitter.event().name("participantsList").data(jsonData));
-                logger.info("Event sent: " + jsonData);
-              } catch (Exception e) {
-                pgroom.removeEmitter(emitter);
-                logger.error("Error sending event: " + e.getMessage());
-              }
+          for(int i = 0; i < pgroom.getEmitters().size(); i++) {
+            SseEmitter emitter = pgroom.getEmitters().get(i);
+
+            try {
+              logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
+              emitter.send(SseEmitter.event().name("participantsList").data(jsonData));
+              logger.info("Event sent: " + jsonData);
+            } catch (Exception e) {
+              pgroom.removeEmitter(emitter);
+              logger.error("Error sending event: " + e.getMessage());
             }
-            logger.info("Participants list sent");
           }
+
+          // synchronized (pgroom.getEmitters()) {
+          //   for (SseEmitter emitter : pgroom.getEmitters()) {
+          //     try {
+          //       logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
+          //       emitter.send(SseEmitter.event().name("participantsList").data(jsonData));
+          //       logger.info("Event sent: " + jsonData);
+          //     } catch (Exception e) {
+          //       pgroom.removeEmitter(emitter);
+          //       logger.error("Error sending event: " + e.getMessage());
+          //     }
+          //   }
+          //   logger.info("Participants list sent");
+          // }
         }
         TimeUnit.MILLISECONDS.sleep(1000);
       }
@@ -173,7 +186,10 @@ public class AsyncPGameRoomService {
 
   public void sendPageTransition(PublicGameRoom pgroom) {
     logger.info("sendPageTransition called with roomID: " + pgroom.getGameRoomID());
-    for (SseEmitter emitter : pgroom.getEmitters()) {
+
+    for(int i = 0; i < pgroom.getEmitters().size(); i++) {
+      SseEmitter emitter = pgroom.getEmitters().get(i);
+
       try {
         logger.info("Sending page transition event to emitter: " + emitter);
         emitter.send(SseEmitter.event().name("pageTransition").data("pageTransition"));
@@ -183,6 +199,17 @@ public class AsyncPGameRoomService {
         logger.error("Error sending page transition event: " + e.getMessage());
       }
     }
+
+    // for (SseEmitter emitter : pgroom.getEmitters()) {
+    //   try {
+    //     logger.info("Sending page transition event to emitter: " + emitter);
+    //     emitter.send(SseEmitter.event().name("pageTransition").data("pageTransition"));
+    //     logger.info("Page transition event sent");
+    //   } catch (Exception e) {
+    //     pgroom.removeEmitter(emitter);
+    //     logger.error("Error sending page transition event: " + e.getMessage());
+    //   }
+    // }
   }
 
   public void setPageTransition(long roomID) {
@@ -212,7 +239,9 @@ public class AsyncPGameRoomService {
     } catch (Exception e) {
       logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnswerPage Error: " + e.getClass().getName() + ":"
           + e.getMessage());
+      emitter.complete();
     } finally {
+      try { TimeUnit.MILLISECONDS.sleep(100L); } catch(Exception e) {} // マージン
       emitter.complete();
     }
   }
@@ -228,13 +257,23 @@ public class AsyncPGameRoomService {
   @Async
   public void notifyCancellation(PublicGameRoom pgroom) {
     logger.info("notifyCancellation called with roomID: " + pgroom.getGameRoomID());
-    for (SseEmitter emitter : pgroom.getEmitters()) {
+    for(int i = 0; i < pgroom.getEmitters().size(); i++) {
+      SseEmitter emitter = pgroom.getEmitters().get(i);
+
       try {
         emitter.send(SseEmitter.event().name("gameCancelled").data("gameCancelled"));
       } catch (Exception e) {
         pgroom.removeEmitter(emitter);
       }
     }
+
+    // for (SseEmitter emitter : pgroom.getEmitters()) {
+    //   try {
+    //     emitter.send(SseEmitter.event().name("gameCancelled").data("gameCancelled"));
+    //   } catch (Exception e) {
+    //     pgroom.removeEmitter(emitter);
+    //   }
+    // }
   }
 
   @Async
@@ -259,7 +298,9 @@ public class AsyncPGameRoomService {
     } catch (Exception e) {
       logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage Error: " + e.getClass().getName() + ":"
           + e.getMessage());
+      emitter.complete();
     } finally {
+      try { TimeUnit.MILLISECONDS.sleep(500L); } catch(Exception e) {} // マージン
       emitter.complete();
     }
   }

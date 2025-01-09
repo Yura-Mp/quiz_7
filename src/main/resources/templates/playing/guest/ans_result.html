@@ -16,6 +16,19 @@
       width: fit-content;
     }
   </style>
+  <script th:unless="${over_flag}" src="/js/SseAutoRedirectToAnswerPage.js"></script>
+  <script th:unless="${over_flag}">
+    var sseAutoRedirectToAnswerPage;
+
+    window.onload = function () {
+      sseAutoRedirectToAnswerPage = new SseAutoRedirectToAnswerPage;
+      sseAutoRedirectToAnswerPage.run();
+    };
+
+    window.onbeforeunload = function () {
+      sseAutoRedirectToAnswerPage.close();
+    }
+  </script>
 </head>
 
 <body>
