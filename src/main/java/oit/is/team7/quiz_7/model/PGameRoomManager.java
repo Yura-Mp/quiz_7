@@ -44,11 +44,22 @@ public class PGameRoomManager {
       this.publicGameRooms.put(pgroom.getGameRoomID(), pgroom);
       return true;
     } else {
-      return false;   
+      return false;
     }
   }
-  
+
   public void removeGameRoom(long roomID) {
+    PublicGameRoom removeRoom = this.publicGameRooms.get(roomID);
+
+    if(removeRoom == null) return;
+
+    for(long p : removeRoom.getParticipants().keySet()) {
+      this.belonging.remove(p);
+    }
+
+    removeRoom.getParticipants().clear();
+    removeRoom.clearEmitter();
+
     publicGameRooms.remove(roomID);
   }
 
