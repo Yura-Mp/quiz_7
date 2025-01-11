@@ -20,6 +20,7 @@ import ch.qos.logback.classic.Logger;
 
 import oit.is.team7.quiz_7.model.Gameroom;
 import oit.is.team7.quiz_7.model.GameroomMapper;
+import oit.is.team7.quiz_7.model.AnswerObj;
 import oit.is.team7.quiz_7.model.AnswerObjImpl_4choices;
 import oit.is.team7.quiz_7.model.GameRoomParticipant;
 import oit.is.team7.quiz_7.model.PGameRoomManager;
@@ -144,9 +145,18 @@ public class PlayingController {
     try {
       QuizJson quizJson = objectMapper.readValue(quizJsonString, QuizJson.class);
       model.addAttribute("currentQuizJson", quizJson);
+
+      AnswerObj yourAnswer = participant.getAnswerContent();
+      if(yourAnswer != null) {
+        model.addAttribute("yourAnsContent", quizJson.getChoices()[((AnswerObjImpl_4choices)yourAnswer).getAnsValue() - 1]);
+        model.addAttribute("yourAnsTime", String.format("%.2f", ((double) ((participant.getAnswerTime_ms() + 9L) / 10L) / 100.0)));
+      }
     } catch (Exception e) {
       logger.error("Error at parsing quizJson: " + e.toString());
     }
+
+    model.addAttribute("yourGetPoint", participant.getPointDiff());
+
     return "/playing/guest/ans_result.html";
   }
 

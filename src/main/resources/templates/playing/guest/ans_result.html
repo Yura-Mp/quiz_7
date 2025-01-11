@@ -46,14 +46,14 @@
           <li th:each="choice, iterStat : ${currentQuizJson.choices}" th:text="${choice}"
             th:classappend="${iterStat.index == currentQuizJson.correct - 1} ? 'correct-choice' : ''"></li>
         </ol>
-        <p>あなたの回答: （取得付加）</p>
+        <p>あなたの回答: <span th:if="${yourAnsContent}" th:text="${yourAnsContent}"></span><span th:unless="${yourAnsContent}">-- 無回答 --</span></p>
         <p>正解: <span th:text="${currentQuizJson.choices[currentQuizJson.correct - 1]}"></span></p>
       </div>
       <div>
-        <p>解答時間: （取得付加）ms</p>
+        <p>解答時間: <span th:if="${yourAnsTime}" th:text="${yourAnsTime} + 's'"></span><span th:unless="${yourAnsTime}">-- s</span></p>
         <!-- <span th:text="${participant.answerTime}"></span> -->
         <p>解答順位: <span th:text="${answerTime_rank}"></span> 位</p>
-        <p>獲得点数: <span th:text="${currentQuiz.point}"></span> 点</p>
+        <p>獲得点数: <span th:text="${yourGetPoint}"></span> 点</p>
       </div>
 
       <a th:unless="${over_flag}" th:href="@{/playing/wait(room=${pgameroom.gameRoomID})}">続行</a>
