@@ -1,12 +1,9 @@
 package oit.is.team7.quiz_7.model;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import oit.is.team7.quiz_7.service.AsyncPGameRoomService;
 
@@ -24,7 +21,6 @@ public class PublicGameRoom {
   private LinkedHashMap<Long, GameRoomParticipant> participants;
   private int maxPlayers = 50;
   private ArrayList<Long> quizPool;
-  private List<SseEmitter> emitters;
   private PGameRoomRanking ranking;
   private int nextQuizIndex;
   private boolean open;
@@ -44,7 +40,6 @@ public class PublicGameRoom {
     this.participants = new LinkedHashMap<Long, GameRoomParticipant>();
     this.maxPlayers = maxPlayers;
     this.quizPool = quizPool;
-    this.emitters = Collections.synchronizedList(new ArrayList<SseEmitter>());
     this.ranking = new PGameRoomRanking();
     this.nextQuizIndex = 0;
     this.open = true;
@@ -144,36 +139,6 @@ public class PublicGameRoom {
 
   public void removeParticipant(long userID) {
     participants.remove(userID);
-  }
-
-  public List<SseEmitter> getEmitters() {
-    synchronized (this.emitters) {
-      return new ArrayList<>(this.emitters);
-    }
-  }
-
-  public void addEmitter(SseEmitter emitter) {
-    synchronized (this.emitters) {
-      this.emitters.add(emitter);
-      emitter.onCompletion(() -> this.emitters.remove(emitter));
-      emitter.onTimeout(() -> this.emitters.remove(emitter));
-      emitter.onError((e) -> this.emitters.remove(emitter));
-    }
-  }
-
-  public void removeEmitter(SseEmitter emitter) {
-    synchronized (this.emitters) {
-      this.emitters.remove(emitter);
-    }
-  }
-
-  public void clearEmitter() {
-    synchronized (this.emitters) {
-      for(int i = 0; i < this.emitters.size(); i++) {
-        this.emitters.get(i).complete();
-      }
-      this.emitters.clear();
-    }
   }
 
   public boolean isOpen() {

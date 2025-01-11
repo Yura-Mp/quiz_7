@@ -36,17 +36,16 @@ public class SseController {
     logger.info("getParticipantsList called with roomID:" + roomID);
     final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
-    if (pgroom == null) {
-      logger.error("Room not found: {}", roomID);
-      emitter.completeWithError(new Exception("Room not found"));
-      return emitter;
-    }
-    pgroom.addEmitter(emitter);
+    // if (pgroom == null) {
+    //   logger.error("Room not found: {}", roomID);
+    //   emitter.completeWithError(new Exception("Room not found"));
+    //   return emitter;
+    // }
     try {
       // 初期メッセージを送信して接続が確立されたことを確認
       logger.info("Sending init message to roomID: " + roomID);
       emitter.send(SseEmitter.event().name("init").data("SSE connection established"));
-      asyncPGRService.asyncSendParticipantsList(pgroom);
+      asyncPGRService.asyncSendParticipantsList(emitter, pgroom);
     } catch (Exception e) {
       logger.error("Error in getParticipantsList(...): {}", e.getMessage());
       emitter.completeWithError(e);
@@ -60,17 +59,16 @@ public class SseController {
     logger.info("pageTransition called with roomID:" + roomID);
     final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
     PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
-    if (pgroom == null) {
-      logger.error("Room not found: {}", roomID);
-      emitter.completeWithError(new Exception("Room not found"));
-      return emitter;
-    }
-    pgroom.addEmitter(emitter);
+    // if (pgroom == null) {
+    //   logger.error("Room not found: {}", roomID);
+    //   emitter.completeWithError(new Exception("Room not found"));
+    //   return emitter;
+    // }
     try {
       // 初期メッセージを送信して接続が確立されたことを確認
       logger.info("Sending init message to roomID: " + roomID);
       emitter.send(SseEmitter.event().name("init").data("SSE connection established"));
-      asyncPGRService.asyncSendPageTransition(pgroom);
+      asyncPGRService.asyncSendPageTransition(emitter, pgroom);
     } catch (Exception e) {
       logger.error("Error in pageTransition(...): {}", e.getMessage());
       emitter.completeWithError(e);
@@ -103,12 +101,11 @@ public class SseController {
       emitter.completeWithError(new Exception("Room not found"));
       return emitter;
     }
-    pgroom.addEmitter(emitter);
     try {
       // 初期メッセージを送信して接続が確立されたことを確認
       logger.info("Sending init message to roomID: " + roomID);
       emitter.send(SseEmitter.event().name("init").data("SSE connection established"));
-      asyncPGRService.asyncSendAnswerList(pgroom, quizID);
+      asyncPGRService.asyncSendAnswerList(emitter, pgroom, quizID);
     } catch (Exception e) {
       logger.error("Error in getAnswerList(...): {}", e.getMessage());
       emitter.completeWithError(e);
@@ -129,6 +126,13 @@ public class SseController {
 
     asyncPGRService.asyncAutoRedirectToAnsResultPage(emitter, roomID, quizID);
 
+    return emitter;
+  }
+
+  @GetMapping("/cancellation")
+  public SseEmitter cancellation(@RequestParam("room") final long roomID) {
+    final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+    asyncPGRService.cancelGameRoom(emitter, roomID);
     return emitter;
   }
 }

@@ -3,10 +3,6 @@ package oit.is.team7.quiz_7.service;
 import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +27,6 @@ import oit.is.team7.quiz_7.model.PGameRoomRankingEntryBean;
 @Service
 public class AsyncPGameRoomService {
   private final Logger logger = LoggerFactory.getLogger(AsyncPGameRoomService.class);
-  private final AtomicBoolean participantsUpdated = new AtomicBoolean(false);
-  private Map<Long, Boolean> pageTransitionMap = new HashMap<>();
 
   @Autowired
   PGameRoomManager pGameRoomManager;
@@ -41,182 +35,102 @@ public class AsyncPGameRoomService {
   QuizTableMapper quizTableMapper;
 
   @Async
-  public void asyncSendParticipantsList(PublicGameRoom pgroom) {
+  public void asyncSendParticipantsList(SseEmitter emitter, PublicGameRoom pgroom) {
     logger.info("asyncSendParticipantsList called");
-    try {
-      while (true) {
-        if (this.participantsUpdated.getAndSet(false)) {
-          List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
-          logger.info("Participants list updated: " + participants);
-
-          String jsonData = new ObjectMapper().writeValueAsString(participants);
-          for(int i = 0; i < pgroom.getEmitters().size(); i++) {
-            SseEmitter emitter = pgroom.getEmitters().get(i);
-
-            try {
-              logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
-              emitter.send(SseEmitter.event().name("participantsList").data(jsonData));
-              logger.info("Event sent: " + jsonData);
-            } catch (Exception e) {
-              pgroom.removeEmitter(emitter);
-              logger.error("Error sending event: " + e.getMessage());
-            }
-          }
-
-          // synchronized (pgroom.getEmitters()) {
-          //   for (SseEmitter emitter : pgroom.getEmitters()) {
-          //     try {
-          //       logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
-          //       emitter.send(SseEmitter.event().name("participantsList").data(jsonData));
-          //       logger.info("Event sent: " + jsonData);
-          //     } catch (Exception e) {
-          //       pgroom.removeEmitter(emitter);
-          //       logger.error("Error sending event: " + e.getMessage());
-          //     }
-          //   }
-          //   logger.info("Participants list sent");
-          // }
-        }
-        TimeUnit.MILLISECONDS.sleep(1000);
+    final long roomID = pgroom.getGameRoomID();
+    while (true) {
+      pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
+      if (pgroom == null || !pgroom.isOpen()) {
+        break;
       }
-    } catch (Exception e) {
-      logger.error("Error in asyncSendParticipantsList(...): {}", e.getMessage());
+      List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
+
+      try {
+        String jsonData = new ObjectMapper().writeValueAsString(participants);
+        logger.info("Sending event to emitter: " + emitter + " with data: " + jsonData);
+        emitter.send(SseEmitter.event().name("participantsList").data(jsonData));
+        logger.info("Event sent: " + jsonData);
+        TimeUnit.MILLISECONDS.sleep(1000);
+      } catch (Exception e) {
+        logger.error("Error sending event: " + e.getMessage());
+      }
     }
-  }
-
-  public void setParticipantsUpdated() {
-    logger.info("setParticipantsUpdated called");
-    this.participantsUpdated.set(true);
-  }
-
-  public void addParticipantToRoom(long roomID, GameRoomParticipant participant) {
-    logger.info("addParticipantToRoom called");
-    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
-    if (pgroom.addParticipant(participant)) {
-      logger.info("Participant added");
-      setParticipantsUpdated();
-    }
-  }
-
-  public void removeParticipantFromRoom(long roomID, long userID) {
-    logger.info("removeParticipantFromRoom called");
-    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
-    pgroom.removeParticipant(userID);
-    logger.info("Participant removed");
-    setParticipantsUpdated();
+    emitter.complete();
   }
 
   @Async
-  public void asyncSendAnswerList(PublicGameRoom pgroom, int quizID) {
+  public void asyncSendAnswerList(SseEmitter emitter, PublicGameRoom pgroom, int quizID) {
     logger.info("asyncSendAnswerList called");
     double time = quizTableMapper.selectQuizTableByID(quizID).getTimelimit();
-    try {
-      while (true) {
-        List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
-        logger.info("Participants list : " + participants);
 
-        ObjectMapper mapper = new ObjectMapper();
-        // JSが扱えるオブジェクトに変換
-        List<AnswerData> answerDataList = new ArrayList<>();
-        for (GameRoomParticipant participant : participants) {
-          AnswerObjImpl_4choices ansObj = (AnswerObjImpl_4choices) participant.getAnswerContent();
-          logger.info("AnswerObj: " + ansObj);
-          if (ansObj == null) {
-            continue;
-          }
-          AnswerData ansData = new AnswerData(participant, ansObj);
-          logger.info("AnswerData: " + ansData);
-          answerDataList.add(ansData);
+    while (true) {
+      List<GameRoomParticipant> participants = new ArrayList<>(pgroom.getParticipants().values());
+      logger.info("Participants list : " + participants);
+
+      ObjectMapper mapper = new ObjectMapper();
+      // JSが扱えるオブジェクトに変換
+      List<AnswerData> answerDataList = new ArrayList<>();
+      for (GameRoomParticipant participant : participants) {
+        AnswerObjImpl_4choices ansObj = (AnswerObjImpl_4choices) participant.getAnswerContent();
+        logger.info("AnswerObj: " + ansObj);
+        if (ansObj == null) {
+          continue;
         }
+        AnswerData ansData = new AnswerData(participant, ansObj);
+        logger.info("AnswerData: " + ansData);
+        answerDataList.add(ansData);
+      }
+
+      try {
         String answerDataJSON = mapper.writeValueAsString(answerDataList);
         logger.info("AnswerData JSON: " + answerDataJSON);
-
-        synchronized (pgroom.getEmitters()) {
-          Iterator<SseEmitter> iterator = pgroom.getEmitters().iterator();
-          while (iterator.hasNext()) {
-            SseEmitter emitter = iterator.next();
-            try {
-              logger.info("Sending event to emitter: " + emitter + " with data: " + answerDataJSON);
-              emitter.send(SseEmitter.event().name("answerData").data(answerDataJSON));
-              if (time >= 0) {
-                logger.info("Sending time: " + time);
-                emitter.send(SseEmitter.event().name("countdown").data(time));
-              }
-              if (pgroom.isConfirmedResult()) {
-                if (pgroom.getNextQuizIndex() >= pgroom.getQuizPool().size()) {
-                  emitter.send(SseEmitter.event().name("transition").data("toOverall"));
-                } else {
-                  emitter.send(SseEmitter.event().name("transition").data("toRanking"));
-                }
-              }
-              logger.info("Events sent");
-            } catch (Exception e) {
-              iterator.remove();
-              logger.error("Error sending event: " + e.getMessage());
-            }
-          }
+        logger.info("Sending event to emitter: " + emitter + " with data: " + answerDataJSON);
+        emitter.send(SseEmitter.event().name("answerData").data(answerDataJSON));
+        if (time >= 0) {
+          logger.info("Sending time: " + time);
+          emitter.send(SseEmitter.event().name("countdown").data(time));
         }
+        if (pgroom.isConfirmedResult()) {
+          if (pgroom.getNextQuizIndex() >= pgroom.getQuizPool().size()) {
+            emitter.send(SseEmitter.event().name("transition").data("toOverall"));
+          } else {
+            emitter.send(SseEmitter.event().name("transition").data("toRanking"));
+          }
+          break;
+        }
+        logger.info("Events sent");
         TimeUnit.MILLISECONDS.sleep(1000); // 1秒ごとに更新
         time--;
+      } catch (Exception e) {
+        logger.error("Error sending event: " + e.getMessage());
       }
-    } catch (Exception e) {
-      logger.error("Error in asyncSendAnswerList(...): {}", e.getMessage());
     }
+    emitter.complete();
   }
 
   @Async
-  public void asyncSendPageTransition(PublicGameRoom pgroom) {
+  public void asyncSendPageTransition(SseEmitter emitter, PublicGameRoom pgroom) {
     logger.info("asyncSendPageTransition called with roomID: " + pgroom.getGameRoomID());
-    long roomID = pgroom.getGameRoomID();
-    pageTransitionMap.put(roomID, false);
+    final long roomID = pgroom.getGameRoomID();
     while (true) {
-      synchronized (pageTransitionMap) {
-        if (pageTransitionMap.get(roomID)) {
-          sendPageTransition(pgroom);
-          pageTransitionMap.put(roomID, false);
+      pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
+      if (pgroom == null) {
+        break;
+      }
+      if (!pgroom.isOpen()) {
+        try {
+          emitter.send(SseEmitter.event().name("pageTransition").data("pageTransition"));
+        } catch (Exception e) {
+          logger.error("Error in asyncSendPageTransition(...): {}", e.getMessage());
         }
+        break;
       }
       try {
-        TimeUnit.MILLISECONDS.sleep(100);
+        TimeUnit.MILLISECONDS.sleep(100L);
       } catch (Exception e) {
-        logger.error("Error in asyncSendPageTransition(...): {}", e.getMessage());
       }
     }
-  }
-
-  public void sendPageTransition(PublicGameRoom pgroom) {
-    logger.info("sendPageTransition called with roomID: " + pgroom.getGameRoomID());
-
-    for(int i = 0; i < pgroom.getEmitters().size(); i++) {
-      SseEmitter emitter = pgroom.getEmitters().get(i);
-
-      try {
-        logger.info("Sending page transition event to emitter: " + emitter);
-        emitter.send(SseEmitter.event().name("pageTransition").data("pageTransition"));
-        logger.info("Page transition event sent");
-      } catch (Exception e) {
-        pgroom.removeEmitter(emitter);
-        logger.error("Error sending page transition event: " + e.getMessage());
-      }
-    }
-
-    // for (SseEmitter emitter : pgroom.getEmitters()) {
-    //   try {
-    //     logger.info("Sending page transition event to emitter: " + emitter);
-    //     emitter.send(SseEmitter.event().name("pageTransition").data("pageTransition"));
-    //     logger.info("Page transition event sent");
-    //   } catch (Exception e) {
-    //     pgroom.removeEmitter(emitter);
-    //     logger.error("Error sending page transition event: " + e.getMessage());
-    //   }
-    // }
-  }
-
-  public void setPageTransition(long roomID) {
-    logger.info("setPageTransition called with roomID: " + roomID);
-    synchronized (pageTransitionMap) {
-      pageTransitionMap.put(roomID, true);
-    }
+    emitter.complete();
   }
 
   @Async
@@ -241,39 +155,37 @@ public class AsyncPGameRoomService {
           + e.getMessage());
       emitter.complete();
     } finally {
-      try { TimeUnit.MILLISECONDS.sleep(100L); } catch(Exception e) {} // マージン
+      try {
+        TimeUnit.MILLISECONDS.sleep(100L);
+      } catch (Exception e) {
+      } // マージン
       emitter.complete();
     }
   }
 
-  public void cancelGameRoom(long roomID) {
-    logger.info("cancelGameRoom called with roomID: " + roomID);
-    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
-    if (pgroom != null) {
-      notifyCancellation(pgroom);
-    }
-  }
-
   @Async
-  public void notifyCancellation(PublicGameRoom pgroom) {
-    logger.info("notifyCancellation called with roomID: " + pgroom.getGameRoomID());
-    for(int i = 0; i < pgroom.getEmitters().size(); i++) {
-      SseEmitter emitter = pgroom.getEmitters().get(i);
+  public void cancelGameRoom(SseEmitter emitter, long roomID) {
+    logger.info("cancelGameRoom called with roomID: " + roomID);
+    while (true) {
+      PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
+      if (pgroom == null) {
+        logger.info("notifyCancellation called with roomID: " + roomID);
 
+        try {
+          emitter.send(SseEmitter.event().data("gameCancelled"));
+        } catch (Exception e) {
+        }
+        break;
+      }
+      if (!pgroom.isOpen()) {
+        break;
+      }
       try {
-        emitter.send(SseEmitter.event().name("gameCancelled").data("gameCancelled"));
+        TimeUnit.MILLISECONDS.sleep(500L);
       } catch (Exception e) {
-        pgroom.removeEmitter(emitter);
       }
     }
-
-    // for (SseEmitter emitter : pgroom.getEmitters()) {
-    //   try {
-    //     emitter.send(SseEmitter.event().name("gameCancelled").data("gameCancelled"));
-    //   } catch (Exception e) {
-    //     pgroom.removeEmitter(emitter);
-    //   }
-    // }
+    emitter.complete();
   }
 
   @Async
@@ -300,7 +212,10 @@ public class AsyncPGameRoomService {
           + e.getMessage());
       emitter.complete();
     } finally {
-      try { TimeUnit.MILLISECONDS.sleep(500L); } catch(Exception e) {} // マージン
+      try {
+        TimeUnit.MILLISECONDS.sleep(500L);
+      } catch (Exception e) {
+      } // マージン
       emitter.complete();
     }
   }

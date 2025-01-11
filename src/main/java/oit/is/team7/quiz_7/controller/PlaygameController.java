@@ -80,8 +80,9 @@ public class PlaygameController {
     newParticipant.setUserID(userID);
     newParticipant.setUserName(principal.getName());
 
-    // 参加者を追加し、更新を通知
-    asyncPGRService.addParticipantToRoom(roomID, newParticipant);
+    // 参加者を追加
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
+    pgroom.addParticipant(newParticipant);
     logger.info("PlaygameController.postJoinCheck(...): Participants updated.");
 
     if (DBG) {
@@ -117,8 +118,9 @@ public class PlaygameController {
   public String exitGameRoom(@RequestParam("room") long roomID, Principal principal) {
     long userID = userAccountMapper.selectUserAccountByUsername(principal.getName()).getId();
     pGameRoomManager.removeParticipantFromBelonging(userID);
-    // 参加者を削除し、更新を通知
-    asyncPGRService.removeParticipantFromRoom(roomID, userID);
+    // 参加者を削除
+    PublicGameRoom pgroom = pGameRoomManager.getPublicGameRooms().get(roomID);
+    pgroom.removeParticipant(userID);
     return "redirect:/playgame";
   }
 }

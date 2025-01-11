@@ -58,7 +58,6 @@ public class PGameRoomManager {
     }
 
     removeRoom.getParticipants().clear();
-    removeRoom.clearEmitter();
 
     publicGameRooms.remove(roomID);
   }
