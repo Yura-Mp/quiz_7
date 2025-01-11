@@ -2,7 +2,6 @@ package oit.is.team7.quiz_7.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
@@ -129,7 +128,13 @@ public class PlayingController {
     }
 
     if(participant.isAnswered()) {
-      List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
+      final ArrayList<GameRoomParticipant> participantsList = new ArrayList<>(participants.values());
+      ArrayList<GameRoomParticipant> sortParticipants = new ArrayList<>();
+
+      for(final GameRoomParticipant p : participantsList) {
+        if(p.isAnswered()) sortParticipants.add(p);
+      }
+
       sortParticipants.sort((p1, p2) -> Long.compare((long) p1.getAnswerTime_ms(), (long) p2.getAnswerTime_ms()));
       for (int rank = 0; rank < sortParticipants.size(); rank++) {
         GameRoomParticipant target = sortParticipants.get(rank);
