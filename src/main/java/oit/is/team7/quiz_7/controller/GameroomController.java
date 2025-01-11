@@ -101,6 +101,9 @@ public class GameroomController {
   public String post_prepare_open_gameroom(@RequestParam("room") int roomID,
       @RequestParam("max_players") int max_players, ModelMap model) {
     Gameroom gameroom = gameroomMapper.selectGameroomByID(roomID);
+
+    this.pGameRoomManager.removeGameRoom(roomID);
+
     String roomName = gameroom.getRoomName();
     int hostId = gameroom.getHostUserID();
     String hostName = userAccountMapper.selectUserAccountById(hostId).getUserName();
@@ -116,9 +119,8 @@ public class GameroomController {
       quizPool.add((long) hasQuiz.getQuizID());
     }
     PublicGameRoom newPublicGameRoom = new PublicGameRoom(roomID, roomName, hostId, hostName, max_players, quizPool);
-    LinkedHashMap<Long, PublicGameRoom> publicGameRooms = this.pGameRoomManager.getPublicGameRooms();
-    publicGameRooms.put((long) roomID, newPublicGameRoom);
-    this.pGameRoomManager.setPublicGameRooms(publicGameRooms);
+    this.pGameRoomManager.addPublicGameRoom(newPublicGameRoom);
+
     logger.info("PGRManager.publicGameRooms:" + this.pGameRoomManager.getPublicGameRooms());
 
     return "redirect:/gameroom/standby?room=" + roomID;
@@ -136,7 +138,6 @@ public class GameroomController {
   public String cancelGameRoom(@RequestParam("room") long roomID, Principal principal) {
     asyncPGRService.cancelGameRoom(roomID);
     PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) roomID);
-    publicGameRoom.getParticipants().clear();
     pGameRoomManager.removeGameRoom(roomID);
     List<Long> usersToBeRemove = new ArrayList<>();
     for (Map.Entry<Long, Long> entry : pGameRoomManager.getBelonging().entrySet()) {

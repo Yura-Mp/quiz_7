@@ -167,6 +167,15 @@ public class PublicGameRoom {
     }
   }
 
+  public void clearEmitter() {
+    synchronized (this.emitters) {
+      for(int i = 0; i < this.emitters.size(); i++) {
+        this.emitters.get(i).complete();
+      }
+      this.emitters.clear();
+    }
+  }
+
   public boolean isOpen() {
     return open;
   }
