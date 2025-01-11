@@ -73,9 +73,6 @@ public class AsyncPGameRoomService {
       for (GameRoomParticipant participant : participants) {
         AnswerObjImpl_4choices ansObj = (AnswerObjImpl_4choices) participant.getAnswerContent();
         logger.info("AnswerObj: " + ansObj);
-        if (ansObj == null) {
-          continue;
-        }
         AnswerData ansData = new AnswerData(participant, ansObj);
         logger.info("AnswerData: " + ansData);
         answerDataList.add(ansData);

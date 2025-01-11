@@ -72,6 +72,9 @@ public class PlayingController {
     pgroom.getRanking().sortByPoint();
     model.addAttribute("participant_rank", pgroom.getRanking().getEntry(userID).rank);
 
+    QuizTable nextQuiz = quizTableMapper.selectQuizTableByID((int)pgroom.getNextQuizID());
+    model.addAttribute("nextQuizTitle", nextQuiz.getTitle());
+
     return "/playing/guest/wait.html";
   }
 

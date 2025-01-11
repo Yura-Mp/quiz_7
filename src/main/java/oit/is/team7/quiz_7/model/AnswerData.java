@@ -6,9 +6,16 @@ public class AnswerData {
   private long answerTime_ms;
 
   public AnswerData(GameRoomParticipant participant, AnswerObjImpl_4choices answerObj) {
-    this.userName = participant.getUserName();
-    this.answerContent = (int) answerObj.getAnsValue();
-    this.answerTime_ms = participant.getAnswerTime_ms();
+    if(answerObj == null) {
+      // nullの場合，無効値を代入．
+      this.userName = participant.getUserName();
+      this.answerContent = -1;
+      this.answerTime_ms = -1L;
+    } else {
+      this.userName = participant.getUserName();
+      this.answerContent = (int) answerObj.getAnsValue();
+      this.answerTime_ms = participant.getAnswerTime_ms();
+    }
   }
 
   public String getUserName() {
