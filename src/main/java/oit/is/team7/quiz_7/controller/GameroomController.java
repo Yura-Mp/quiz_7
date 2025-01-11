@@ -4,7 +4,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,7 +118,11 @@ public class GameroomController {
       quizPool.add((long) hasQuiz.getQuizID());
     }
     PublicGameRoom newPublicGameRoom = new PublicGameRoom(roomID, roomName, hostId, hostName, max_players, quizPool);
-    this.pGameRoomManager.addPublicGameRoom(newPublicGameRoom);
+    if(this.pGameRoomManager.addPublicGameRoom(newPublicGameRoom)) {
+      logger.info("--- True ---");
+    } else {
+      logger.info("--- False ---");
+    }
 
     logger.info("PGRManager.publicGameRooms:" + this.pGameRoomManager.getPublicGameRooms());
 
