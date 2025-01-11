@@ -139,7 +139,6 @@ public class GameroomController {
 
   @PostMapping("/standby/cancel")
   public String cancelGameRoom(@RequestParam("room") long roomID, Principal principal) {
-    asyncPGRService.cancelGameRoom(roomID);
     PublicGameRoom publicGameRoom = this.pGameRoomManager.getPublicGameRooms().get((long) roomID);
     pGameRoomManager.removeGameRoom(roomID);
     List<Long> usersToBeRemove = new ArrayList<>();

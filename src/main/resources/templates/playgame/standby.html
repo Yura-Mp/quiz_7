@@ -14,12 +14,15 @@
 
     var sseParticipantsList;
     var ssePageTransition;
+    var sseCancelAnnounce;
 
     window.onload = function () {
       sseParticipantsList = new SSEparticipantsList;
       ssePageTransition = new SSEpageTransition;
+      sseCancelAnnounce = new SSEcancelAnnouncement;
       sseParticipantsList.run();
       ssePageTransition.run();
+      sseCancelAnnounce.run();
 
       // モーダルを閉じる処理
       document.getElementById("confirmButton").addEventListener("click", function () {
@@ -30,6 +33,7 @@
     window.onbeforeunload = function () {
       sseParticipantsList.close();
       ssePageTransition.close();
+      sseCancelAnnounce.close();
     };
   </script>
   <style>

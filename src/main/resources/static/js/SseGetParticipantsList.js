@@ -9,7 +9,7 @@ class SSEparticipantsList {
   run() {
     console.log("SSEparticipantsList.run() is called. ");
 
-    try { this.sse.close(); } catch(e) { console.warn("SSEparticipantsList.run(): ", e); }
+    try { this.sse.close(); } catch (e) { console.warn("SSEparticipantsList.run(): ", e); }
 
     var roomID = new URLSearchParams(window.location.search).get('room');
     // 参加者リスト更新用イベントソース
@@ -65,7 +65,7 @@ class SSEpageTransition {
   run() {
     console.log("SSEpageTransition.run() is called. ");
 
-    try { this.sse.close(); } catch(e) { console.warn("SSEpageTransition.run(): ", e); }
+    try { this.sse.close(); } catch (e) { console.warn("SSEpageTransition.run(): ", e); }
 
     var roomID = new URLSearchParams(window.location.search).get('room');
     // ページ遷移用イベントソース
@@ -94,17 +94,45 @@ class SSEpageTransition {
     this.sse.onerror = function (error) {
       console.log("SSE error:", error);
     };
-
-    // SSEイベントを受け取ったときにモーダルを表示
-    this.sse.addEventListener('gameCancelled', function (event) {
-      if (event.data == "gameCancelled") {
-        showModal();
-      }
-    });
   }
 
   close() {
     console.log("SSEpageTransition.close() is called. ");
     try { this.sse.close(); } catch { console.error("SSEpageTransition.close(): ", e); }
+  }
+}
+
+class SSEcancelAnnouncement {
+  sse = undefined;
+
+  run() {
+    console.log("SSEcancelAnnouncement.run() is called. ");
+
+    try { this.sse.close(); } catch (e) { console.warn("SSEcancelAnnouncement.run(): ", e); }
+
+    var roomID = new URLSearchParams(window.location.search).get('room');
+    // 参加者リスト更新用イベントソース
+    this.sse = new EventSource('/sse/cancellation?room=' + roomID);
+    console.log("Room ID:", roomID);
+    console.log("EventSource created with URL: /sse/cancellation?room=" + roomID);
+    this.sse.onopen = function () {
+      console.log("SSE connection opened");
+    };
+    this.sse.onmessage = function (event) {
+      console.log("SSEcancelAnnouncement received:" + event.data);
+      // SSEイベントを受け取ったときにモーダルを表示
+      showModal();
+    };
+    this.sse.addEventListener('init', function (event) {
+      console.log("Init event received: " + event.data);
+    });
+    this.sse.onerror = function (error) {
+      console.log("SSE error:", error);
+    };
+  }
+
+  close() {
+    console.log("SSEcancelAnnouncement.close() is called. ");
+    try { this.sse.close(); } catch { console.error("SSEcancelAnnouncement.close(): ", e); }
   }
 }

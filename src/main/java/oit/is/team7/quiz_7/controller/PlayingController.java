@@ -86,7 +86,6 @@ public class PlayingController {
       // ユーザがホストでなければゲスト向けの待機画面を表示
       return get_wait_guest(roomID, prin, model);
     }
-    asyncPGRService.setPageTransition(roomID); // ページ遷移イベントを送信
     pgroom.setOpen(false);
     if (pgroom != null && pgroom.getNextQuizIndex() == 0) {
       pgroom.resetAllParticipants();
