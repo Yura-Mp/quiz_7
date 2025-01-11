@@ -13,7 +13,7 @@
       <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
       <div th:if="${participant}">
         <p>[[${participant.userName}]] さんの</p>
-        <p>最終順位：[[${participantRank}]]位</p>
+        <p>最終順位：[[${participant_rank}]]位</p>
         <p>最終得点：[[${participant.point}]]点</p>
       </div>
       <a th:href="@{/main}">メインページ</a>

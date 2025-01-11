@@ -50,9 +50,9 @@
         <p>正解: <span th:text="${currentQuizJson.choices[currentQuizJson.correct - 1]}"></span></p>
       </div>
       <div>
-        <p>解答時間: <span th:if="${yourAnsTime}" th:text="${yourAnsTime} + 's'"></span><span th:unless="${yourAnsTime}">-- s</span></p>
+        <p>解答時間: <span th:if="${yourAnsTime}" th:text="${yourAnsTime}"></span><span th:unless="${yourAnsTime}">--</span> s</p>
         <!-- <span th:text="${participant.answerTime}"></span> -->
-        <p>解答順位: <span th:text="${answerTime_rank}"></span> 位</p>
+        <p>解答順位: <span th:if="${answerTime_rank}" th:text="${answerTime_rank}"></span><span th:unless="${answerTime_rank}">--</span> 位</p>
         <p>獲得点数: <span th:text="${yourGetPoint}"></span> 点</p>
       </div>
 

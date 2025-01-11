@@ -68,14 +68,10 @@ public class PlayingController {
     if (participant != null) {
       model.addAttribute("participant", participant);
     }
-    List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
-    sortParticipants.sort((p1, p2) -> Long.compare(p2.getPoint(), p1.getPoint()));
-    for (int rank = 0; rank < sortParticipants.size(); rank++) {
-      GameRoomParticipant target = sortParticipants.get(rank);
-      if (target.getUserID() == userID) {
-        model.addAttribute("participant_rank", rank + 1);
-      }
-    }
+
+    pgroom.getRanking().sortByPoint();
+    model.addAttribute("participant_rank", pgroom.getRanking().getEntry(userID).rank);
+
     return "/playing/guest/wait.html";
   }
 
@@ -128,12 +124,15 @@ public class PlayingController {
     if (participant != null) {
       model.addAttribute("participant", participant);
     }
-    List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
-    sortParticipants.sort((p1, p2) -> Long.compare((long) p1.getAnswerTime_ms(), (long) p2.getAnswerTime_ms()));
-    for (int rank = 0; rank < sortParticipants.size(); rank++) {
-      GameRoomParticipant target = sortParticipants.get(rank);
-      if (target.getUserID() == userID) {
-        model.addAttribute("answerTime_rank", rank + 1);
+
+    if(participant.isAnswered()) {
+      List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
+      sortParticipants.sort((p1, p2) -> Long.compare((long) p1.getAnswerTime_ms(), (long) p2.getAnswerTime_ms()));
+      for (int rank = 0; rank < sortParticipants.size(); rank++) {
+        GameRoomParticipant target = sortParticipants.get(rank);
+        if (target.getUserID() == userID) {
+          model.addAttribute("answerTime_rank", rank + 1);
+        }
       }
     }
 
@@ -237,14 +236,10 @@ public class PlayingController {
     if (participant != null) {
       model.addAttribute("participant", participant);
     }
-    List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
-    sortParticipants.sort((p1, p2) -> Long.compare(p2.getPoint(), p1.getPoint()));
-    for (int rank = 0; rank < sortParticipants.size(); rank++) {
-      GameRoomParticipant target = sortParticipants.get(rank);
-      if (target.getUserID() == userID) {
-        model.addAttribute("participantRank", rank + 1);
-      }
-    }
+
+    pgroom.getRanking().sortByPoint();
+    model.addAttribute("participant_rank", pgroom.getRanking().getEntry(userID).rank);
+
     return "/playing/guest/overall.html";
   }
 
