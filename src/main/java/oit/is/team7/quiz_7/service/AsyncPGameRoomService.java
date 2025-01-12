@@ -186,16 +186,14 @@ public class AsyncPGameRoomService {
   }
 
   @Async
-  public void asyncAutoRedirectToAnsResultPage(SseEmitter emitter, final long roomID, final long quizID) {
-    logger.info("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage is called with roomID: " + roomID + ", quizID: "
-        + quizID);
+  public void asyncAutoRedirectToAnsResultPage(SseEmitter emitter, final long roomID) {
+    logger.info("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage is called with roomID: " + roomID);
 
     try {
       PublicGameRoom redirectToRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
 
       emitter.send(SseEmitter.event().name("init")
-          .data("SSE connection established. Ready to auto-redirect to AnsResult Page of roomID: " + roomID
-              + ", quizID: " + quizID));
+          .data("SSE connection established. Ready to auto-redirect to AnsResult Page of roomID: " + roomID));
       while (true) {
         if (redirectToRoom.isConfirmedResult()) {
           emitter.send("redirect");

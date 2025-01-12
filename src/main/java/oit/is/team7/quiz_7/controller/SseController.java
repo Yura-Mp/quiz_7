@@ -123,9 +123,8 @@ public class SseController {
     final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
     final long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
     final long roomID = pGameRoomManager.getBelonging().get(userID);
-    final long quizID = pGameRoomManager.getPublicGameRooms().get(roomID).getNextQuizID();
 
-    asyncPGRService.asyncAutoRedirectToAnsResultPage(emitter, roomID, quizID);
+    asyncPGRService.asyncAutoRedirectToAnsResultPage(emitter, roomID);
 
     return emitter;
   }
