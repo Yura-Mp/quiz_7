@@ -40,7 +40,8 @@ public class Quiz7AuthConfiguration {
               "/", "/login", "/register_useracc", "/register_useracc/send", "/css/**", "/js/**"
             ).permitAll()
 
-            .requestMatchers("/h2-console", "/h2-console/*").permitAll() // 一時的開発用に全許可
+            // .requestMatchers("/h2-console", "/h2-console/*").permitAll() // 一時的開発用に全許可
+            .requestMatchers("/h2-console", "/h2-console/*").denyAll()
 
             .anyRequest().authenticated()
             ) // 上記URL以外アカウント認証必要
