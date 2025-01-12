@@ -2,7 +2,6 @@ package oit.is.team7.quiz_7.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
@@ -68,14 +67,13 @@ public class PlayingController {
     if (participant != null) {
       model.addAttribute("participant", participant);
     }
-    List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
-    sortParticipants.sort((p1, p2) -> Long.compare(p2.getPoint(), p1.getPoint()));
-    for (int rank = 0; rank < sortParticipants.size(); rank++) {
-      GameRoomParticipant target = sortParticipants.get(rank);
-      if (target.getUserID() == userID) {
-        model.addAttribute("participant_rank", rank + 1);
-      }
-    }
+
+    pgroom.getRanking().sortByPoint();
+    model.addAttribute("participant_rank", pgroom.getRanking().getEntry(userID).rank);
+
+    QuizTable nextQuiz = quizTableMapper.selectQuizTableByID((int)pgroom.getNextQuizID());
+    model.addAttribute("nextQuizTitle", nextQuiz.getTitle());
+
     return "/playing/guest/wait.html";
   }
 
@@ -128,12 +126,21 @@ public class PlayingController {
     if (participant != null) {
       model.addAttribute("participant", participant);
     }
-    List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
-    sortParticipants.sort((p1, p2) -> Long.compare((long) p1.getAnswerTime_ms(), (long) p2.getAnswerTime_ms()));
-    for (int rank = 0; rank < sortParticipants.size(); rank++) {
-      GameRoomParticipant target = sortParticipants.get(rank);
-      if (target.getUserID() == userID) {
-        model.addAttribute("answerTime_rank", rank + 1);
+
+    if(participant.isAnswered()) {
+      final ArrayList<GameRoomParticipant> participantsList = new ArrayList<>(participants.values());
+      ArrayList<GameRoomParticipant> sortParticipants = new ArrayList<>();
+
+      for(final GameRoomParticipant p : participantsList) {
+        if(p.isAnswered()) sortParticipants.add(p);
+      }
+
+      sortParticipants.sort((p1, p2) -> Long.compare((long) p1.getAnswerTime_ms(), (long) p2.getAnswerTime_ms()));
+      for (int rank = 0; rank < sortParticipants.size(); rank++) {
+        GameRoomParticipant target = sortParticipants.get(rank);
+        if (target.getUserID() == userID) {
+          model.addAttribute("answerTime_rank", rank + 1);
+        }
       }
     }
 
@@ -237,14 +244,10 @@ public class PlayingController {
     if (participant != null) {
       model.addAttribute("participant", participant);
     }
-    List<GameRoomParticipant> sortParticipants = new ArrayList<>(participants.values());
-    sortParticipants.sort((p1, p2) -> Long.compare(p2.getPoint(), p1.getPoint()));
-    for (int rank = 0; rank < sortParticipants.size(); rank++) {
-      GameRoomParticipant target = sortParticipants.get(rank);
-      if (target.getUserID() == userID) {
-        model.addAttribute("participantRank", rank + 1);
-      }
-    }
+
+    pgroom.getRanking().sortByPoint();
+    model.addAttribute("participant_rank", pgroom.getRanking().getEntry(userID).rank);
+
     return "/playing/guest/overall.html";
   }
 

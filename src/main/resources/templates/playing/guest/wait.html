@@ -25,6 +25,7 @@
     <div class="display">
       <h3 th:if="${pgameroom}" th:text="${pgameroom.gameRoomName}"></h3>
       <h2>クイズの出題を待っています</h2>
+      <h3 th:if="nextQuizTitle">次の問題タイトル: [[${nextQuizTitle}]]</h3>
       <div th:if="${participant}">
         <p>[[${participant.userName}]] さんの</p>
         <p>現在の順位：[[${participant_rank}]]位</p>

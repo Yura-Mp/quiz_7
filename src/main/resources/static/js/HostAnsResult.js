@@ -23,10 +23,10 @@ class HostAnsResult {
       } else {
         let answerList = "<tbody>";
         answerDataList.forEach((answerData) => {
-          if (answerData.answerContent === null) {
+          if (answerData.answerContent < 0) {
             answerList += "<tr><td>" + answerData.userName + "</td><td>未解答</td><td align='right'>----</td></tr>";
           } else {
-            answerList += "<tr><td>" + answerData.userName + "</td><td align='right'>" + answerData.answerContent + "</td><td align='right'>" + (answerData.answerTime_ms　/　1000) + "秒</td></tr>";
+            answerList += "<tr><td>" + answerData.userName + "</td><td align='right'>" + answerData.answerContent + "</td><td align='right'>" + (answerData.answerTime_ms / 1000) + "秒</td></tr>";
           }
         });
         answerList += "</tbody>";
