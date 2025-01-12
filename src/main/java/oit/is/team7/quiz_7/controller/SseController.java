@@ -82,10 +82,11 @@ public class SseController {
     logger.info("SseController.transitToAnswer is called by user '" + prin.getName() + "'. ");
 
     final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-    long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
-    long roomID = pGameRoomManager.getBelonging().get(userID);
+    final long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
+    final long roomID = pGameRoomManager.getBelonging().get(userID);
+    final long quizID = pGameRoomManager.getPublicGameRooms().get(roomID).getNextQuizID();
 
-    asyncPGRService.asyncAutoRedirectToAnswerPage(emitter, roomID);
+    asyncPGRService.asyncAutoRedirectToAnswerPage(emitter, roomID, quizID);
 
     return emitter;
   }

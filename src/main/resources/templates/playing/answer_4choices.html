@@ -70,7 +70,7 @@
     <div class="display">
       <h3 id="quiz-title">[[${title}]]</h3>
       <p id="quiz-desc">[[${description}]]</p>
-      <form th:action="@{./answer_4choices(room=${roomID})}" method="post" id="quiz-form">
+      <form th:action="@{./answer_4choices(room=${roomID}, quiz=${quizID})}" method="post" id="quiz-form">
         <table>
           <tr>
             <td><input type="submit" name="choiceNo1" th:value="${choices1}" th:disabled="${yourChoiceContent}" /></td>
