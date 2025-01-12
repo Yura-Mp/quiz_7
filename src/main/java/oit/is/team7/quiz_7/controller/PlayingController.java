@@ -363,19 +363,19 @@ public class PlayingController {
   }
 
   @GetMapping("/answer")
-  public String getAnswerPage(@RequestParam("room") final long roomID, Principal prin, ModelMap model) {
+  public String getAnswerPage(@RequestParam("room") final long roomID, @RequestParam("quiz") final long quizID, Principal prin, ModelMap model) {
     // [エラー] 対象の公開ゲームルームが解答中でない場合．
     if (!(pGameRoomManager.getPublicGameRooms().get(roomID).isAnswering())) {
       return "/error";
     }
 
     final long userID = userAccountMapper.selectUserAccountByUsername(prin.getName()).getId();
-    final long quizID = pGameRoomManager.getPublicGameRooms().get(roomID).getNextQuizID();
     final QuizTable quiz = quizTableMapper.selectQuizTableByID((int) quizID);
     final String quizFormat = quizFormatListMapper.selectQuizFormatById((long) quiz.getQuizFormatID()).getQuizFormat();
 
     model.addAttribute("roomID", roomID);
     model.addAttribute("userID", userID);
+    model.addAttribute("quizID", quizID);
 
     model.addAttribute("remainAnsTime_ms", (long) (quiz.getTimelimit() * 1000L)
         - pGameRoomManager.getPublicGameRooms().get(roomID).getElapsedAnswerTime_ms());

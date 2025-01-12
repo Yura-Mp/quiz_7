@@ -131,17 +131,17 @@ public class AsyncPGameRoomService {
   }
 
   @Async
-  public void asyncAutoRedirectToAnswerPage(SseEmitter emitter, long roomID) {
-    logger.info("AsyncPGameRoomService.asyncAutoRedirectToAnswerPage is called with roomID: " + roomID);
+  public void asyncAutoRedirectToAnswerPage(SseEmitter emitter, final long roomID, final long quizID) {
+    logger.info("AsyncPGameRoomService.asyncAutoRedirectToAnswerPage is called with roomID: " + roomID + ", quizID: " + quizID);
 
     try {
       PublicGameRoom redirectToRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
 
       emitter.send(SseEmitter.event().name("init")
-          .data("SSE connection established. Ready to auto-redirect to Answer Page of roomID: " + roomID));
+          .data("SSE connection established. Ready to auto-redirect to Answer Page of roomID: " + roomID + ", quizID: " + quizID));
       while (true) {
         if (redirectToRoom.isAnswering()) {
-          emitter.send(roomID);
+          emitter.send("room=" + roomID + "&quiz=" + quizID);
           break;
         }
 
@@ -150,7 +150,7 @@ public class AsyncPGameRoomService {
     } catch (Exception e) {
       logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnswerPage Error: " + e.getClass().getName() + ":"
           + e.getMessage());
-      emitter.complete();
+      emitter.completeWithError(e);
     } finally {
       try {
         TimeUnit.MILLISECONDS.sleep(100L);
@@ -186,19 +186,18 @@ public class AsyncPGameRoomService {
   }
 
   @Async
-  public void asyncAutoRedirectToAnsResultPage(SseEmitter emitter, final long roomID, final long quizID) {
-    logger.info("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage is called with roomID: " + roomID + ", quizID: "
-        + quizID);
+  public void asyncAutoRedirectToAnsResultPage(SseEmitter emitter, final long roomID) {
+    logger.info("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage is called with roomID: " + roomID);
 
     try {
       PublicGameRoom redirectToRoom = pGameRoomManager.getPublicGameRooms().get(roomID);
 
       emitter.send(SseEmitter.event().name("init")
-          .data("SSE connection established. Ready to auto-redirect to AnsResult Page of roomID: " + roomID
-              + ", quizID: " + quizID));
+          .data("SSE connection established. Ready to auto-redirect to AnsResult Page of roomID: " + roomID));
       while (true) {
         if (redirectToRoom.isConfirmedResult()) {
-          emitter.send("room=" + roomID + "&quiz=" + quizID);
+          emitter.send("redirect");
+          // emitter.send("room=" + roomID + "&quiz=" + quizID);
           break;
         }
 
@@ -207,7 +206,7 @@ public class AsyncPGameRoomService {
     } catch (Exception e) {
       logger.error("AsyncPGameRoomService.asyncAutoRedirectToAnsResultPage Error: " + e.getClass().getName() + ":"
           + e.getMessage());
-      emitter.complete();
+      emitter.completeWithError(e);
     } finally {
       try {
         TimeUnit.MILLISECONDS.sleep(500L);

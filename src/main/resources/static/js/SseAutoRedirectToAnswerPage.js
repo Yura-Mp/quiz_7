@@ -20,7 +20,7 @@ class SseAutoRedirectToAnswerPage {
       console.log("SseAutoRedirectToAnswerPage.run(): sse.onmessage Event received: " + event.data);
 
       try {
-        const loc = "/playing/answer?room=" + event.data;
+        const loc = "/playing/answer?" + event.data;
         console.log("Redirect to " + loc);
         window.location.href = loc;
 

@@ -6,7 +6,10 @@ class SseAutoRedirectToAnsResultPage {
 
     try { this.sse.close(); } catch(e) { console.warn("SseAutoRedirectToAnsResultPage.run(): ", e); }
 
+    var roomID = new URLSearchParams(window.location.search).get('room');
+    var quizID = new URLSearchParams(window.location.search).get('quiz');
     this.sse = new EventSource("/sse/transitToAnsResult");
+
     this.sse.onopen = function() {
       console.info("SseAutoRedirectToAnsResultPage.run(): SSE connection opened. ");
     };
@@ -20,7 +23,7 @@ class SseAutoRedirectToAnsResultPage {
       console.log("SseAutoRedirectToAnsResultPage.run(): sse.onmessage Event received: " + event.data);
 
       try {
-        const loc = "/playing/ans_result?" + event.data;
+        const loc = "/playing/ans_result?" + "room=" + roomID + "&quiz=" + quizID;
         console.log("Redirect to " + loc);
         window.location.href = loc;
 
